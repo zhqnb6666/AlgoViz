@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>链表结构可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .metadata {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        .node circle {
+            fill: white;
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 14px;
+        }
+        .link {
+            fill: none;
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .highlighted-node circle {
+            fill: #ff7f0e;
+        }
+        .highlighted-link {
+            stroke: #ff7f0e;
+            stroke-width: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>链表结构可视化</h1>
+    
+    <div class="controls">
+        <button id="startBtn">开始</button>
+        <button id="pauseBtn">暂停</button>
+        <button id="stepBtn">下一步</button>
+        <button id="resetBtn">重置</button>
+    </div>
+    
+    <div id="visualization"></div>
+    
+    <div class="metadata" id="currentOperation">准备就绪</div>
+    
+    <div class="algorithm-info" style="margin-top: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+        <h3>链表结构</h3>
+        <p>链表是一种线性数据结构，由一系列节点组成，每个节点包含数据和指向下一个节点的引用。</p>
+        <p><strong>应用：</strong>实现栈、队列、哈希表的冲突解决、内存管理等</p>
+        <p><strong>操作：</strong>创建链表、添加节点、删除节点、插入节点、反转链表等</p>
+    </div>
+
+<script>
+    // 创建SVG容器
+    const width = 1000;
+    const height = 300;
+    const svg = d3.select("#visualization").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(50, ${height/2})`);
+
+    // 定义箭头标记
+    svg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 20)
+        .attr("refY", 0)
+        .attr("orient", "auto")
+        .attr("markerWidth", 8)
+        .attr("markerHeight", 8)
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#999");
+
+    // 定义全局变量
+    let lists = {};          // 存储所有链表
+    let nodes = {};          // 节点字典，用于快速查找
+    let nodesData = [];      // 存储节点可视化数据
+    let linksData = [];      // 存储连线可视化数据
+    
+    // 控制变量
+    let isPaused = true;
+    let currentStep = 0;
+    let timer = null;
+
+    // 添加操作锁，防止并发操作
+    let operationInProgress = false;
+
+    // 操作队列
+    const queue = [
+        // 创建和操作第一个链表
+        {
+            "operation": "create_list",
+            "data": {
+                "value": 10,
+                "id": "node0",
+                "clear_visual": true,
+                "list_name": "linkedList"
+            },
+            "metadata": "创建值为10的链表头节点"
+        },
+        {
+            "operation": "append_node",
+            "data": {
+                "value": 7,
+                "id": "node1",
+                "list_name": "linkedList"
+            },
+            "metadata": "在链表尾部添加值为7的新节点"
+        },
+        {
+            "operation": "highlight_link",
+            "data": {
+                "source_id": "node0",
+                "target_id": "node1"
+            },
+            "metadata": "高亮从node0到node1的连接"
+        },
+        {
+            "operation": "unhighlight_link",
+            "data": {
+                "source_id": "node0",
+                "target_id": "node1"
+            },
+            "metadata": "取消高亮从node0到node1的连接"
+        },
+        {
+            "operation": "prepend_node",
+            "data": {
+                "value": 5,
+                "id": "node2",
+                "list_name": "linkedList"
+            },
+            "metadata": "在链表头部添加值为5的新节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node1"
+            },
+            "metadata": "高亮node1节点"
+        },
+        {
+            "operation": "insert_after",
+            "data": {
+                "target_id": "node1",
+                "value": 8,
+                "id": "node3",
+                "list_name": "linkedList"
+            },
+            "metadata": "在node1后插入值为8的新节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node1"
+            },
+            "metadata": "取消高亮node1节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node1"
+            },
+            "metadata": "高亮node1节点"
+        },
+        {
+            "operation": "insert_before",
+            "data": {
+                "target_id": "node1",
+                "value": 6,
+                "id": "node4",
+                "list_name": "linkedList"
+            },
+            "metadata": "在node1前插入值为6的新节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node1"
+            },
+            "metadata": "取消高亮node1节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node1"
+            },
+            "metadata": "高亮node1节点"
+        },
+        {
+            "operation": "remove_node",
+            "data": {
+                "id": "node1",
+                "list_name": "linkedList"
+            },
+            "metadata": "删除ID为node1的节点"
+        },
+        {
+            "operation": "update_value",
+            "data": {
+                "id": "node4",
+                "value": 15
+            },
+            "metadata": "将node4的值更新为15"
+        },
+        {
+            "operation": "reverse_list",
+            "data": {
+                "list_name": "linkedList"
+            },
+            "metadata": "反转第一个链表"
+        },
+        
+        // 创建第二个链表
+        {
+            "operation": "create_list",
+            "data": {
+                "value": 20,
+                "id": "node01",
+                "list_name": "secondLinkedList"
+            },
+            "metadata": "创建第二个链表，值为20的头节点"
+        },
+        {
+            "operation": "append_node",
+            "data": {
+                "value": 25,
+                "id": "node02",
+                "list_name": "secondLinkedList"
+            },
+            "metadata": "在第二个链表尾部添加值为25的新节点"
+        },
+        {
+            "operation": "append_node",
+            "data": {
+                "value": 30,
+                "id": "node03",
+                "list_name": "secondLinkedList"
+            },
+            "metadata": "在第二个链表尾部添加值为30的新节点"
+        },
+        
+        // 合并链表
+        {
+            "operation": "merge_lists",
+            "data": {
+                "list1_name": "linkedList",
+                "list2_name": "secondLinkedList",
+                "new_list_id": "mergedList"
+            },
+            "metadata": "合并两个链表到新链表"
+        },
+        
+        // 继续在合并后的链表上操作
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node3"
+            },
+            "metadata": "高亮node3节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node02"
+            },
+            "metadata": "高亮node02节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node3"
+            },
+            "metadata": "取消高亮node3节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node02"
+            },
+            "metadata": "取消高亮node02节点"
+        },
+        {
+            "operation": "swap_nodes",
+            "data": {
+                "id1": "node2",
+                "id2": "node03"
+            },
+            "metadata": "交换node2和node03节点"
+        },
+        
+        // 创建第三个链表
+        {
+            "operation": "create_list",
+            "data": {
+                "value": 100,
+                "id": "node100",
+                "list_name": "thirdList"
+            },
+            "metadata": "创建第三个链表，值为100的头节点"
+        },
+        {
+            "operation": "append_node",
+            "data": {
+                "value": 200,
+                "id": "node200",
+                "list_name": "thirdList"
+            },
+            "metadata": "在第三个链表尾部添加值为200的新节点"
+        },
+        
+        // 拆分合并后的链表
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node4"
+            },
+            "metadata": "高亮node4节点"
+        },
+        {
+            "operation": "split_list",
+            "data": {
+                "list_name": "mergedList",
+                "split_after_id": "node4",
+                "new_list_id": "splitList"
+            },
+            "metadata": "在node4之后拆分合并链表"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node4"
+            },
+            "metadata": "取消高亮node4节点"
+        },
+        
+        // 再次合并链表展示多次合并
+        {
+            "operation": "merge_lists",
+            "data": {
+                "list1_name": "thirdList",
+                "list2_name": "mergedList",
+                "new_list_id": "finalList"
+            },
+            "metadata": "将第三个链表与拆分后的第一个链表合并"
+        }
+    ];
+
+    // 操作函数：创建链表
+    async function createList(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        
+        // 清除现有元素（如果要求，通常只在创建第一个链表时）
+        if (operationData.clear_visual) {
+            svg.selectAll(".node, .link").remove();
+        }
+        
+        // 创建链表节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            next: null
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+        
+        // 将链表添加到链表字典中
+        lists[listName] = newNode;
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：在链表尾部添加节点
+    async function appendNode(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        
+        // 创建新节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            next: null
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+        
+        // 获取目标链表
+        let currentList = lists[listName];
+        
+        // 如果链表为空，则新节点成为头节点
+        if (!currentList) {
+            lists[listName] = newNode;
+        } else {
+            // 找到链表的最后一个节点
+            let lastNode = currentList;
+            while (lastNode.next) {
+                lastNode = lastNode.next;
+            }
+            
+            // 将新节点连接到最后一个节点
+            lastNode.next = newNode;
+        }
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：在链表头部添加节点
+    async function prependNode(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        
+        // 获取目标链表
+        const currentList = lists[listName];
+        
+        // 创建新节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            next: currentList // 指向当前的头节点
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+        
+        // 新节点成为头节点
+        lists[listName] = newNode;
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：在指定节点后插入新节点
+    async function insertAfter(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        const targetNode = nodes[operationData.target_id];
+        
+        if (!targetNode) {
+            console.error(`目标节点 ${operationData.target_id} 不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 目标节点 ${operationData.target_id} 不存在`;
+            return;
+        }
+        
+        // 创建新节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            next: targetNode.next // 指向目标节点的下一个节点
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+        
+        // 目标节点指向新节点
+        targetNode.next = newNode;
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：在指定节点前插入新节点
+    async function insertBefore(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        const targetNode = nodes[operationData.target_id];
+        
+        if (!targetNode) {
+            console.error(`目标节点 ${operationData.target_id} 不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 目标节点 ${operationData.target_id} 不存在`;
+            return;
+        }
+        
+        // 创建新节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            next: targetNode // 指向目标节点
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+        
+        // 查找目标节点所在的链表
+        let foundList = null;
+        for (const listKey in lists) {
+            if (isNodeInList(targetNode.id, lists[listKey])) {
+                foundList = listKey;
+                break;
+            }
+        }
+        
+        if (!foundList) {
+            console.error(`未找到包含目标节点 ${operationData.target_id} 的链表`);
+            document.getElementById("currentOperation").textContent = `错误: 未找到包含目标节点 ${operationData.target_id} 的链表`;
+            return;
+        }
+        
+        // 找到指向目标节点的节点
+        let prevNode = null;
+        let current = lists[foundList];
+        
+        while (current && current.id !== targetNode.id) {
+            prevNode = current;
+            current = current.next;
+        }
+        
+        if (prevNode) {
+            // 将前一个节点指向新节点
+            prevNode.next = newNode;
+        } else {
+            // 如果目标节点是头节点，则新节点成为头节点
+            lists[foundList] = newNode;
+        }
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：删除节点
+    async function removeNode(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        const nodeId = operationData.id;
+        const nodeToRemove = nodes[nodeId];
+        
+        if (!nodeToRemove) {
+            console.error(`节点 ${nodeId} 不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 节点 ${nodeId} 不存在`;
+            return;
+        }
+        
+        // 查找包含要删除节点的链表
+        let foundList = null;
+        for (const listKey in lists) {
+            if (isNodeInList(nodeId, lists[listKey])) {
+                foundList = listKey;
+                break;
+            }
+        }
+        
+        if (!foundList) {
+            console.error(`未找到包含节点 ${nodeId} 的链表`);
+            document.getElementById("currentOperation").textContent = `错误: 未找到包含节点 ${nodeId} 的链表`;
+            return;
+        }
+        
+        // 如果是头节点
+        if (lists[foundList] && lists[foundList].id === nodeId) {
+            lists[foundList] = lists[foundList].next;
+        } else {
+            // 找到指向要删除节点的节点
+            let current = lists[foundList];
+            while (current && current.next && current.next.id !== nodeId) {
+                current = current.next;
+            }
+            
+            if (current && current.next) {
+                // 将当前节点指向要删除节点的下一个节点
+                current.next = current.next.next;
+            }
+        }
+        
+        // 从节点字典中删除
+        delete nodes[nodeId];
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 辅助函数：检查节点是否在指定链表中
+    function isNodeInList(nodeId, list) {
+        let current = list;
+        while (current) {
+            if (current.id === nodeId) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    // 操作函数：更新节点值
+    async function updateValue(operationData) {
+        const node = nodes[operationData.id];
+        if (!node) {
+            console.error(`节点 ${operationData.id} 不存在`);
+            return;
+        }
+        
+        // 高亮节点
+        svg.selectAll(".node")
+            .filter(d => d.id === operationData.id)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        // 更新节点值
+        node.value = operationData.value;
+        
+        // 更新文本
+        svg.selectAll(".node")
+            .filter(d => d.id === operationData.id)
+            .select("text")
+            .text(d => d.value);
+        
+        // 等待高亮动画
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => d.id === operationData.id)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 更新可视化
+        updateVisualization();
+    }
+
+    // 操作函数：高亮节点
+    async function highlightNode(operationData) {
+        svg.selectAll(".node")
+            .filter(d => d.id === operationData.id)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：取消高亮节点
+    async function unhighlightNode(operationData) {
+        svg.selectAll(".node")
+            .filter(d => d.id === operationData.id)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：高亮连线
+    async function highlightLink(operationData) {
+        // 首先确保我们有正确的连线数据
+        // 在链表中查找源节点和目标节点
+        let sourceNode = nodes[operationData.source_id];
+        let targetNode = nodes[operationData.target_id];
+        
+        if (!sourceNode || !targetNode) {
+            console.warn(`节点 ${operationData.source_id} 或 ${operationData.target_id} 不存在`);
+            return;
+        }
+        
+        // 检查这两个节点是否确实有连接关系
+        let isConnected = false;
+        
+        // 检查所有链表
+        const checkList = (list) => {
+            if (!list) return false;
+            let current = list;
+            while (current && current.next) {
+                if (current.id === sourceNode.id && current.next.id === targetNode.id) {
+                    return true;
+                }
+                current = current.next;
+            }
+            return false;
+        };
+        
+        isConnected = checkList(lists["linkedList"]) || checkList(lists["secondLinkedList"]) || checkList(lists["merged"]);
+        
+        if (!isConnected) {
+            console.warn(`节点 ${operationData.source_id} 和 ${operationData.target_id} 之间没有直接连接`);
+            // 尝试创建临时连接以显示高亮效果
+            linksData.push({
+                source: {id: sourceNode.id, value: sourceNode.value},
+                target: {id: targetNode.id, value: targetNode.value},
+                isTemporary: true  // 标记为临时连接
+            });
+        }
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 延迟一点时间确保DOM已更新
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 高亮连线
+        let linkHighlighted = false;
+        
+        svg.selectAll(".link")
+            .each(function(d) {
+                if (d.source.id === operationData.source_id && 
+                    d.target.id === operationData.target_id) {
+                    d3.select(this)
+                        .classed("highlighted-link", true)
+                        .transition()
+                        .duration(500);
+                    linkHighlighted = true;
+                }
+            });
+        
+        if (!linkHighlighted) {
+            console.warn(`未能高亮从 ${operationData.source_id} 到 ${operationData.target_id} 的连线`);
+        }
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：取消高亮连线
+    async function unhighlightLink(operationData) {
+        // 移除之前可能添加的临时连接
+        linksData = linksData.filter(link => !link.isTemporary);
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 延迟一点时间确保DOM已更新
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        svg.selectAll(".link")
+            .each(function(d) {
+                if (d.source.id === operationData.source_id && 
+                    d.target.id === operationData.target_id) {
+                    d3.select(this)
+                        .classed("highlighted-link", false)
+                        .transition()
+                        .duration(500);
+                }
+            });
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：反转链表
+    async function reverseList(operationData) {
+        const listName = operationData.list_name || "linkedList";
+        
+        if (!lists[listName]) {
+            console.error(`链表 ${listName} 为空或不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 链表 ${listName} 为空或不存在`;
+            return;
+        }
+        
+        // 高亮整个链表，表示将要反转
+        const nodeIds = [];
+        let current = lists[listName];
+        while (current) {
+            nodeIds.push(current.id);
+            current = current.next;
+        }
+        
+        svg.selectAll(".node")
+            .filter(d => nodeIds.includes(d.id))
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 一步反转链表，不显示中间过程
+        let prev = null;
+        current = lists[listName];
+        
+        while (current) {
+            const next = current.next;
+            current.next = prev;
+            prev = current;
+            current = next;
+        }
+        
+        // 更新头指针
+        lists[listName] = prev;
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => nodeIds.includes(d.id))
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：交换两个节点
+    async function swapNodes(operationData) {
+        const id1 = operationData.id1;
+        const id2 = operationData.id2;
+        
+        // 找到两个节点
+        const node1 = nodes[id1];
+        const node2 = nodes[id2];
+        
+        if (!node1 || !node2) {
+            console.error(`节点 ${id1} 或 ${id2} 不存在`);
+            return;
+        }
+        
+        // 高亮两个节点
+        svg.selectAll(".node")
+            .filter(d => d.id === id1 || d.id === id2)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 为了简化操作，我们只交换节点的值
+        const tempValue = node1.value;
+        node1.value = node2.value;
+        node2.value = tempValue;
+        
+        // 更新文本
+        svg.selectAll(".node")
+            .filter(d => d.id === id1)
+            .select("text")
+            .text(d => node1.value);
+        
+        svg.selectAll(".node")
+            .filter(d => d.id === id2)
+            .select("text")
+            .text(d => node2.value);
+        
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => d.id === id1 || d.id === id2)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：合并两个链表
+    async function mergeLists(operationData) {
+        const list1Name = operationData.list1_name;
+        const list2Name = operationData.list2_name;
+        const newListName = operationData.new_list_id || "merged";
+        
+        // 直接通过链表名称获取链表头节点
+        const list1Head = lists[list1Name];
+        const list2Head = lists[list2Name];
+        
+        if (!list1Head || !list2Head) {
+            console.error(`链表 ${list1Name} 或 ${list2Name} 不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 链表 ${list1Name} 或 ${list2Name} 不存在`;
+            return;
+        }
+        
+        // 高亮两个链表
+        const nodeIds = [];
+        let current = list1Head;
+        while (current) {
+            nodeIds.push(current.id);
+            current = current.next;
+        }
+        current = list2Head;
+        while (current) {
+            nodeIds.push(current.id);
+            current = current.next;
+        }
+        
+        svg.selectAll(".node")
+            .filter(d => nodeIds.includes(d.id))
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 找到第一个链表的尾节点
+        current = list1Head;
+        while (current.next) {
+            current = current.next;
+        }
+        
+        // 将第二个链表连接到第一个链表的尾部
+        current.next = list2Head;
+        
+        // 创建合并后的新链表
+        lists[newListName] = list1Head;
+        
+        // 删除原始链表
+        delete lists[list1Name];
+        delete lists[list2Name];
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => nodeIds.includes(d.id))
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：拆分链表
+    async function splitList(operationData) {
+        const listName = operationData.list_name;
+        const splitAfterId = operationData.split_after_id;
+        const newListId = operationData.new_list_id || "splitList";
+        
+        // 获取链表头节点
+        let head = lists[listName];
+        
+        if (!head) {
+            console.error(`链表 ${listName} 为空或不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 链表 ${listName} 为空或不存在`;
+            return;
+        }
+        
+        // 找到分割点
+        const splitNode = nodes[splitAfterId];
+        if (!splitNode) {
+            console.error(`分割节点 ${splitAfterId} 不存在`);
+            document.getElementById("currentOperation").textContent = `错误: 分割节点 ${splitAfterId} 不存在`;
+            return;
+        }
+        
+        // 检查节点是否在指定链表中
+        if (!isNodeInList(splitAfterId, head)) {
+            console.error(`在链表 ${listName} 中未找到分割节点 ${splitAfterId}`);
+            document.getElementById("currentOperation").textContent = `错误: 在链表 ${listName} 中未找到分割节点 ${splitAfterId}`;
+            return;
+        }
+        
+        // 找到分割点
+        let current = head;
+        while (current && current.id !== splitAfterId) {
+            current = current.next;
+        }
+        
+        // 确保我们找到了分割点
+        if (!current) {
+            console.error(`未能找到分割节点 ${splitAfterId}`);
+            document.getElementById("currentOperation").textContent = `错误: 未能找到分割节点 ${splitAfterId}`;
+            return;
+        }
+        
+        // 高亮分割点
+        svg.selectAll(".node")
+            .filter(d => d.id === splitAfterId)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 第二个链表从分割点的下一个节点开始
+        const secondHead = current.next;
+        // 切断第一个链表与第二个链表的连接
+        current.next = null;
+        
+        // 创建新链表
+        lists[newListId] = secondHead;
+        
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => d.id === splitAfterId)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+        
+        // 更新可视化
+        updateVisualization();
+        
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 更新链表可视化
+    function updateVisualization() {
+        // 生成节点和链接的数据
+        nodesData = [];
+        linksData = [];
+        
+        // 计算链表数量以确定垂直间距
+        const numLists = Object.keys(lists).filter(key => lists[key] != null).length;
+        const verticalSpacing = numLists <= 1 ? 0 : 60;
+        
+        // 处理所有链表
+        let listIndex = 0;
+        for (const listName in lists) {
+            if (!lists[listName]) continue;
+            
+            let xPos = 0;
+            let yPos = listIndex * verticalSpacing;
+            let current = lists[listName];
+            
+            while (current) {
+                nodesData.push({
+                    id: current.id,
+                    value: current.value,
+                    x: xPos,
+                    y: yPos,
+                    listName: listName // 添加链表名称以便于区分
+                });
+                
+                if (current.next) {
+                    linksData.push({
+                        source: {id: current.id, value: current.value},
+                        target: {id: current.next.id, value: current.next.value}
+                    });
+                }
+                
+                current = current.next;
+                xPos += 80;
+            }
+            
+            listIndex++;
+        }
+        
+        // 清除现有元素
+        svg.selectAll(".node, .link").remove();
+        
+        // 绘制连线
+        const links = svg.selectAll(".link")
+            .data(linksData, d => `${d.source.id}-${d.target.id}`);
+            
+        links.enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("marker-end", "url(#arrowhead)")
+            .attr("d", d => {
+                // 计算曲线路径
+                const sourceNode = nodesData.find(node => node.id === d.source.id);
+                const targetNode = nodesData.find(node => node.id === d.target.id);
+                
+                if (sourceNode && targetNode) {
+                    return `M${sourceNode.x},${sourceNode.y} L${targetNode.x},${targetNode.y}`;
+                }
+                return "";
+            });
+            
+        // 绘制节点
+        const nodes = svg.selectAll(".node")
+            .data(nodesData, d => d.id);
+            
+        const nodeGroups = nodes.enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+            
+        // 节点的圆形
+        nodeGroups.append("circle")
+            .attr("r", 12)
+            .on("mouseover", function(event, d) {
+                d3.select(this).transition().duration(300).attr("r", 15);
+            })
+            .on("mouseout", function(event, d) {
+                d3.select(this).transition().duration(300).attr("r", 12);
+            });
+            
+        // 节点的文本
+        nodeGroups.append("text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text(d => d.value);
+        
+        // 确保所有节点都在连线上方
+        svg.selectAll(".node").raise();
+    }
+
+    // 执行单步操作
+    async function executeStep() {
+        // 如果已有操作在执行，则不执行新操作
+        if (operationInProgress) {
+            console.log("操作正在进行中，请稍候...");
+            return false;
+        }
+        
+        if (currentStep >= queue.length) {
+            document.getElementById("currentOperation").textContent = "可视化完成";
+            return false;
+        }
+        
+        operationInProgress = true;
+        
+        try {
+            const operation = queue[currentStep];
+            document.getElementById("currentOperation").textContent = operation.metadata || "执行操作";
+            
+            try {
+                switch (operation.operation) {
+                    case "create_list":
+                        await createList(operation.data);
+                        break;
+                    case "append_node":
+                        await appendNode(operation.data);
+                        break;
+                    case "prepend_node":
+                        await prependNode(operation.data);
+                        break;
+                    case "insert_after":
+                        await insertAfter(operation.data);
+                        break;
+                    case "insert_before":
+                        await insertBefore(operation.data);
+                        break;
+                    case "remove_node":
+                        await removeNode(operation.data);
+                        break;
+                    case "highlight_node":
+                        await highlightNode(operation.data);
+                        break;
+                    case "unhighlight_node":
+                        await unhighlightNode(operation.data);
+                        break;
+                    case "update_value":
+                        await updateValue(operation.data);
+                        break;
+                    case "highlight_link":
+                        await highlightLink(operation.data);
+                        break;
+                    case "unhighlight_link":
+                        await unhighlightLink(operation.data);
+                        break;
+                    case "reverse_list":
+                        await reverseList(operation.data);
+                        break;
+                    case "swap_nodes":
+                        await swapNodes(operation.data);
+                        break;
+                    case "merge_lists":
+                        await mergeLists(operation.data);
+                        break;
+                    case "split_list":
+                        await splitList(operation.data);
+                        break;
+                    default:
+                        console.warn(`未知操作: ${operation.operation}`);
+                }
+            } catch (error) {
+                console.error(`执行操作 ${operation.operation} 时出错:`, error);
+                document.getElementById("currentOperation").textContent = `操作 ${operation.operation} 执行失败: ${error.message}`;
+                // 确保可视化保持稳定
+                updateVisualization();
+            }
+            
+            currentStep++;
+            return true;
+        } finally {
+            operationInProgress = false;
+        }
+    }
+
+    // 执行队列
+    async function executeQueue() {
+        while (!isPaused && currentStep < queue.length) {
+            const success = await executeStep();
+            if (!success) break;
+            // 添加小延迟，避免过快执行下一步
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
+    // 重置可视化
+    function resetVisualization() {
+        isPaused = true;
+        currentStep = 0;
+        if (timer) clearTimeout(timer);
+        for (let list in lists) {
+            lists[list] = null;
+        }
+        nodes = {};
+        nodesData = [];
+        linksData = [];
+        svg.selectAll(".node, .link").remove();
+        document.getElementById("currentOperation").textContent = "已重置";
+        
+        // 防止操作锁死
+        operationInProgress = false;
+    }
+
+    // 按钮事件处理
+    document.getElementById("startBtn").addEventListener("click", () => {
+        // 防止重复点击开始按钮
+        if (!operationInProgress && isPaused) {
+            isPaused = false;
+            executeQueue();
+        }
+    });
+
+    document.getElementById("pauseBtn").addEventListener("click", () => {
+        isPaused = true;
+    });
+
+    document.getElementById("stepBtn").addEventListener("click", async () => {
+        isPaused = true;
+        if (!operationInProgress) {
+            executeStep();
+        }
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        // 如果操作正在进行，等待操作完成后再重置
+        if (operationInProgress) {
+            isPaused = true;
+            setTimeout(resetVisualization, 500);
+        } else {
+            resetVisualization();
+        }
+    });
+</script>
+</body>
+</html>

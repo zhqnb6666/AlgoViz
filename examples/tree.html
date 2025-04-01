@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>树结构可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .metadata {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        .node circle {
+            fill: white;
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 14px;
+        }
+        .link {
+            fill: none;
+            stroke: #999;
+            stroke-width: 2px;
+        }
+        .highlighted-node circle {
+            fill: #ff7f0e;
+        }
+        .highlighted-link {
+            stroke: #ff7f0e;
+            stroke-width: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>树结构可视化</h1>
+    
+    <div class="controls">
+        <button id="startBtn">开始</button>
+        <button id="pauseBtn">暂停</button>
+        <button id="stepBtn">下一步</button>
+        <button id="resetBtn">重置</button>
+    </div>
+    
+    <div id="visualization"></div>
+    
+    <div class="metadata" id="currentOperation">准备就绪</div>
+    
+    <div class="algorithm-info" style="margin-top: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+        <h3>树结构</h3>
+        <p>树是一种非线性数据结构，由节点和连接节点的边组成。每个节点可以有多个子节点，但只能有一个父节点（除根节点外）。</p>
+        <p><strong>应用：</strong>文件系统、组织架构、数据库索引、决策树等</p>
+        <p><strong>操作：</strong>创建节点、添加子节点、删除节点、重新指定父节点等</p>
+    </div>
+
+<script>
+    // 创建SVG容器 - 增加宽度以防止右侧裁剪
+    const width = 1000; // 增加宽度
+    const height = 600;
+    const svg = d3.select("#visualization").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width/4}, 50)`); // 将起始点向左移，给右侧留出更多空间
+
+    // 定义树形布局 - 增加布局宽度
+    const treeLayout = d3.tree().size([width - 200, height - 100]); // 增加布局宽度
+
+    // 定义箭头标记
+    svg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 18) // 调整箭头位置，使其刚好在节点边缘
+        .attr("refY", 0)
+        .attr("orient", "auto")
+        .attr("markerWidth", 8)
+        .attr("markerHeight", 8)
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#999");
+
+    // 定义全局变量
+    let treeData = null;  // 树的数据结构
+    let nodes = {};       // 节点字典，用于快速查找
+    
+    // 控制变量
+    let isPaused = true;
+    let currentStep = 0;
+    let timer = null;
+    
+    // 添加操作锁，防止并发操作
+    let operationInProgress = false;
+
+    // 操作队列
+    const queue = [
+        {
+            "operation": "create_root",
+            "data": {
+                "value": 5,
+                "id": "root"
+            },
+            "metadata": "创建值为5的根节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "root",
+                "value": 3,
+                "id": "node1"
+            },
+            "metadata": "向根节点添加值为3的左侧子节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "root",
+                "value": 8,
+                "id": "node2"
+            },
+            "metadata": "向根节点添加值为8的右侧子节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "node1",
+                "value": 1,
+                "id": "node3"
+            },
+            "metadata": "向node1添加值为1的子节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "node2",
+                "value": 6,
+                "id": "node4"
+            },
+            "metadata": "向node2添加值为6的左侧子节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "node2",
+                "value": 10,
+                "id": "node5"
+            },
+            "metadata": "向node2添加值为10的右侧子节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node4"
+            },
+            "metadata": "高亮值为6的节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "node4",
+                "value": 7,
+                "id": "node6"
+            },
+            "metadata": "向node4添加值为7的子节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node4"
+            },
+            "metadata": "取消高亮node4节点"
+        },
+        {
+            "operation": "highlight_node",
+            "data": {
+                "id": "node5"
+            },
+            "metadata": "高亮值为10的节点"
+        },
+        {
+            "operation": "add_child",
+            "data": {
+                "parent_id": "node5",
+                "value": 9,
+                "id": "node7"
+            },
+            "metadata": "向node5添加值为9的子节点"
+        },
+        {
+            "operation": "unhighlight_node",
+            "data": {
+                "id": "node5"
+            },
+            "metadata": "取消高亮node5节点"
+        },
+        {
+            "operation": "highlight_link",
+            "data": {
+                "source_id": "node2",
+                "target_id": "node5"
+            },
+            "metadata": "高亮从node2到node5的连线"
+        },
+        {
+            "operation": "unhighlight_link",
+            "data": {
+                "source_id": "node2",
+                "target_id": "node5"
+            },
+            "metadata": "取消高亮连线"
+        }
+    ];
+
+    // 操作函数：创建根节点
+    async function createRoot(operationData) {
+        // 清除现有元素
+        svg.selectAll(".node, .link").remove();
+
+        // 创建树数据结构
+        treeData = {
+            id: operationData.id,
+            value: operationData.value,
+            children: []
+        };
+        
+        // 添加到节点字典
+        nodes[operationData.id] = treeData;
+
+        // 更新可视化
+        updateVisualization();
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：添加子节点
+    async function addChild(operationData) {
+        const parentNode = nodes[operationData.parent_id];
+        if (!parentNode) {
+            console.error(`父节点 ${operationData.parent_id} 不存在`);
+            return;
+        }
+
+        // 创建新节点
+        const newNode = {
+            id: operationData.id,
+            value: operationData.value,
+            children: []
+        };
+
+        // 添加到父节点的子节点列表
+        if (!parentNode.children) {
+            parentNode.children = [];
+        }
+        parentNode.children.push(newNode);
+
+        // 添加到节点字典
+        nodes[operationData.id] = newNode;
+
+        // 更新可视化
+        updateVisualization();
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：删除节点
+    async function removeNode(operationData) {
+        const nodeId = operationData.id;
+        const nodeToRemove = nodes[nodeId];
+        
+        if (!nodeToRemove) {
+            console.error(`节点 ${nodeId} 不存在`);
+            return;
+        }
+
+        // 找到父节点
+        let parent = findParent(treeData, nodeId);
+        
+        if (parent) {
+            // 从父节点的子节点列表中移除
+            parent.children = parent.children.filter(child => child.id !== nodeId);
+            
+            // 如果节点有子节点，可以将子节点重新分配给父节点
+            if (nodeToRemove.children && nodeToRemove.children.length > 0) {
+                // 将子节点添加到父节点
+                parent.children = parent.children.concat(nodeToRemove.children);
+                
+                // 更新子节点的父节点引用
+                for (const child of nodeToRemove.children) {
+                    // 在这个简单实现中，我们不需要显式更新父节点引用
+                }
+            }
+        } else if (nodeId === treeData.id) {
+            // 如果删除的是根节点
+            if (nodeToRemove.children && nodeToRemove.children.length > 0) {
+                // 使第一个子节点成为新的根节点
+                treeData = nodeToRemove.children[0];
+                
+                // 如果有其他子节点，将它们添加为新根的子节点
+                if (nodeToRemove.children.length > 1) {
+                    if (!treeData.children) {
+                        treeData.children = [];
+                    }
+                    treeData.children = treeData.children.concat(
+                        nodeToRemove.children.slice(1)
+                    );
+                }
+            } else {
+                // 如果根节点没有子节点，则树为空
+                treeData = null;
+            }
+        }
+
+        // 从节点字典中删除
+        delete nodes[nodeId];
+
+        // 更新可视化
+        updateVisualization();
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // 操作函数：高亮节点
+    async function highlightNode(operationData) {
+        svg.selectAll(".node")
+            .filter(d => d.data.id === operationData.id)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：取消高亮节点
+    async function unhighlightNode(operationData) {
+        svg.selectAll(".node")
+            .filter(d => d.data.id === operationData.id)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：更新节点值
+    async function updateValue(operationData) {
+        const node = nodes[operationData.id];
+        if (!node) {
+            console.error(`节点 ${operationData.id} 不存在`);
+            return;
+        }
+
+        // 更新值
+        node.value = operationData.value;
+
+        // 高亮节点
+        svg.selectAll(".node")
+            .filter(d => d.data.id === operationData.id)
+            .classed("highlighted-node", true)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 15);
+
+        // 更新文本
+        svg.selectAll(".node")
+            .filter(d => d.data.id === operationData.id)
+            .select("text")
+            .text(d => d.data.value);
+
+        // 等待高亮动画
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 取消高亮
+        svg.selectAll(".node")
+            .filter(d => d.data.id === operationData.id)
+            .classed("highlighted-node", false)
+            .select("circle")
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+
+        // 等待取消高亮动画
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：高亮连线
+    async function highlightLink(operationData) {
+        svg.selectAll(".link")
+            .filter(d => d.source.data.id === operationData.source_id && 
+                         d.target.data.id === operationData.target_id)
+            .classed("highlighted-link", true)
+            .transition()
+            .duration(500);
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：取消高亮连线
+    async function unhighlightLink(operationData) {
+        svg.selectAll(".link")
+            .filter(d => d.source.data.id === operationData.source_id && 
+                         d.target.data.id === operationData.target_id)
+            .classed("highlighted-link", false)
+            .transition()
+            .duration(500);
+
+        // 等待动画完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // 操作函数：重新指定父节点
+    async function reparentNode(operationData) {
+        const nodeId = operationData.node_id;
+        const newParentId = operationData.new_parent_id;
+        
+        const nodeToMove = nodes[nodeId];
+        const newParent = nodes[newParentId];
+        
+        if (!nodeToMove || !newParent) {
+            console.error(`节点 ${nodeId} 或 ${newParentId} 不存在`);
+            return;
+        }
+
+        // 找到当前父节点
+        let currentParent = findParent(treeData, nodeId);
+        
+        if (currentParent) {
+            // 从当前父节点中移除
+            currentParent.children = currentParent.children.filter(child => child.id !== nodeId);
+            
+            // 添加到新父节点
+            if (!newParent.children) {
+                newParent.children = [];
+            }
+            newParent.children.push(nodeToMove);
+            
+            // 更新可视化
+            updateVisualization();
+            
+            // 等待动画完成
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+
+    // 更新树的可视化
+    function updateVisualization() {
+        if (!treeData) {
+            svg.selectAll(".node, .link").remove();
+            return;
+        }
+
+        // 使用d3.hierarchy获取层次结构
+        const root = d3.hierarchy(treeData);
+        
+        // 应用树形布局
+        treeLayout(root);
+
+        // 绘制连线
+        const links = svg.selectAll(".link")
+            .data(root.links(), d => d.target.data.id);
+
+        // 退出的连线
+        links.exit().remove();
+
+        // 更新现有连线 - 使用直线代替曲线
+        links.transition()
+            .duration(500)
+            .attr("d", d => `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`);
+
+        // 添加新连线 - 使用直线代替曲线
+        links.enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("marker-end", "url(#arrowhead)")
+            .attr("d", d => `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`);
+
+        // 绘制节点
+        const nodes = svg.selectAll(".node")
+            .data(root.descendants(), d => d.data.id);
+
+        // 退出的节点
+        nodes.exit().remove();
+
+        // 更新现有节点
+        nodes.transition()
+            .duration(500)
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        // 添加新节点
+        const newNodes = nodes.enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        // 节点的圆形
+        newNodes.append("circle")
+            .attr("r", 0)
+            .transition()
+            .duration(500)
+            .attr("r", 12);
+
+        // 节点的文本
+        newNodes.append("text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text(d => d.data.value);
+
+        svg.selectAll(".node").raise();
+    }
+
+    // 辅助函数：查找节点的父节点
+    function findParent(node, childId) {
+        if (!node || !node.children) return null;
+        
+        for (const child of node.children) {
+            if (child.id === childId) {
+                return node;
+            }
+            
+            const parent = findParent(child, childId);
+            if (parent) return parent;
+        }
+        
+        return null;
+    }
+
+    // 执行单步操作
+    async function executeStep() {
+        // 如果已有操作在执行，则不执行新操作
+        if (operationInProgress) {
+            console.log("操作正在进行中，请稍候...");
+            return false;
+        }
+        
+        if (currentStep >= queue.length) {
+            document.getElementById("currentOperation").textContent = "可视化完成";
+            return false;
+        }
+        
+        operationInProgress = true;
+        
+        try {
+            const operation = queue[currentStep];
+            document.getElementById("currentOperation").textContent = operation.metadata || "执行操作";
+            
+            try {
+                switch (operation.operation) {
+                    case "create_root":
+                        await createRoot(operation.data);
+                        break;
+                    case "add_child":
+                        await addChild(operation.data);
+                        break;
+                    case "remove_node":
+                        await removeNode(operation.data);
+                        break;
+                    case "highlight_node":
+                        await highlightNode(operation.data);
+                        break;
+                    case "unhighlight_node":
+                        await unhighlightNode(operation.data);
+                        break;
+                    case "update_value":
+                        await updateValue(operation.data);
+                        break;
+                    case "highlight_link":
+                        await highlightLink(operation.data);
+                        break;
+                    case "unhighlight_link":
+                        await unhighlightLink(operation.data);
+                        break;
+                    case "reparent_node":
+                        await reparentNode(operation.data);
+                        break;
+                    default:
+                        console.warn(`未知操作: ${operation.operation}`);
+                }
+            } catch (error) {
+                console.error(`执行操作 ${operation.operation} 时出错:`, error);
+                document.getElementById("currentOperation").textContent = `操作 ${operation.operation} 执行失败: ${error.message}`;
+                // 确保可视化保持稳定
+                updateVisualization();
+            }
+            
+            currentStep++;
+            return true;
+        } finally {
+            operationInProgress = false;
+        }
+    }
+    
+    // 执行队列
+    async function executeQueue() {
+        while (!isPaused && currentStep < queue.length) {
+            const success = await executeStep();
+            if (!success) break;
+            // 添加小延迟，避免过快执行下一步
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+    
+    // 重置可视化
+    function resetVisualization() {
+        isPaused = true;
+        currentStep = 0;
+        if (timer) clearTimeout(timer);
+        treeData = null;
+        nodes = {};
+        svg.selectAll(".node, .link").remove();
+        document.getElementById("currentOperation").textContent = "已重置";
+        
+        // 防止操作锁死
+        operationInProgress = false;
+    }
+    
+    // 按钮事件处理
+    document.getElementById("startBtn").addEventListener("click", () => {
+        // 防止重复点击开始按钮
+        if (!operationInProgress && isPaused) {
+            isPaused = false;
+            executeQueue();
+        }
+    });
+    
+    document.getElementById("pauseBtn").addEventListener("click", () => {
+        isPaused = true;
+    });
+    
+    document.getElementById("stepBtn").addEventListener("click", async () => {
+        isPaused = true;
+        if (!operationInProgress) {
+            executeStep();
+        }
+    });
+    
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        // 如果操作正在进行，等待操作完成后再重置
+        if (operationInProgress) {
+            isPaused = true;
+            setTimeout(resetVisualization, 500);
+        } else {
+            resetVisualization();
+        }
+    });
+</script>
+</body>
+</html>

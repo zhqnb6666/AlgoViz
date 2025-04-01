@@ -58,7 +58,7 @@ def process_query(user_input: str):
     
     # 生成可视化
     print("正在生成可视化...")
-    output_file = "algoviz_result.html"
+    output_file = "../examples/algoviz_result.html"
     html_file = visualizer.show_visualization(
         queue.get_queue(),
         output_file,
