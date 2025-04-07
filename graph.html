@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图结构可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            height: 90vh;
+        }
+
+        #canvas {
+            flex: 3;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+
+        #operations {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fff;
+            border-left: 1px solid #ddd;
+        }
+
+        .node circle {
+            fill: white;
+            stroke: #333;
+            stroke-width: 2px;
+        }
+
+        .node text {
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .node-highlighted circle {
+            stroke: #ff7f0e;
+            stroke-width: 2px;
+            fill: #ff7f0e;
+        }
+
+
+        .edge text {
+            font-size: 10px;
+            fill: #333;
+        }
+
+
+        .highlighted-edge text {
+            stroke: #ff7f0e;
+            stroke-width: 3;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .operation-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<h1>图结构可视化</h1>
+
+<div class="controls">
+    <button id="startBtn">开始</button>
+    <button id="pauseBtn">暂停</button>
+    <button id="stepBtn">下一步</button>
+    <button id="resetBtn">重置</button>
+</div>
+
+<div class="container">
+    <svg id="canvas"></svg>
+    <div id="operations"></div>
+</div>
+
+<div class="algorithm-info" style="margin-top: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+    <h3>图结构</h3>
+    <p>图是一种非线性数据结构，由节点（顶点）和连接这些节点的边组成。</p>
+    <p><strong>应用：</strong>网络路由、社交网络分析、路径查找、推荐系统等</p>
+    <p><strong>操作：</strong>创建图、添加节点、添加边、删除节点、删除边、查找路径等</p>
+</div>
+
+<script>
+    const width = 1200;
+    const height = 600;
+    const nodeRadius = 25;
+    const nSides = 6; // 正六边形
+
+    const svg = d3.select("#canvas")
+        .attr("width", width)
+        .attr("height", height);
+
+    // 定义箭头标记
+    svg.append("defs").append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", nodeRadius + 5)
+        .attr("refY", 0)
+        .attr("markerWidth", 8)
+        .attr("markerHeight", 8)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#666");
+
+    let graphs = {};
+    let nodes = {};
+    let edges = {};
+    let currentStep = 0;
+    let isPaused = true;
+    let operationInProgress = false;
+
+    // 操作队列（示例数据）
+    const operations = [
+        {"operation": "create_graph", "data": {"id": "graph1", "directed": true}, "metadata": "创建有向图"},
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node1",
+                "value": 10,
+                "attributes": {"color": "blue", "position": {"x": 200, "y": 300}}
+            },
+            "metadata": "添加节点node1"
+        },
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node2",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 400, "y": 300}}
+            },
+            "metadata": "添加节点node2"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge1",
+                "source_id": "node1",
+                "target_id": "node2",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node2"
+        },
+        {"operation": "highlight_node", "data": {"graph_id": "graph1", "id": "node1"}, "metadata": "高亮node1"},
+        {"operation": "unhighlight_node", "data": {"graph_id": "graph1", "id": "node1"}, "metadata": "取消高亮node1"},
+        {"operation": "highlight_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "高亮边edge1"},
+        {"operation": "unhighlight_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "取消高亮边edge1"},
+        {
+            "operation": "update_node",
+            "data": {"graph_id": "graph1", "id": "node1", "value": 15, "attributes": {"color": "red"}},
+            "metadata": "更新节点node1"
+        },
+        {
+            "operation": "update_edge",
+            "data": {"graph_id": "graph1", "id": "edge1", "weight": 8, "attributes": {"color": "blue"}},
+            "metadata": "更新边edge1"
+        },
+        {"operation": "remove_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "删除边edge1"},
+        {"operation": "remove_node", "data": {"graph_id": "graph1", "id": "node2"}, "metadata": "删除节点node2"},
+
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node2",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 400, "y": 300}}
+            },
+            "metadata": "添加节点node2"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge1",
+                "source_id": "node1",
+                "target_id": "node2",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node2"
+        },
+
+
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node3",
+                "value": 10,
+                "attributes": {"color": "blue", "position": {"x": 100, "y": 500}}
+            },
+            "metadata": "添加节点node3"
+        },
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node4",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 600, "y": 400}}
+            },
+            "metadata": "添加节点node4"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge2",
+                "source_id": "node3",
+                "target_id": "node4",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node3->node4"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge3",
+                "source_id": "node1",
+                "target_id": "node3",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node3"
+        },
+        {
+            "operation": "get_neighbors",
+            "data": {"graph_id": "graph1", "node_id": "node1"},
+            "metadata": "获取节点node1的邻居"
+        },
+        {
+            "operation": "contract_edge",
+            "data": {"graph_id": "graph1", "edge_id": "edge1", "new_node_id": "contracted_node"},
+            "metadata": "收缩边edge1"
+        },
+        {
+            "operation": "merge_nodes",
+            "data": {"graph_id": "graph1", "nodes": ["node3", "node4"], "new_node_id": "merged_node", "value": 25},
+            "metadata": "合并节点node3和node4"
+        },
+
+    ];
+
+    // 生成正多边形路径
+    function polygonPath(x, y, radius) {
+        const points = [];
+        const angle = (2 * Math.PI) / nSides;
+        for (let i = 0; i < nSides; i++) {
+            points.push([
+                x + radius * Math.cos(i * angle - Math.PI / 2),
+                y + radius * Math.sin(i * angle - Math.PI / 2)
+            ]);
+        }
+        return 'M' + points.join('L') + 'Z';
+    }
+
+    // 更新可视化
+    function updateVisualization() {
+        // 绘制节点
+        const nodeGroups = svg.selectAll(".node")
+            .data(Object.values(nodes), d => d.id)
+            .join(enter => enter.append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x},${d.y})`))
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        nodeGroups.selectAll("circle")
+            .data(d => [d])
+            .join("circle")
+            .attr("r", nodeRadius)  // 设置圆半径
+            .attr("cx", 0)          // 圆心x坐标归零（由父级g元素定位）
+            .attr("cy", 0)          // 圆心y坐标归零
+            .attr("fill", d => d.attributes.color || "#fff")
+            .attr("stroke", d => d.highlighted ? "#ff7f0e" : "#333")
+            .attr("stroke-width", d => d.highlighted ? "3px" : "2px")
+            .attr("filter", d => d.highlighted ? "url(#glow)" : null)
+
+        ;
+
+
+        nodeGroups.selectAll("text")
+            .data(d => [d])
+            .join("text")
+            .text(d => d.value)
+            .attr("text-anchor", "middle")
+            .attr("dy", ".35em");
+
+        // 绘制边
+        const edgePaths = svg.selectAll(".edge")
+            .data(Object.values(edges), d => d.id)
+            .join(enter => enter.append("path")
+                .attr("class", "edge")
+                .attr("marker-end", d => d.directed ? "url(#arrow)" : null))
+            .attr("d", d => linePath(d))
+            .attr("stroke", d => d.highlighted ? "#ff7f0e" : "#666")
+            .attr("stroke-dasharray", d => d.attributes.style === "dashed" ? "5,5" : null);
+
+        // 绘制边权重
+        const edgeLabels = svg.selectAll(".edge-label")
+            .data(Object.values(edges), d => d.id)
+            .join(enter => enter.append("text")
+                .attr("class", "edge-label")
+                .attr("dy", -5))
+            .attr("x", d => (d.source.x + d.target.x) / 2)
+            .attr("y", d => (d.source.y + d.target.y) / 2)
+            .text(d => d.weight || "");
+    }
+
+    // 计算边路径
+    function linePath(edge) {
+        const dx = edge.target.x - edge.source.x;
+        const dy = edge.target.y - edge.source.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const offsetX = (dx / len) * nodeRadius;
+        const offsetY = (dy / len) * nodeRadius;
+
+        return `M${edge.source.x + offsetX},${edge.source.y + offsetY}
+                L${edge.target.x - offsetX},${edge.target.y - offsetY}`;
+    }
+
+    // 操作处理函数
+    const operationsMap = {
+        create_graph: ({id, directed}) => {
+            graphs[id] = {nodes: {}, edges: {}, directed};
+        },
+
+        add_node: ({graph_id, id, value, attributes}) => {
+            nodes[id] = {
+                id,
+                value,
+                x: attributes.position.x,
+                y: attributes.position.y,
+                attributes,
+                graph: graph_id
+            };
+        },
+
+        remove_node: ({graph_id, id}) => {
+            if (nodes[id]) {
+                // Remove all edges connected to this node
+                Object.keys(edges).forEach(edgeId => {
+                    if (edges[edgeId].source.id === id || edges[edgeId].target.id === id) {
+                        delete edges[edgeId];
+                    }
+                });
+                delete nodes[id];
+            }
+        },
+
+        update_node: ({graph_id, id, value, attributes}) => {
+            if (nodes[id]) {
+                nodes[id].value = value;
+                Object.assign(nodes[id].attributes, attributes);
+            }
+        },
+
+        add_edge: ({graph_id, id, source_id, target_id, weight, attributes}) => {
+            edges[id] = {
+                id,
+                source: nodes[source_id],
+                target: nodes[target_id],
+                weight,
+                attributes,
+                directed: graphs[graph_id].directed
+            };
+        },
+
+        remove_edge: ({graph_id, id}) => {
+            if (edges[id]) {
+                delete edges[id];
+            }
+        },
+
+        update_edge: ({graph_id, id, weight, attributes}) => {
+            if (edges[id]) {
+                edges[id].weight = weight;
+                Object.assign(edges[id].attributes, attributes);
+            }
+        },
+
+        highlight_node: async ({graph_id, id}) => {
+            if (nodes[id]) {
+                nodes[id].highlighted = true;
+            }
+        },
+
+        unhighlight_node: ({graph_id, id}) => {
+            if (nodes[id]) {
+                nodes[id].highlighted = false;
+            }
+        },
+
+        highlight_edge: ({graph_id, id}) => {
+            if (edges[id]) {
+                edges[id].highlighted = true;
+            }
+        },
+
+        unhighlight_edge: ({graph_id, id}) => {
+            if (edges[id]) {
+                edges[id].highlighted = false;
+            }
+        },
+
+        get_neighbors: async ({graph_id, node_id}) => {
+            const neighbors = [];
+            Object.values(edges).forEach(edge => {
+                if (edge.source.id === node_id) {
+                    neighbors.push(edge.target.id);
+                } else if (edge.target.id === node_id) {
+                    neighbors.push(edge.source.id);
+                }
+            });
+            // Highlight neighbors
+            neighbors.forEach(id => {
+                if (nodes[id]) {
+                    nodes[id].highlighted = true;
+                }
+            });
+            updateVisualization();
+
+            // Wait for a while before unhighlighting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Unhighlight neighbors
+            neighbors.forEach(id => {
+                if (nodes[id]) {
+                    nodes[id].highlighted = false;
+                }
+            });
+            updateVisualization();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return neighbors;
+        },
+
+        merge_nodes: ({graph_id, nodes: mergeNodes, new_node_id, value}) => {
+            const mergedNode = {
+                id: new_node_id,
+                value,
+                x: mergeNodes.reduce((s, id) => s + nodes[id].x, 0) / mergeNodes.length,
+                y: mergeNodes.reduce((s, id) => s + nodes[id].y, 0) / mergeNodes.length,
+                attributes: {
+                    color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+                    size: 30
+                },
+                mergedFrom: mergeNodes
+            };
+
+            // Transfer all related connections
+            Object.values(edges).forEach(edge => {
+                if (mergeNodes.includes(edge.source.id)) {
+                    edge.source = mergedNode;
+                }
+                if (mergeNodes.includes(edge.target.id)) {
+                    edge.target = mergedNode;
+                }
+            });
+
+            // Delete old nodes
+            mergeNodes.forEach(id => {
+                delete nodes[id];
+            });
+
+            nodes[new_node_id] = mergedNode;
+        },
+
+        contract_edge: ({graph_id, edge_id, new_node_id}) => {
+            const edge = edges[edge_id];
+            if (edge) {
+                const mergedNode = {
+                    id: new_node_id,
+                    value: edge.source.value + edge.target.value,
+                    x: (edge.source.x + edge.target.x) / 2,
+                    y: (edge.source.y + edge.target.y) / 2,
+                    attributes: {
+                        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+                        size: 30
+                    },
+                    mergedFrom: [edge.source.id, edge.target.id]
+                };
+
+                // Transfer all related connections
+                Object.values(edges).forEach(e => {
+                    if (e.id !== edge_id) {
+
+
+                        if (e.source.id === edge.source.id || e.source.id === edge.target.id) {
+                            e.source = mergedNode;
+                        }
+                        if (e.target.id === edge.source.id || e.target.id === edge.target.id) {
+                            e.target = mergedNode;
+                        }
+                    }
+                });
+
+                // Delete old nodes and edge
+                delete nodes[edge.source.id];
+                delete nodes[edge.target.id];
+                delete edges[edge_id];
+
+                nodes[new_node_id] = mergedNode;
+
+
+            }
+        }
+
+    };
+
+
+    // 执行单步操作
+    async function executeStep() {
+        if (operationInProgress || currentStep >= operations.length) return;
+        operationInProgress = true;
+
+        const op = operations[currentStep];
+        document.getElementById("operations").innerHTML +=
+            `<div class="operation-item">${op.metadata}</div>`;
+
+        if (operationsMap[op.operation]) {
+            operationsMap[op.operation](op.data);
+            updateVisualization();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        currentStep++;
+        operationInProgress = false;
+    }
+
+    // 控制函数
+    async function runOperations() {
+        while (!isPaused && currentStep < operations.length) {
+            await executeStep();
+            await new Promise(r => setTimeout(r, 10000));
+        }
+    }
+
+    // 事件监听
+    document.getElementById("startBtn").addEventListener("click", () => {
+        isPaused = false;
+        runOperations();
+    });
+
+    document.getElementById("pauseBtn").addEventListener("click", () => {
+        isPaused = true;
+    });
+
+    document.getElementById("stepBtn").addEventListener("click", executeStep);
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        currentStep = 0;
+        nodes = {};
+        edges = {};
+        graphs = {};
+        svg.selectAll("*").remove();
+        document.getElementById("operations").innerHTML = "";
+    });
+
+    // 初始化箭头标记
+    svg.append("g");
+
+    svg.append("defs").append("filter")
+        .attr("id", "glow")
+        .html(`<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+           <feMerge>
+               <feMergeNode in="coloredBlur"/>
+               <feMergeNode in="SourceGraphic"/>
+           </feMerge>`);
+
+</script>
+</body>
+</html>
