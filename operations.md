@@ -25,6 +25,8 @@
 
 ​      "id": "arr0"
 
+​	   "color":"red"
+
 ​    },
 
 ​    "metadata": ""

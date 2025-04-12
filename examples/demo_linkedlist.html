@@ -287,243 +287,6 @@
                 "list_name": "linkedList"
             },
             "metadata": "在链表尾部添加值为7的新节点"
-        },
-        {
-            "operation": "highlight_link",
-            "data": {
-                "source_id": "node0",
-                "target_id": "node1"
-            },
-            "metadata": "高亮从node0到node1的连接"
-        },
-        {
-            "operation": "unhighlight_link",
-            "data": {
-                "source_id": "node0",
-                "target_id": "node1"
-            },
-            "metadata": "取消高亮从node0到node1的连接"
-        },
-        {
-            "operation": "prepend_node",
-            "data": {
-                "value": 5,
-                "id": "node2",
-                "list_name": "linkedList"
-            },
-            "metadata": "在链表头部添加值为5的新节点"
-        },
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node1"
-            },
-            "metadata": "高亮node1节点"
-        },
-        {
-            "operation": "insert_after",
-            "data": {
-                "target_id": "node1",
-                "value": 8,
-                "id": "node3",
-                "list_name": "linkedList"
-            },
-            "metadata": "在node1后插入值为8的新节点"
-        },
-        {
-            "operation": "unhighlight_node",
-            "data": {
-                "id": "node1"
-            },
-            "metadata": "取消高亮node1节点"
-        },
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node1"
-            },
-            "metadata": "高亮node1节点"
-        },
-        {
-            "operation": "insert_before",
-            "data": {
-                "target_id": "node1",
-                "value": 6,
-                "id": "node4",
-                "list_name": "linkedList"
-            },
-            "metadata": "在node1前插入值为6的新节点"
-        },
-        {
-            "operation": "unhighlight_node",
-            "data": {
-                "id": "node1"
-            },
-            "metadata": "取消高亮node1节点"
-        },
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node1"
-            },
-            "metadata": "高亮node1节点"
-        },
-        {
-            "operation": "remove_node",
-            "data": {
-                "id": "node1",
-                "list_name": "linkedList"
-            },
-            "metadata": "删除ID为node1的节点"
-        },
-        {
-            "operation": "update_value",
-            "data": {
-                "id": "node4",
-                "value": 15
-            },
-            "metadata": "将node4的值更新为15"
-        },
-        {
-            "operation": "reverse_list",
-            "data": {
-                "list_name": "linkedList"
-            },
-            "metadata": "反转第一个链表"
-        },
-        
-        // 创建第二个链表
-        {
-            "operation": "create_list",
-            "data": {
-                "value": 20,
-                "id": "node01",
-                "list_name": "secondLinkedList"
-            },
-            "metadata": "创建第二个链表，值为20的头节点"
-        },
-        {
-            "operation": "append_node",
-            "data": {
-                "value": 25,
-                "id": "node02",
-                "list_name": "secondLinkedList"
-            },
-            "metadata": "在第二个链表尾部添加值为25的新节点"
-        },
-        {
-            "operation": "append_node",
-            "data": {
-                "value": 30,
-                "id": "node03",
-                "list_name": "secondLinkedList"
-            },
-            "metadata": "在第二个链表尾部添加值为30的新节点"
-        },
-        
-        // 合并链表
-        {
-            "operation": "merge_lists",
-            "data": {
-                "list1_name": "linkedList",
-                "list2_name": "secondLinkedList",
-                "new_list_id": "mergedList"
-            },
-            "metadata": "合并两个链表到新链表"
-        },
-        
-        // 继续在合并后的链表上操作
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node3"
-            },
-            "metadata": "高亮node3节点"
-        },
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node02"
-            },
-            "metadata": "高亮node02节点"
-        },
-        {
-            "operation": "unhighlight_node",
-            "data": {
-                "id": "node3"
-            },
-            "metadata": "取消高亮node3节点"
-        },
-        {
-            "operation": "unhighlight_node",
-            "data": {
-                "id": "node02"
-            },
-            "metadata": "取消高亮node02节点"
-        },
-        {
-            "operation": "swap_nodes",
-            "data": {
-                "id1": "node2",
-                "id2": "node03"
-            },
-            "metadata": "交换node2和node03节点"
-        },
-        
-        // 创建第三个链表
-        {
-            "operation": "create_list",
-            "data": {
-                "value": 100,
-                "id": "node100",
-                "list_name": "thirdList"
-            },
-            "metadata": "创建第三个链表，值为100的头节点"
-        },
-        {
-            "operation": "append_node",
-            "data": {
-                "value": 200,
-                "id": "node200",
-                "list_name": "thirdList"
-            },
-            "metadata": "在第三个链表尾部添加值为200的新节点"
-        },
-        
-        // 拆分合并后的链表
-        {
-            "operation": "highlight_node",
-            "data": {
-                "id": "node4"
-            },
-            "metadata": "高亮node4节点"
-        },
-        {
-            "operation": "split_list",
-            "data": {
-                "list_name": "mergedList",
-                "split_after_id": "node4",
-                "new_list_id": "splitList"
-            },
-            "metadata": "在node4之后拆分合并链表"
-        },
-        {
-            "operation": "unhighlight_node",
-            "data": {
-                "id": "node4"
-            },
-            "metadata": "取消高亮node4节点"
-        },
-        
-        // 再次合并链表展示多次合并
-        {
-            "operation": "merge_lists",
-            "data": {
-                "list1_name": "thirdList",
-                "list2_name": "mergedList",
-                "new_list_id": "finalList"
-            },
-            "metadata": "将第三个链表与拆分后的第一个链表合并"
         }
                 ]);
                 
@@ -831,11 +594,10 @@
                 
                 // 链表操作：创建链表
                 const createList = async (operationData) => {
-                    // 显示链表容器
-                    showLinkedListContainer.value = true;
-                    
+                    initLinkedListVisualization();
+                                showLinkedListContainer.value = true;
+                                await delay(1000);
                     const listName = operationData.list_name || "linkedList";
-                    
                     // 如果要求，初始化可视化
                     if (operationData.clear_visual) {
                         initLinkedListVisualization();
@@ -859,12 +621,13 @@
                     
                     // 等待动画完成
                     await delay(1000);
+                    // initLinkedListVisualization();
                 };
                 
                 // 链表操作：在链表尾部添加节点
                 const appendNode = async (operationData) => {
                     // 显示链表容器
-                    showLinkedListContainer.value = true;
+                    // showLinkedListContainer.value = true;
                     
                     const listName = operationData.list_name || "linkedList";
                     
@@ -1292,454 +1055,227 @@
                     await delay(1000);
                 };
                 
-                // ===================== 数组相关函数 =====================
-                
-                // 操作函数：创建数组
-                const createArray = async (operationData) => {
-                    // 显示数组容器
-                    showArrayContainer.value = true;
+                // 操作函数：高亮链接
+                const highlightLink = async (operationData) => {
+                    // 显示链表容器
+                    showLinkedListContainer.value = true;
                     
-                    // 确保获取arrayId
-                    const arrayId = operationData.id || 'default';
+                    // 获取源节点和目标节点
+                    const sourceId = operationData.source_id;
+                    const targetId = operationData.target_id;
                     
-                    // 初始化数组数据
-                    if (!arrayData.value[arrayId]) {
-                        arrayData.value[arrayId] = [];
-                    }
-                    
-                    // 设置数组内容
-                    arrayData.value[arrayId] = [...operationData.array];
-                    
-                    // 初始化高亮状态
-                    if (!arrayHighlighted.value[arrayId]) {
-                        arrayHighlighted.value[arrayId] = [];
-                    }
-                    
-                    // 清除高亮状态
-                    arrayHighlighted.value[arrayId] = [];
-                    
-                    // 初始化高亮颜色
-                    if (!arrayHighlightColors.value[arrayId]) {
-                        arrayHighlightColors.value[arrayId] = {};
-                    }
-                    
-                    // 清除高亮颜色
-                    arrayHighlightColors.value[arrayId] = {};
-                    
-                    // 更新元素索引跟踪器
-                    updateElementIndices(arrayId);
-                    
-                    // 更新可视化
-                    updateVisualization();
-                    
-                    await delay(1000);
-                };
-                
-                // 操作函数：交换元素
-                const swapElements = async (operationData) => {
-                    const arrayId = operationData.id || 'default';
-                    const [i, j] = operationData.indices;
-                    
-                    // 如果指定的数组不存在，直接返回
-                    if (!arrayData.value[arrayId]) {
-                        console.error(`数组 ${arrayId} 不存在`);
-                        return;
-                    }
-                    
-                    const array = arrayData.value[arrayId];
-                    
-                    // 保存要交换的两个值
-                    const valueI = array[i];
-                    const valueJ = array[j];
-                    
-                    // 交换数据数组中的值
-                    [array[i], array[j]] = [array[j], array[i]];
-                    
-                    // 更新元素索引跟踪器
-                    updateElementIndices(arrayId);
-                    
-                    // 获取当前位置信息 - 只用于动画过渡
-                    const positionI = i * (squareSize + gap);
-                    const positionJ = j * (squareSize + gap);
-                    
-                    // 获取数组元素组的引用
-                    if (window.arrayGroups && window.arrayGroups[arrayId]) {
-                        // 通过动画显示交换过程
-                        arraySvg.selectAll(`.array-element-${arrayId}`)
-                            .filter((d, idx) => idx === i)
-                            .transition()
-                            .duration(1000 / animationSpeed.value)
-                            .attr("transform", `translate(${positionJ}, 0)`);
-                            
-                        arraySvg.selectAll(`.array-element-${arrayId}`)
-                            .filter((d, idx) => idx === j)
-                            .transition()
-                            .duration(1000 / animationSpeed.value)
-                            .attr("transform", `translate(${positionI}, 0)`);
-                    }
-                    
-                    // 等待动画完成
-                    await delay(1000);
-                    
-                    // 如果高亮状态存在，需要更新高亮索引
-                    if (arrayHighlighted.value[arrayId] && 
-                        (arrayHighlighted.value[arrayId].includes(i) || arrayHighlighted.value[arrayId].includes(j))) {
-                        const newHighlighted = [...arrayHighlighted.value[arrayId]];
-                        const newColors = {...arrayHighlightColors.value[arrayId] || {}};
-                        
-                        // 保存原始高亮状态和颜色
-                        const iHighlighted = newHighlighted.includes(i);
-                        const jHighlighted = newHighlighted.includes(j);
-                        const iColor = newColors[i];
-                        const jColor = newColors[j];
-                        
-                        // 如果i原本高亮，现在j应该高亮
-                        if (iHighlighted) {
-                            if (!newHighlighted.includes(j)) {
-                                newHighlighted.push(j);
-                            }
-                            newColors[j] = iColor;
-                        } else {
-                            // 如果i原本不高亮，从高亮列表中移除j
-                            const jIndex = newHighlighted.indexOf(j);
-                            if (jIndex > -1) {
-                                newHighlighted.splice(jIndex, 1);
-                            }
-                            delete newColors[j];
-                        }
-                        
-                        // 如果j原本高亮，现在i应该高亮
-                        if (jHighlighted) {
-                            if (!newHighlighted.includes(i)) {
-                                newHighlighted.push(i);
-                            }
-                            newColors[i] = jColor;
-                        } else {
-                            // 如果j原本不高亮，从高亮列表中移除i
-                            const iIndex = newHighlighted.indexOf(i);
-                            if (iIndex > -1) {
-                                newHighlighted.splice(iIndex, 1);
-                            }
-                            delete newColors[i];
-                        }
-                        
-                        arrayHighlighted.value[arrayId] = newHighlighted;
-                        arrayHighlightColors.value[arrayId] = newColors;
-                    }
-                    
-                    // 更新可视化
-                    updateVisualization();
-                };
-                
-                // 操作函数：高亮元素
-                const highlight = async (operationData) => {
-                    // 显示数组容器
-                    showArrayContainer.value = true;
-                    
-                    const arrayId = operationData.id || 'default';
-                    const indices = operationData.indices;
-                    const color = operationData.color || "#FF9999";
-                    
-                    // 确保高亮数组已初始化
-                    if (!arrayHighlighted.value[arrayId]) {
-                        arrayHighlighted.value[arrayId] = [];
-                    }
-                    
-                    // 确保高亮颜色映射已初始化
-                    if (!arrayHighlightColors.value[arrayId]) {
-                        arrayHighlightColors.value[arrayId] = {};
-                    }
-                    
-                    // 更新高亮状态
-                    arrayHighlighted.value[arrayId] = [...new Set([...arrayHighlighted.value[arrayId], ...indices])];
-                    
-                    // 存储每个索引的颜色
-                    indices.forEach(idx => {
-                        arrayHighlightColors.value[arrayId][idx] = color;
-                    });
-                    
-                    // 获取数组元素组的引用
-                    if (window.arrayGroups && window.arrayGroups[arrayId]) {
-                        const elementGroups = window.arrayGroups[arrayId].elementGroups;
-                        
-                        // 更新视图中的高亮
-                        arraySvg.selectAll(`.array-element-${arrayId}`)
-                            .filter((d, i) => indices.includes(i))
-                            .select("rect")
-                            .transition()
-                            .duration(500 / animationSpeed.value)
-                            .attr("fill", color);
-                    }
+                    // 高亮连线
+                    listSvg.selectAll(".link")
+                        .filter(d => d.source.id === sourceId && d.target.id === targetId)
+                        .classed("highlighted-link", true)
+                        .transition()
+                        .duration(500);
                     
                     // 等待动画完成
                     await delay(500);
                 };
                 
-                // 操作函数：取消高亮元素
-                const unhighlight = async (operationData) => {
-                    // 显示数组容器
-                    showArrayContainer.value = true;
+                // 操作函数：取消高亮链接
+                const unhighlightLink = async (operationData) => {
+                    // 显示链表容器
+                    showLinkedListContainer.value = true;
                     
-                    const arrayId = operationData.id || 'default';
-                    const indices = operationData.indices;
+                    // 获取源节点和目标节点
+                    const sourceId = operationData.source_id;
+                    const targetId = operationData.target_id;
                     
-                    // 如果指定数组不存在，直接返回
-                    if (!arrayHighlighted.value[arrayId]) {
-                        return;
-                    }
-                    
-                    // 移除高亮状态
-                    arrayHighlighted.value[arrayId] = arrayHighlighted.value[arrayId].filter(idx => !indices.includes(idx));
-                    
-                    // 移除颜色映射
-                    if (arrayHighlightColors.value[arrayId]) {
-                        indices.forEach(idx => {
-                            delete arrayHighlightColors.value[arrayId][idx];
-                        });
-                    }
-                    
-                    // 获取数组元素组的引用
-                    if (window.arrayGroups && window.arrayGroups[arrayId]) {
-                        const elementGroups = window.arrayGroups[arrayId].elementGroups;
-                        
-                        // 更新视图中的高亮
-                        arraySvg.selectAll(`.array-element-${arrayId}`)
-                            .filter((d, i) => indices.includes(i))
-                            .select("rect")
-                            .transition()
-                            .duration(500 / animationSpeed.value)
-                            .attr("fill", "white");
-                    }
+                    // 取消高亮连线
+                    listSvg.selectAll(".link")
+                        .filter(d => d.source.id === sourceId && d.target.id === targetId)
+                        .classed("highlighted-link", false)
+                        .transition()
+                        .duration(500);
                     
                     // 等待动画完成
                     await delay(500);
                 };
                 
-                // ===================== 树相关函数 =====================
-                
-                // 更新树可视化
-                const updateTreeVisualization = () => {
-                    // 初始化树可视化
-                    initTreeVisualization();
+                // 操作函数：更新节点值
+                const updateValue = async (operationData) => {
+                    // 显示链表容器
+                    showLinkedListContainer.value = true;
                     
-                    // 遍历所有树并可视化
-                    for (const treeName in trees.value) {
-                        const treeRoot = trees.value[treeName];
-                        if (!treeRoot) continue;
-                        
-                        // 使用d3.hierarchy获取层次结构
-                        const root = d3.hierarchy(treeRoot);
-                        
-                        // 定义树形布局
-                        const treeLayout = d3.tree().size([800, 400]);
-                        
-                        // 应用树形布局
-                        treeLayout(root);
-                        
-                        // 绘制连线
-                        const links = treeSvg.selectAll(".tree-link")
-                            .data(root.links())
-                            .enter()
-                            .append("path")
-                            .attr("class", "link tree-link")
-                            .attr("marker-end", "url(#tree-arrowhead)")
-                            .attr("d", d => `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`);
-                        
-                        // 绘制节点
-                        const nodes = treeSvg.selectAll(".tree-node")
-                            .data(root.descendants())
-                            .enter()
-                            .append("g")
-                            .attr("class", "node tree-node")
-                            .attr("transform", d => `translate(${d.x},${d.y})`);
-                        
-                        // 节点的圆形
-                        nodes.append("circle")
-                            .attr("r", 12);
-                        
-                        // 节点的文本
-                        nodes.append("text")
-                            .attr("dy", ".35em")
-                            .attr("text-anchor", "middle")
-                            .text(d => d.data.value);
-                    }
-                };
-                
-                // 树操作：创建根节点
-                const createRoot = async (operationData) => {
-                    // 显示树容器
-                    showTreeContainer.value = true;
-                    
-                    const treeName = operationData.tree_name || "binaryTree";
-                    
-                    // 清除现有元素（如果要求）
-                    if (operationData.clear_visual) {
-                        initTreeVisualization();
-                    }
-                    
-                    // 创建树节点
-                    const newNode = {
-                        id: operationData.id,
-                        value: operationData.value,
-                        children: []
-                    };
-                    
-                    // 添加到节点字典
-                    treeNodes.value[operationData.id] = newNode;
-                    
-                    // 将树添加到树字典中
-                    trees.value[treeName] = newNode;
-                    
-                    // 更新可视化
-                    updateVisualization();
-                    
-                    // 等待动画完成
-                    await delay(1000);
-                };
-                
-                // 树操作：添加子节点
-                const addChild = async (operationData) => {
-                    // 显示树容器
-                    showTreeContainer.value = true;
-                    
-                    const parentNode = treeNodes.value[operationData.parent_id];
-                    
-                    if (!parentNode) {
-                        console.error(`父节点 ${operationData.parent_id} 不存在`);
-                        currentOperation.value = `错误: 父节点 ${operationData.parent_id} 不存在`;
-                        return;
-                    }
-                    
-                    // 创建新节点
-                    const newNode = {
-                        id: operationData.id,
-                        value: operationData.value,
-                        children: []
-                    };
-                    
-                    // 添加到父节点的子节点列表
-                    if (!parentNode.children) {
-                        parentNode.children = [];
-                    }
-                    parentNode.children.push(newNode);
-                    
-                    // 添加到节点字典
-                    treeNodes.value[operationData.id] = newNode;
-                    
-                    // 更新可视化
-                    updateVisualization();
-                    
-                    // 等待动画完成
-                    await delay(1000);
-                };
-                
-                // 树操作：删除节点
-                const removeTreeNode = async (operationData) => {
-                    // 显示树容器
-                    showTreeContainer.value = true;
-                    
-                    const treeName = operationData.tree_name || "binaryTree";
                     const nodeId = operationData.id;
-                    const nodeToRemove = treeNodes.value[nodeId];
+                    const newValue = operationData.value;
                     
-                    if (!nodeToRemove) {
+                    // 获取节点
+                    const node = listNodes.value[nodeId];
+                    if (!node) {
                         console.error(`节点 ${nodeId} 不存在`);
                         currentOperation.value = `错误: 节点 ${nodeId} 不存在`;
                         return;
                     }
                     
-                    // 找到父节点
-                    let parent = findParent(trees.value[treeName], nodeId);
-                    
-                    if (parent) {
-                        // 从父节点的子节点列表中移除
-                        parent.children = parent.children.filter(child => child.id !== nodeId);
-                        
-                        // 处理子节点
-                        if (nodeToRemove.children && nodeToRemove.children.length > 0) {
-                            // 将子节点添加到父节点
-                            parent.children = parent.children.concat(nodeToRemove.children);
-                        }
-                    } else if (nodeId === trees.value[treeName].id) {
-                        // 如果删除的是根节点
-                        if (nodeToRemove.children && nodeToRemove.children.length > 0) {
-                            // 使第一个子节点成为新的根节点
-                            trees.value[treeName] = nodeToRemove.children[0];
-                            
-                            // 如果有其他子节点，将它们添加为新根的子节点
-                            if (nodeToRemove.children.length > 1) {
-                                if (!trees.value[treeName].children) {
-                                    trees.value[treeName].children = [];
-                                }
-                                trees.value[treeName].children = trees.value[treeName].children.concat(
-                                    nodeToRemove.children.slice(1)
-                                );
-                            }
-                        } else {
-                            // 如果根节点没有子节点，则树为空
-                            trees.value[treeName] = null;
-                        }
-                    }
-                    
-                    // 从节点字典中删除
-                    delete treeNodes.value[nodeId];
-                    
-                    // 更新可视化
-                    updateVisualization();
-                    
-                    // 等待动画完成
-                    await delay(1000);
-                };
-                
-                // 树操作：高亮节点
-                const highlightTreeNode = async (operationData) => {
-                    // 显示树容器
-                    showTreeContainer.value = true;
-                    
-                    treeSvg.selectAll(".tree-node")
-                        .filter(d => d.data.id === operationData.id)
+                    // 高亮节点以表示正在更新
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === nodeId)
                         .classed("highlighted-node", true)
                         .select("circle")
                         .transition()
                         .duration(500)
                         .attr("r", 15);
                     
-                    // 等待动画完成
                     await delay(500);
-                };
-                
-                // 树操作：取消高亮节点
-                const unhighlightTreeNode = async (operationData) => {
-                    // 显示树容器
-                    showTreeContainer.value = true;
                     
-                    treeSvg.selectAll(".tree-node")
-                        .filter(d => d.data.id === operationData.id)
+                    // 更新节点值
+                    node.value = newValue;
+                    
+                    // 更新文本
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === nodeId)
+                        .select("text")
+                        .text(newValue);
+                    
+                    // 取消高亮
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === nodeId)
                         .classed("highlighted-node", false)
                         .select("circle")
                         .transition()
                         .duration(500)
                         .attr("r", 12);
                     
+                    // 更新可视化
+                    updateVisualization();
+                    
                     // 等待动画完成
                     await delay(500);
                 };
                 
-                // 辅助函数：查找节点的父节点
-                function findParent(node, childId) {
-                    if (!node || !node.children) return null;
+                // 操作函数：反转链表
+                const reverseList = async (operationData) => {
+                    // 显示链表容器
+                    showLinkedListContainer.value = true;
                     
-                    for (const child of node.children) {
-                        if (child.id === childId) {
-                            return node;
-                        }
-                        
-                        const parent = findParent(child, childId);
-                        if (parent) return parent;
+                    const listName = operationData.list_name || "linkedList";
+                    
+                    // 获取链表头节点
+                    let head = linkedLists.value[listName];
+                    
+                    if (!head) {
+                        console.error(`链表 ${listName} 为空或不存在`);
+                        currentOperation.value = `错误: 链表 ${listName} 为空或不存在`;
+                        return;
                     }
                     
-                    return null;
-                }
+                    // 高亮整个链表，表示将要反转
+                    const nodeIds = [];
+                    let current = head;
+                    while (current) {
+                        nodeIds.push(current.id);
+                        current = current.next;
+                    }
+                    
+                    // 高亮所有节点
+                    for (const nodeId of nodeIds) {
+                        listSvg.selectAll(".node")
+                            .filter(d => d.id === nodeId)
+                            .classed("highlighted-node", true)
+                            .select("circle")
+                            .transition()
+                            .duration(500)
+                            .attr("r", 15);
+                    }
+                    
+                    await delay(500);
+                    
+                    // 反转链表
+                    let prev = null;
+                    current = head;
+                    
+                    while (current) {
+                        const next = current.next;
+                        current.next = prev;
+                        prev = current;
+                        current = next;
+                    }
+                    
+                    // 更新头节点
+                    linkedLists.value[listName] = prev;
+                    
+                    // 更新可视化
+                    updateVisualization();
+                    
+                    // 取消高亮
+                    for (const nodeId of nodeIds) {
+                        listSvg.selectAll(".node")
+                            .filter(d => d.id === nodeId)
+                            .classed("highlighted-node", false)
+                            .select("circle")
+                            .transition()
+                            .duration(500)
+                            .attr("r", 12);
+                    }
+                    
+                    // 等待动画完成
+                    await delay(500);
+                };
+                
+                // 操作函数：交换节点值
+                const swapNodes = async (operationData) => {
+                    // 显示链表容器
+                    showLinkedListContainer.value = true;
+                    
+                    const id1 = operationData.id1;
+                    const id2 = operationData.id2;
+                    
+                    // 获取节点
+                    const node1 = listNodes.value[id1];
+                    const node2 = listNodes.value[id2];
+                    
+                    if (!node1 || !node2) {
+                        console.error(`节点 ${id1} 或 ${id2} 不存在`);
+                        currentOperation.value = `错误: 节点 ${id1} 或 ${id2} 不存在`;
+                        return;
+                    }
+                    
+                    // 高亮要交换的节点
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === id1 || d.id === id2)
+                        .classed("highlighted-node", true)
+                        .select("circle")
+                        .transition()
+                        .duration(500)
+                        .attr("r", 15);
+                    
+                    await delay(500);
+                    
+                    // 交换节点值
+                    const tempValue = node1.value;
+                    node1.value = node2.value;
+                    node2.value = tempValue;
+                    
+                    // 更新文本
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === id1)
+                        .select("text")
+                        .text(node1.value);
+                    
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === id2)
+                        .select("text")
+                        .text(node2.value);
+                    
+                    // 取消高亮
+                    listSvg.selectAll(".node")
+                        .filter(d => d.id === id1 || d.id === id2)
+                        .classed("highlighted-node", false)
+                        .select("circle")
+                        .transition()
+                        .duration(500)
+                        .attr("r", 12);
+                    
+                    // 更新可视化
+                    updateVisualization();
+                    
+                    // 等待动画完成
+                    await delay(1000);
+                };
                 
                 // 执行单步操作
                 const executeStep = async () => {
@@ -1777,6 +1313,7 @@
                                 
                             // 链表操作
                             case "create_list":
+                                
                                 await createList(operation.data);
                                 break;
                             case "append_node":
@@ -1800,30 +1337,27 @@
                             case "unhighlight_node":
                                 await unhighlightNode(operation.data);
                                 break;
-                                
-                            // 树操作
-                            case "create_root":
-                                await createRoot(operation.data);
-                                break;
-                            case "add_child":
-                                await addChild(operation.data);
-                                break;
-                            case "remove_tree_node":
-                                await removeTreeNode(operation.data);
-                                break;
-                            case "highlight_tree_node":
-                                await highlightTreeNode(operation.data);
-                                break;
-                            case "unhighlight_tree_node":
-                                await unhighlightTreeNode(operation.data);
-                                break;
-                                
-                            // 新操作
+                            
                             case "merge_lists":
                                 await mergeLists(operation.data);
                                 break;
                             case "split_list":
                                 await splitList(operation.data);
+                                break;
+                            case "highlight_link":
+                                await highlightLink(operation.data);
+                                break;
+                            case "unhighlight_link":
+                                await unhighlightLink(operation.data);
+                                break;
+                            case "update_value":
+                                await updateValue(operation.data);
+                                break;
+                            case "reverse_list":
+                                await reverseList(operation.data);
+                                break;
+                            case "swap_nodes":
+                                await swapNodes(operation.data);
                                 break;
                                 
                             default:
@@ -1898,13 +1432,10 @@
                     isRunning.value = false;
                     currentStep.value = 0;
                     currentOperation.value = "准备就绪";
-                    
-                    // 重置高亮状态
+                
                     arrayHighlighted.value = {};
                     arrayHighlightColors.value = {};
-                    
-                    // 重置数据结构
-                    // 重置数组为空
+                
                     arrayData.value = {};
                     elementIndices.value = {};
                     

@@ -58,37 +58,16 @@ def process_query(user_input: str):
     
     # 生成可视化
     print("正在生成可视化...")
-    output_file = "../examples/algoviz_result.html"
-    html_file = visualizer.show_visualization(
-        queue.get_queue(),
-        output_file,
-        algorithm_info
-    )
-    
-    print(f"可视化已生成并保存到: {html_file}")
-    return html_file
+    # 将操作队列写入JS文件
+    operations_file = "../operations/defaultOperations.js"
+    os.makedirs(os.path.dirname(operations_file), exist_ok=True)
+    with open(operations_file, 'w', encoding='utf-8') as f:
+        f.write(f"const defaultOperations = {json.dumps(queue.get_queue(), indent=2, ensure_ascii=False)};")
 
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-    请分析以下冒泡排序代码:
-    ```javascript
-    function bubbleSort(arr) {
-        var n = arr.length;
-        for (var i = 0; i < n; i++) {
-            for (var j = 0; j < n - i - 1; j++) {
-                if (arr[j] > arr[j + 1]) {
-                    // 交换元素
-                    var temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
-            }
-        }
-        return arr;
-        ```
-    
-    输入数据为: [5, 3, 8, 4, 2]
+    将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
     """
     
     process_query(user_query)

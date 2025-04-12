@@ -189,8 +189,7 @@ class OperationQueue:
             data={
                 "value": value, 
                 "id": node_id, 
-                "list_name": list_name,
-                "clear_visual": clear_visual
+                "list_name": list_name
             },
             metadata=metadata
         )

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法可视化 - 修复版</title>
+    <!-- 引入Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+    <!-- 引入D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [v-cloak] { 
+            display: none; 
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.5s;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" v-cloak class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">算法可视化</h1>
+            <p class="text-gray-600">使用现代Web技术实现的算法可视化工具</p>
+        </header>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-wrap gap-4 mb-6">
+                <button 
+                    @click="startVisualization" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="isRunning">
+                    <i class="fas fa-play mr-2"></i>开始
+                </button>
+                <button 
+                    @click="pauseVisualization" 
+                    class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="!isRunning || isPaused">
+                    <i class="fas fa-pause mr-2"></i>暂停
+                </button>
+                <button 
+                    @click="stepVisualization" 
+                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="isRunning && !isPaused">
+                    <i class="fas fa-step-forward mr-2"></i>下一步
+                </button>
+                <button 
+                    @click="resetVisualization" 
+                    class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                    <i class="fas fa-redo-alt mr-2"></i>重置
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">动画速度</label>
+                <input 
+                    type="range" 
+                    min="1" 
+                    max="10" 
+                    v-model="animationSpeed" 
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>慢</span>
+                    <span>快</span>
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-sm font-medium text-gray-700">进度</div>
+                    <div class="text-sm text-gray-500">{{ progressText }}</div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${progress}%` }"></div>
+                </div>
+            </div>
+            
+            <div id="visualization" class="w-full overflow-x-auto pb-4"></div>
+            
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
+                {{ currentOperation }}
+            </div>
+
+            <div class="mt-4 bg-gray-100 p-3 rounded">
+                <div class="font-semibold mb-2">当前数组状态:</div>
+                <div class="flex flex-wrap gap-2">
+                    <div v-for="(val, idx) in data" :key="idx" 
+                        class="w-10 h-10 flex items-center justify-center border border-gray-300 rounded"
+                        :class="{'bg-red-200': highlightedIndices.includes(idx)}">
+                        {{ val }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">可视化操作说明</h3>
+            
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <p class="mb-4">本可视化工具展示了一个简单的排序算法示例。演示了如何通过一系列操作队列实现算法的可视化流程。</p>
+                    <div class="mb-2"><span class="font-semibold">支持操作：</span>创建数组、高亮元素、交换元素、取消高亮</div>
+                    <div class="mb-2"><span class="font-semibold">控制方式：</span>使用上方的按钮控制可视化的执行</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Font Awesome图标 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
+    
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        
+        createApp({
+            setup() {
+                // 状态变量
+                const isPaused = ref(true);
+                const isRunning = ref(false);
+                const currentStep = ref(0);
+                const animationSpeed = ref(5);
+                const data = ref([]);
+                const currentOperation = ref('准备就绪');
+                
+                // 高亮状态跟踪
+                const highlightedIndices = ref([]);
+                const highlightColors = ref({}); // 存储每个索引的高亮颜色
+                
+                // 元素位置跟踪器 - 存储每个值在当前数组中的索引
+                const elementIndices = ref({});
+                
+                // 预定义操作队列
+                const operationQueue = ref([
+                    {
+                        "operation": "create_array",
+                        "data": {
+                            "array": [
+                                4,
+                                3,
+                                7,
+                                1,
+                                9,
+                                2
+                            ],
+                            "id": "arr0"
+                        },
+                        "metadata": "创建待排序数组"
+                    },
+                    {
+                        "operation": "highlight",
+                        "data": {
+                            "indices": [
+                                0,
+                                1
+                            ],
+                            "id": "arr0",
+                            "color": "red"
+                        },
+                        "metadata": "比较索引0和1的元素"
+                    },
+                    {
+                        "operation": "swap_elements",
+                        "data": {
+                            "indices": [
+                                0,
+                                1
+                            ],
+                            "id": "arr0"
+                        },
+                        "metadata": "交换索引0和1的元素"
+                    },
+                    {
+                        "operation": "unhighlight",
+                        "data": {
+                            "indices": [
+                                0,
+                                1
+                            ],
+                            "id": "arr0"
+                        },
+                        "metadata": "取消高亮索引0, 1的元素"
+                    }
+                ]);
+                
+                // 计算属性
+                const progress = computed(() => {
+                    return operationQueue.value.length 
+                        ? Math.min(100, Math.round((currentStep.value / operationQueue.value.length) * 100)) 
+                        : 0;
+                });
+                
+                const progressText = computed(() => {
+                    return `${currentStep.value}/${operationQueue.value.length} 步`;
+                });
+                
+                // SVG相关变量
+                let svg;
+                let groups;
+                const squareSize = 50;
+                const gap = 10;
+                
+                // 更新元素索引跟踪器
+                const updateElementIndices = () => {
+                    elementIndices.value = {};
+                    data.value.forEach((value, index) => {
+                        elementIndices.value[value] = index;
+                    });
+                };
+                
+                // D3.js初始化函数
+                const initD3 = () => {
+                    // 清除现有SVG
+                    d3.select("#visualization").selectAll("*").remove();
+                    
+                    // 创建新的SVG容器
+                    svg = d3.select("#visualization")
+                        .append("svg")
+                        .attr("width", data.value.length * (squareSize + gap))
+                        .attr("height", 160)
+                        .attr("class", "mx-auto");
+                };
+                
+                // 创建/更新可视化
+                const updateVisualization = () => {
+                    initD3();
+                    
+                    // 创建组并绑定数据
+                    groups = svg.selectAll("g")
+                        .data(data.value)
+                        .enter()
+                        .append("g")
+                        .attr("transform", (d, i) => `translate(${i * (squareSize + gap)}, 0)`);
+                    
+                    // 在组中添加正方形
+                    groups.append("rect")
+                        .attr("width", squareSize)
+                        .attr("height", squareSize)
+                        .attr("fill", (d, i) => highlightedIndices.value.includes(i) ? 
+                            (highlightColors.value[i] || "#FF9999") : "white")
+                        .attr("stroke", "#333")
+                        .attr("rx", 4);
+                    
+                    // 在组中添加文本
+                    groups.append("text")
+                        .attr("x", squareSize / 2)
+                        .attr("y", squareSize / 2)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central")
+                        .attr("font-size", "16px")
+                        .attr("font-weight", "bold")
+                        .text(d => d);
+                    
+                    // 在组中添加索引标签
+                    groups.append("text")
+                        .attr("x", squareSize / 2)
+                        .attr("y", squareSize + 20)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central")
+                        .attr("font-size", "14px")
+                        .attr("fill", "#666")
+                        .text((d, i) => i);
+                };
+                
+                // 操作函数：创建数组
+                const createArray = async (operationData) => {
+                    // 初始化数据
+                    data.value = [...operationData.array];
+                    
+                    // 清除高亮状态
+                    highlightedIndices.value = [];
+                    highlightColors.value = {};
+                    
+                    // 更新元素索引跟踪器
+                    updateElementIndices();
+                    
+                    // 更新可视化
+                    updateVisualization();
+                    
+                    await delay();
+                };
+                
+                // 操作函数：交换元素
+                const swapElements = async (operationData) => {
+                    const [i, j] = operationData.indices;
+                    
+                    // 保存要交换的两个值
+                    const valueI = data.value[i];
+                    const valueJ = data.value[j];
+                    
+                    // 交换数据数组中的值
+                    [data.value[i], data.value[j]] = [data.value[j], data.value[i]];
+                    
+                    // 更新元素索引跟踪器
+                    updateElementIndices();
+                    
+                    // 获取当前位置信息 - 只用于动画过渡
+                    const positionI = i * (squareSize + gap);
+                    const positionJ = j * (squareSize + gap);
+                    
+                    // 通过动画显示交换过程
+                    groups.filter((d, idx) => idx === i)
+                        .transition()
+                        .duration(1000 / animationSpeed.value)
+                        .attr("transform", `translate(${positionJ}, 0)`);
+                        
+                    groups.filter((d, idx) => idx === j)
+                        .transition()
+                        .duration(1000 / animationSpeed.value)
+                        .attr("transform", `translate(${positionI}, 0)`);
+                    
+                    // 等待动画完成
+                    await delay(1000 / animationSpeed.value);
+                    
+                    // 如果高亮状态存在，需要更新高亮索引
+                    if (highlightedIndices.value.includes(i) || highlightedIndices.value.includes(j)) {
+                        const newHighlighted = [...highlightedIndices.value];
+                        const newColors = {...highlightColors.value};
+                        
+                        // 移除旧的索引和颜色
+                        if (newHighlighted.includes(i)) {
+                            const color = newColors[i];
+                            delete newColors[i];
+                            if (!newHighlighted.includes(j)) {
+                                newColors[j] = color;
+                                newHighlighted.push(j);
+                            }
+                            const index = newHighlighted.indexOf(i);
+                            if (index > -1) {
+                                newHighlighted.splice(index, 1);
+                            }
+                        }
+                        
+                        if (newHighlighted.includes(j)) {
+                            const color = newColors[j];
+                            delete newColors[j];
+                            if (!newHighlighted.includes(i)) {
+                                newColors[i] = color;
+                                newHighlighted.push(i);
+                            }
+                            const index = newHighlighted.indexOf(j);
+                            if (index > -1) {
+                                newHighlighted.splice(index, 1);
+                            }
+                        }
+                        
+                        highlightedIndices.value = newHighlighted;
+                        highlightColors.value = newColors;
+                    }
+                    
+                    // 更新可视化
+                    updateVisualization();
+                };
+                
+                // 操作函数：高亮元素
+                const highlight = async (operationData) => {
+                    const indices = operationData.indices;
+                    const color = operationData.color || "#FF9999";
+                    
+                    // 更新高亮状态
+                    highlightedIndices.value = [...new Set([...highlightedIndices.value, ...indices])];
+                    
+                    // 存储每个索引的颜色
+                    indices.forEach(idx => {
+                        highlightColors.value[idx] = color;
+                    });
+                    
+                    // 更新视图中的高亮
+                    groups.filter((d, i) => indices.includes(i))
+                        .select("rect")
+                        .transition()
+                        .duration(500 / animationSpeed.value)
+                        .attr("fill", color);
+                    
+                    // 等待动画完成
+                    await delay(500 / animationSpeed.value);
+                };
+                
+                // 操作函数：取消高亮元素
+                const unhighlight = async (operationData) => {
+                    const indices = operationData.indices;
+                    
+                    // 移除高亮状态
+                    highlightedIndices.value = highlightedIndices.value.filter(idx => !indices.includes(idx));
+                    
+                    // 移除颜色映射
+                    indices.forEach(idx => {
+                        delete highlightColors.value[idx];
+                    });
+                    
+                    // 更新视图中的高亮
+                    groups.filter((d, i) => indices.includes(i))
+                        .select("rect")
+                        .transition()
+                        .duration(500 / animationSpeed.value)
+                        .attr("fill", "white");
+                    
+                    // 等待动画完成
+                    await delay(500 / animationSpeed.value);
+                };
+                
+                // 延迟函数
+                const delay = (ms = 500) => {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                };
+                
+                // 执行单步操作
+                const executeStep = async () => {
+                    if (currentStep.value >= operationQueue.value.length) {
+                        currentOperation.value = "可视化完成";
+                        isRunning.value = false;
+                        return false;
+                    }
+                    
+                    const operation = operationQueue.value[currentStep.value];
+                    currentOperation.value = operation.metadata || "执行操作";
+                    
+                    switch (operation.operation) {
+                        case "create_array":
+                            await createArray(operation.data);
+                            break;
+                        case "swap_elements":
+                            await swapElements(operation.data);
+                            break;
+                        case "highlight":
+                            await highlight(operation.data);
+                            break;
+                        case "unhighlight":
+                            await unhighlight(operation.data);
+                            break;
+                        default:
+                            console.warn(`未知操作: ${operation.operation}`);
+                    }
+                    
+                    currentStep.value++;
+                    return true;
+                };
+                
+                // 执行队列
+                const executeQueue = async () => {
+                    while (!isPaused.value && isRunning.value && currentStep.value < operationQueue.value.length) {
+                        const success = await executeStep();
+                        if (!success) break;
+                    }
+                };
+                
+                // 控制函数
+                const startVisualization = () => {
+                    isRunning.value = true;
+                    isPaused.value = false;
+                    executeQueue();
+                };
+                
+                const pauseVisualization = () => {
+                    isPaused.value = true;
+                };
+                
+                const stepVisualization = async () => {
+                    if (!isRunning.value) {
+                        isRunning.value = true;
+                    }
+                    isPaused.value = true;
+                    await executeStep();
+                };
+                
+                const resetVisualization = () => {
+                    isPaused.value = true;
+                    isRunning.value = false;
+                    currentStep.value = 0;
+                    currentOperation.value = "准备就绪";
+                    
+                    // 重置高亮状态
+                    highlightedIndices.value = [];
+                    highlightColors.value = {};
+                    
+                    // 重新创建数组和可视化
+                    if (operationQueue.value.length > 0 && operationQueue.value[0].operation === "create_array") {
+                        data.value = [...operationQueue.value[0].data.array];
+                        updateElementIndices();
+                    }
+                    
+                    updateVisualization();
+                };
+                
+                // 组件挂载后初始化
+                onMounted(() => {
+                    // 初始化数组数据
+                    if (operationQueue.value.length > 0 && operationQueue.value[0].operation === "create_array") {
+                        data.value = [...operationQueue.value[0].data.array];
+                        updateElementIndices();
+                    }
+                    
+                    updateVisualization();
+                });
+                
+                return {
+                    isPaused,
+                    isRunning,
+                    currentStep,
+                    animationSpeed,
+                    currentOperation,
+                    progress,
+                    progressText,
+                    startVisualization,
+                    pauseVisualization,
+                    stepVisualization,
+                    resetVisualization,
+                    data,
+                    highlightedIndices
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
