@@ -1,2 +1,147 @@
-const defaultOperations = [{'operation': 'create_list', 'data': {'value': 1, 'id': 'node0', 'list_name': 'list1'}, 'metadata': '创建值为1的链表头节点'}, {'operation': 'append_node', 'data': {'value': 3, 'id': 'node1', 'list_name': 'list1'}, 'metadata': '在链表list1尾部添加值为3的新节点'}, {'operation': 'append_node', 'data': {'value': 5, 'id': 'node2', 'list_name': 'list1'}, 'metadata': '在链表list1尾部添加值为5的新节点'}, {'operation': 'create_list', 'data': {'value': 2, 'id': 'node3', 'list_name': 'list2'}, 'metadata': '创建值为2的链表头节点'}, {'operation': 'append_node', 'data': {'value': 4, 'id': 'node4', 'list_name': 'list2'}, 'metadata': '在链表list2尾部添加值为4的新节点'}, {'operation': 'append_node', 'data': {'value': 6, 'id': 'node5', 'list_name': 'list2'}, 'metadata': '在链表list2尾部添加值为6的新节点'}, {'operation': 'create_list', 'data': {'value': -1, 'id': 'node6', 'list_name': 'merged'}, 'metadata': '创建值为-1的链表头节点'}, {'operation': 'highlight_node', 'data': {'id': 'node0'}, 'metadata': 'Comparing nodes'}, {'operation': 'highlight_link', 'data': {'source_id': 'node6', 'target_id': 'node0'}, 'metadata': 'Linking node'}, {'operation': 'unhighlight_node', 'data': {'id': 'node0'}, 'metadata': '取消高亮节点node0'}, {'operation': 'highlight_node', 'data': {'id': 'node3'}, 'metadata': 'Comparing nodes'}, {'operation': 'highlight_link', 'data': {'source_id': 'node0', 'target_id': 'node3'}, 'metadata': 'Linking node'}, {'operation': 'unhighlight_node', 'data': {'id': 'node3'}, 'metadata': '取消高亮节点node3'}, {'operation': 'highlight_node', 'data': {'id': 'node1'}, 'metadata': 'Comparing nodes'}, {'operation': 'highlight_link', 'data': {'source_id': 'node3', 'target_id': 'node1'}, 'metadata': 'Linking node'}, {'operation': 'unhighlight_node', 'data': {'id': 'node1'}, 'metadata': '取消高亮节点node1'}, {'operation': 'highlight_node', 'data': {'id': 'node4'}, 'metadata': 'Comparing nodes'}, {'operation': 'highlight_link', 'data': {'source_id': 'node1', 'target_id': 'node4'}, 'metadata': 'Linking node'}, {'operation': 'unhighlight_node', 'data': {'id': 'node4'}, 'metadata': '取消高亮节点node4'}, {'operation': 'highlight_node', 'data': {'id': 'node2'}, 'metadata': 'Comparing nodes'}, {'operation': 'highlight_link', 'data': {'source_id': 'node4', 'target_id': 'node2'}, 'metadata': 'Linking node'}, {'operation': 'unhighlight_node', 'data': {'id': 'node2'}, 'metadata': '取消高亮节点node2'}, {'operation': 'highlight_link', 'data': {'source_id': 'node2', 'target_id': 'node5'}, 'metadata': 'Linking remaining nodes'}, {'operation': 'merge_lists', 'data': {'list1_name': 'list1', 'list2_name': 'list2', 'new_list_id': 'merged'}, 'metadata': 'Merging completed'}]
-;
+const defaultOperations = [
+  {
+    "operation": "create_list",
+    "data": {
+      "value": 1,
+      "id": "node0",
+      "list_name": "linkedList"
+    },
+    "metadata": "创建链表头节点"
+  },
+  {
+    "operation": "append_node",
+    "data": {
+      "value": 2,
+      "id": "node1",
+      "list_name": "linkedList"
+    },
+    "metadata": "添加节点: 2"
+  },
+  {
+    "operation": "append_node",
+    "data": {
+      "value": 3,
+      "id": "node2",
+      "list_name": "linkedList"
+    },
+    "metadata": "添加节点: 3"
+  },
+  {
+    "operation": "append_node",
+    "data": {
+      "value": 4,
+      "id": "node3",
+      "list_name": "linkedList"
+    },
+    "metadata": "添加节点: 4"
+  },
+  {
+    "operation": "append_node",
+    "data": {
+      "value": 5,
+      "id": "node4",
+      "list_name": "linkedList"
+    },
+    "metadata": "添加节点: 5"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node0"
+    },
+    "metadata": "开始计算链表长度"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node1"
+    },
+    "metadata": "计数: 2"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node2"
+    },
+    "metadata": "计数: 3"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node3"
+    },
+    "metadata": "计数: 4"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node4"
+    },
+    "metadata": "计数: 5"
+  },
+  {
+    "operation": "unhighlight_node",
+    "data": {
+      "id": "node4"
+    },
+    "metadata": "链表长度为: 5"
+  },
+  {
+    "operation": "highlight_link",
+    "data": {
+      "source_id": "node4",
+      "target_id": "node0"
+    },
+    "metadata": "形成循环链表"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node0"
+    },
+    "metadata": "计算新头位置: 从头向后走 3 步"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node0"
+    },
+    "metadata": "移动到新尾节点"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node1"
+    },
+    "metadata": "移动到新尾节点"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node3"
+    },
+    "metadata": "找到新的头节点"
+  },
+  {
+    "operation": "unhighlight_link",
+    "data": {
+      "source_id": "node2",
+      "target_id": "node3"
+    },
+    "metadata": "断开循环形成新链表"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node0"
+    },
+    "metadata": "原始链表的头节点"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": "node3"
+    },
+    "metadata": "旋转后的链表头节点"
+  }
+];

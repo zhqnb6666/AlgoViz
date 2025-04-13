@@ -44,21 +44,12 @@ def process_query(user_input: str):
     queue = analyzer.analyze(
         result['code'],
         result['language'],
+        result['problem_description'],
         result['input_data']
     )
     
-    # 准备算法信息
-    if result['intent'] == 'analyze_code':
-        algorithm_info = {
-            "name": f"{result['language'].capitalize()}代码分析",
-            "description": "用户提供的代码分析"
-        }
-    else:
-        algorithm_info = {
-            "name": "问题求解",
-            "description": result['problem_description']
-        }
-    
+    print(result)
+
     # 生成可视化
     print("正在生成可视化...")
     # 将操作队列写入JS文件
@@ -70,7 +61,7 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-    将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
+    给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置，例如输入：head = [1,2,3,4,5], k = 2 输出：[4,5,1,2,3]
     """
     
     process_query(user_query)

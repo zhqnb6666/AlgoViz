@@ -12,20 +12,22 @@ import traceback
 from operation_queue import OperationQueue
 from llm.llm_factory import LLMFactory
 
+
 class CodeAnalyzer:
     """
     代码分析器类 - 负责将代码转换为可视化操作队列
     """
-    
+
     def __init__(self):
         """初始化代码分析器"""
         self.llm_factory = LLMFactory()
-        
+
         # 创建代码转换器链
         self.code_converter = self._create_code_converter()
+        self.visualization_strategy_generator = self._create_visualization_strategy_generator()
         self.code_instrumenter = self._create_code_instrumenter()
-    
-    def analyze(self, code: str, language: str, input_data: List[Any]) -> OperationQueue:
+
+    def analyze(self, code: str, language: str, problem_description: str, input_data: List[Any]) -> OperationQueue:
         """
         分析代码并生成操作队列
         
@@ -33,6 +35,7 @@ class CodeAnalyzer:
             code: 源代码
             language: 代码语言
             input_data: 输入数据
+            problem_description: 问题描述
             
         返回:
             OperationQueue 实例，包含可视化操作队列
@@ -42,15 +45,15 @@ class CodeAnalyzer:
             python_code = self._convert_to_python(code, language)
         else:
             python_code = code
-        
+
         # 生成带操作队列的代码
-        instrumented_code = self._instrument_code(python_code, input_data)
-        
+        instrumented_code = self._instrument_code(python_code, input_data, problem_description)
+
         # 执行仪器化代码并获取操作队列
         queue = self._execute_instrumented_code(instrumented_code, input_data)
-        
+
         return queue
-    
+
     def _convert_to_python(self, code: str, source_language: str) -> str:
         """
         将其他语言的代码转换为 Python
@@ -66,42 +69,51 @@ class CodeAnalyzer:
             "code": code,
             "source_language": source_language
         })
-        
+
         # 提取代码块（如果存在）
         code_match = re.search(r'```python\n([\s\S]*?)\n```', converted_code)
         if code_match:
             return code_match.group(1).strip()
-        
+
         # 如果没有代码块格式，直接返回
         return converted_code.strip()
-    
-    def _instrument_code(self, code: str, input_data: List[Any]) -> str:
+
+    def _instrument_code(self, code: str, input_data: List[Any], problem_description: str) -> str:
         """
         生成带操作队列的仪器化代码
         
         参数:
             code: Python 代码
             input_data: 输入数据
-            
+            problem_description: 问题描述
         返回:
             仪器化后的代码
         """
         # 为仪器化提供 OperationQueue 的信息
         op_queue_info = self._get_operation_queue_info()
-        
+
+        # 先生成可视化策略
+        visualization_strategy = self.visualization_strategy_generator.invoke({
+            "code": code,
+            "problem_description": problem_description,
+            "op_queue_info": op_queue_info
+        })
+
         instrumented_code = self.code_instrumenter.invoke({
             "code": code,
             "input_data": str(input_data),
-            "op_queue_info": op_queue_info
+            "op_queue_info": op_queue_info,
+            "problem_description": problem_description,
+            "visualization_strategy": visualization_strategy
         })
-        
+
         # 提取代码块（如果存在）
         code_match = re.search(r'```python\n([\s\S]*?)\n```', instrumented_code)
         if code_match:
             return code_match.group(1).strip()
-        
+
         return instrumented_code.strip()
-    
+
     def _execute_instrumented_code(self, code: str, input_data: List[Any]) -> OperationQueue:
         """
         执行仪器化代码并获取操作队列
@@ -113,83 +125,47 @@ class CodeAnalyzer:
         返回:
             操作队列
         """
-        try:
-            # 准备执行环境
-            exec_globals = {
-                'OperationQueue': OperationQueue,
-                'input_data': input_data,
-                'queue': OperationQueue(),
-                'print': print,
-                'len': len,
-                'range': range,
-                'enumerate': enumerate,
-                'min': min,
-                'max': max,
-                'sum': sum,
-                'sorted': sorted,
-                'list': list,
-                'dict': dict,
-                'set': set,
-                'tuple': tuple,
-                'int': int,
-                'float': float,
-                'str': str,
-                'bool': bool
-            }
-            
-            # 执行代码
-            exec(code, exec_globals)
-            
-            # 尝试直接调用固定函数名
-            if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
-                result = exec_globals['visualize_algorithm'](input_data)
-                if isinstance(result, OperationQueue):
-                    return result
-            
-            # 备用方案：查找环境中的所有OperationQueue实例
-            for var_name, var_value in exec_globals.items():
-                if isinstance(var_value, OperationQueue) and var_name != '_execute_instrumented':
-                    return var_value
-            
-            # 最后的备用方案
-            return OperationQueue()
-            
-        except Exception as e:
-            print(f"执行仪器化代码时出错：{str(e)}")
-            traceback.print_exc()
-            
-            # 执行失败，使用备选方法生成队列
-            return self._generate_fallback_queue(input_data)
-    
-    def _generate_fallback_queue(self, input_data: List[Any]) -> OperationQueue:
-        """
-        生成备选操作队列（简单的可视化）
-        
-        参数:
-            input_data: 输入数据
-            
-        返回:
-            操作队列
-        """
-        queue = OperationQueue()
-        
-        # 创建数组
-        array_id = queue.create_array(input_data, metadata="输入数据")
-        
-        # 为每个元素添加简单的高亮/取消高亮操作
-        for i in range(len(input_data)):
-            queue.highlight([i], array_id, f"查看元素 {input_data[i]}")
-            queue.unhighlight([i], array_id)
-        
-        # 如果有两个或更多元素，添加一个交换操作
-        if len(input_data) >= 2:
-            queue.highlight([0, 1], array_id, "比较前两个元素")
-            if input_data[0] > input_data[1]:
-                queue.swap_elements([0, 1], array_id, "交换不按顺序的元素")
-            queue.unhighlight([0, 1], array_id)
-        
-        return queue
-    
+
+        # 准备执行环境
+        exec_globals = {
+            'OperationQueue': OperationQueue,
+            'input_data': input_data,
+            'queue': OperationQueue(),
+            'print': print,
+            'len': len,
+            'range': range,
+            'enumerate': enumerate,
+            'min': min,
+            'max': max,
+            'sum': sum,
+            'sorted': sorted,
+            'list': list,
+            'dict': dict,
+            'set': set,
+            'tuple': tuple,
+            'int': int,
+            'float': float,
+            'str': str,
+            'bool': bool
+        }
+
+        # 执行代码
+        exec(code, exec_globals)
+
+        # 尝试直接调用固定函数名
+        if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
+            result = exec_globals['visualize_algorithm'](input_data)
+            if isinstance(result, OperationQueue):
+                return result
+
+        # 备用方案：查找环境中的所有OperationQueue实例
+        for var_name, var_value in exec_globals.items():
+            if isinstance(var_value, OperationQueue) and var_name != '_execute_instrumented':
+                return var_value
+
+        # 最后的备用方案
+        return OperationQueue()
+
     def _get_operation_queue_info(self) -> str:
         """
         获取 OperationQueue 类的函数信息
@@ -202,124 +178,47 @@ class CodeAnalyzer:
 
 
         1. create_array(array, array_id=None, metadata="创建数组") -> str
-
         创建一个新数组并添加到操作队列
 
-        参数:
-
-        array: 数组内容，通常是整数列表
-
-        array_id: 可选，数组标识符，未提供时自动生成
-
-        metadata: 操作描述信息
-
-        返回: 数组标识符 (array_id)
-
         2. swap_elements(indices, array_id, metadata=None) -> None
-
         交换数组中的两个元素
 
-        参数:
-
-        indices: 两个元素的索引，例如 [0, 1]
-
-        array_id: 数组标识符
-
-        metadata: 可选，操作描述
-
         3. highlight(indices, array_id, metadata=None) -> None
-
         高亮数组中的元素
 
-        参数:
-
-        indices: 要高亮的索引列表，例如 [1, 3]
-
-        array_id: 数组标识符
-
-        metadata: 可选，操作描述
-
         4. unhighlight(indices, array_id, metadata=None) -> None
+        取消高亮数组中的元素
 
-        取消高亮数组元素
-
-        参数:
-
-        indices: 索引列表
-
-        array_id: 数组标识符
-
-        metadata: 可选，操作描述
-
-        5. get_queue() -> List
-
-        获取操作队列中的所有操作（列表）
-
-        6. generate_json() -> str
-
-        返回操作队列的 JSON 字符串表示
-
-        树结构操作
         7. create_root(value, node_id=None, metadata=None) -> str
-
         创建树的根节点
 
-        参数:
-
-        value: 根节点的值
-
-        node_id: 可选，节点 ID，自动生成
-
-        metadata: 可选，操作描述
-
-        返回: 节点 ID
-
         8. add_child(parent_id, value, node_id=None, metadata=None) -> str
-
         向指定父节点添加子节点
-
-        参数:
-
-        parent_id: 父节点 ID
-
-        value: 子节点值
-
-        node_id: 可选，自动生成
-
-        metadata: 可选，操作描述
-
-        返回: 子节点 ID
-
         9. remove_node(node_id, metadata=None) -> None
-
-        删除节点及其子树
-
-        参数:
-
-        node_id: 要删除的节点 ID
-
-        metadata: 可选，操作描述
+        删除树节点
 
         10. highlight_node(node_id, metadata=None) -> None
-        11. unhighlight_node(node_id, metadata=None) -> None
+        高亮树节点
 
-        高亮/取消高亮树节点
+        11. unhighlight_node(node_id, metadata=None) -> None
+        取消高亮树节点
 
         12. update_value(node_id, value, metadata=None) -> None
 
         更新节点的值
 
         13. highlight_link(source_id, target_id, metadata=None) -> None
-        14. unhighlight_link(source_id, target_id, metadata=None) -> None
+        高亮两个节点间的边
 
-        高亮/取消高亮两个节点间的边
+        14. unhighlight_link(source_id, target_id, metadata=None) -> None
+        取消高亮两个节点间的边
 
         15. reparent_node(node_id, new_parent_id, metadata=None) -> None
 
         改变某个节点的父节点
 
         链表操作
-        16. create_list(value, node_id=None, list_name="linkedList", metadata=None) -> str
+        16. create_list(value, node_id=None, list_name , metadata=None) -> str
 
         创建链表头节点
 
@@ -362,7 +261,7 @@ class CodeAnalyzer:
 
         拆分链表为两段
         """
-    
+
     def _indent_code(self, code: str, spaces: int = 4) -> str:
         """
         缩进代码
@@ -377,7 +276,7 @@ class CodeAnalyzer:
         indent = ' ' * spaces
         lines = code.split('\n')
         return '\n'.join(indent + line for line in lines)
-    
+
     def _create_code_converter(self):
         """创建代码转换器链"""
         system_message = """
@@ -392,7 +291,7 @@ class CodeAnalyzer:
         
         请仅返回转换后的Python代码，不要包含解释或注释。
         """
-        
+
         human_message = """
         请将以下{source_language}代码转换为等效的Python代码:
         
@@ -402,44 +301,270 @@ class CodeAnalyzer:
         
         仅返回转换后的Python代码。
         """
-        
+
         return self.llm_factory.create_chat_prompt_chain(
             system_message=system_message,
             human_message_template=human_message,
             temperature=0.2,
             max_tokens=2000
         )
-    
+
+    def _create_visualization_strategy_generator(self):
+        """创建可视化策略生成器链"""
+        system_message = """
+        你是一个算法可视化专家，精通分析代码并为其设计最佳可视化策略。你的任务是分析给定的代码，识别其使用的数据结构和算法模式，并提供详细的可视化策略建议。
+
+请分析代码并识别以下内容：
+1. 主要数据结构类型（数组、链表、树、图等）
+2. 算法类型和模式（排序、搜索、动态规划等）
+3. 关键操作点和需要可视化的步骤
+4. 数据结构的转换和重建过程（如何可视化从一个状态到另一个状态的变化）
+5. 需要特别跟踪的变量和状态
+
+输出应该详细描述如何进行可视化，包括：
+- 需要使用的 OperationQueue 方法（特别注意使用可创建新数据结构的方法）
+- 各个步骤的可视化策略，尤其是：
+  * 当算法涉及创建新的数据结构时，应使用create_list、create_array等方法显式创建新结构
+  * 当算法修改现有结构时，应详细展示每一步的修改过程
+  * 当算法进行结构转换时（如从一个链表到另一个链表），应同时展示两个结构并可视化它们之间的关系
+- 应在哪些点添加辅助可视化元素（如箭头、标注等）以清晰展示算法逻辑
+- 如何展示中间状态和最终结果的对比
+
+特别强调：
+- 不要仅依赖高亮/取消高亮操作
+- 必须可视化算法涉及的所有数据结构构造过程
+- 如果算法涉及结构转换（如链表反转、树的重新平衡等），创建新的数据结构实例来展示转换后的状态 ，需要添加到生成的可视化策略中
+- 使用有意义的metadata字符串详细解释每一步操作
+
+你的分析应该清晰、全面，以便后续的代码仪器化模块能够理解如何最好地可视化这段代码。
+        """
+
+        human_message = """
+        请分析以下代码，并提供详细的可视化策略：
+        
+        ```python
+        {code}
+        ```
+        
+        问题描述：{problem_description}
+
+        OperationQueue类的信息：
+        {op_queue_info}
+        
+        请提供一个完整的可视化策略，包括需要可视化的关键步骤、数据结构、ID管理策略等。
+        """
+
+        return self.llm_factory.create_chat_prompt_chain(
+            system_message=system_message,
+            human_message_template=human_message,
+            temperature=0.3,
+            max_tokens=2000
+        )
+
     def _create_code_instrumenter(self):
         """创建代码仪器化链"""
         system_message = """
         你是一个专业的代码仪器化专家，精通Python编程和算法可视化。你的任务是将Python算法代码转换为带有可视化操作的版本。
         
-        在转换过程中:
+        ### 核心要求
         1. 保持原始算法的主要逻辑不变
-        2. 在关键步骤（如比较、交换、选择元素等）添加可视化操作
+        2. 结合问题描述在关键步骤（如比较、交换、选择、添加、创建元素等）添加可视化操作
         3. 使用OperationQueue类提供的方法创建可视化操作
-        4. OperationQueue类提供的方法只能加入操作到可视化队列中(相当于打印)，不能代替实际的数据结构，没有实际的功能
-        5. 为了保证操作正确，你需要创建原始数据结构的副本来执行操作队列（这要求你利用数据结构副本的实际元素作为使用OperationQueue类的参数）
-        6. 有关节点的内容数据结构副本需要包含node_id等信息（OperationQueue中的函数会返回id)便于进行高亮和取消高亮操作
+        4. OperationQueue类提供的方法只能加入操作到可视化队列中(相当于打印)，不能代替实际的数据结构操作
+        5. 你必须创建原始数据结构的副本来执行算法，并使用OperationQueue记录每一步关键操作
+        6. 你需要确保在源代码创建或修改数据结构内容的同时使用OperationQueue类进行相应的可视化记录
+        7. 最后的结果需要展现出来
         
-        严格遵循以下格式要求：
+        ### ID管理机制(对于链表和树而言，数组可忽略）
+        1. 必须创建并维护一个ID映射表，将代码中的节点或元素与OperationQueue操作中的ID关联起来
+        2. 每次创建新元素时，保存OperationQueue返回的ID，以便后续操作引用
+        3. 对于树节点、链表节点等，都需要保存其ID，而不只是值
+        4. 当进行swap、highlight等操作时，必须使用正确的存储ID而非索引或值
+        
+        ### 可视化插入关键点
+        1. 数据结构初始化/创建时
+        2. 元素比较时（使用highlight标记当前比较的元素）
+        3. 元素交换/修改时
+        4. 算法中的关键决策点
+        5. 递归调用前后
+        6. 子函数调用前后（如果与算法核心逻辑相关）
+        
+        ### 格式要求
         - 必须有一个函数名为 visualize_algorithm，负责接收input_data作为参数，并返回OperationQueue的实例
         - 函数参数必须保持为 input_data
-        - 不要在函数内部重新定义OperationQueue类
-        - visualize_algorithm必须可执行，如果存在未定义的类（OperationQueue类除外），比如ListNode类，必须保证其在代码某处被定义
+        - 不要重新定义OperationQueue类（非常重要）
+        - visualize_algorithm必须可执行，如果存在未定义的类，需要确保其在代码某处被定义，除了OperationQueue类
         - 不要包含任何调用示例代码
         - 不要包含markdown代码块标记
         
-        例如:
+        
+        ### 示例1：二叉树算法可视化
         ```
+        class TreeNode:
+            def __init__(self, val=0, left=None, right=None):
+                self.val = val
+                self.left = left
+                self.right = right
+                self.id = None  # 用于存储节点ID
+        
         def visualize_algorithm(input_data):
             queue = OperationQueue()
-            # 你的代码...
+            # 将输入数据转换为二叉树
+            if not input_data:
+                return queue
+                
+            # 创建节点ID映射表
+            node_map = {{}}
+            
+            # 构建树并记录可视化
+            root = TreeNode(input_data[0])
+            root.id = queue.create_root(root.val, metadata="创建根节点")
+            node_map[root] = root.id
+            
+            # 构建树的其余部分...
+            
+            # 二叉树遍历示例
+            def inorder(node):
+                if not node:
+                    return
+                    
+                # 高亮当前节点
+                queue.highlight_node(node_map[node], metadata=f"访问节点: {{node.val}}")
+                
+                # 左子树遍历
+                if node.left:
+                    queue.highlight_link(node_map[node], node_map[node.left], metadata="遍历左子树")
+                    inorder(node.left)
+                    
+                # 处理当前节点
+                queue.unhighlight_node(node_map[node], metadata="处理节点完成")
+                
+                # 右子树遍历
+                if node.right:
+                    queue.highlight_link(node_map[node], node_map[node.right], metadata="遍历右子树")
+                    inorder(node.right)
+            
+            inorder(root)
             return queue
         ```
-        """
         
+        ### 示例2：链表算法可视化
+        ```
+        class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+        self.id = None  # 用于存储节点ID
+
+
+def visualize_algorithm(input_data, k=2):
+    queue = OperationQueue()
+
+    # 创建链表并记录可视化
+    if not input_data:
+        return queue
+
+    # 节点ID映射表
+    node_map = {{}}
+
+    # 创建头节点
+    head = ListNode(input_data[0])
+    list_name = "linkedList"
+    head.id = queue.create_list(head.val, list_name=original_list, metadata="创建链表头节点")
+    node_map[head] = head.id
+
+    # 构建链表其余部分
+    current = head
+    for value in input_data[1:]:
+        current.next = ListNode(value)
+        current.next.id = queue.append_node(current.next.val, list_name=original_list,
+                                            metadata=f"添加节点: {{current.next.val}}")
+        node_map[current.next] = current.next.id
+        current = current.next
+
+    def rotateRight(head, k):
+        if not head or not head.next or k == 0:
+            return head
+
+        # 计算链表长度
+        length = 1
+        current = head
+        queue.highlight_node(node_map[current], metadata="开始计算链表长度")
+
+        while current.next:
+            queue.highlight_node(node_map[current.next], metadata=f"计数: {{length + 1}}")
+            current = current.next
+            length += 1
+
+        queue.unhighlight_node(node_map[current], metadata=f"链表长度为: {{length}}")
+
+        # 计算实际旋转次数
+        k = k % length
+        queue.highlight_node(node_map[head], metadata=f"计算实际旋转次数: {{k}} = {{k}} % {{length}}")
+
+        if k == 0:
+            return head
+
+        # 创建新的旋转后链表的名称
+        rotated_list = "rotatedList"
+
+        # 找到新的头节点和尾节点位置
+        steps_to_new_tail = length - k - 1
+        queue.highlight_node(node_map[head], metadata=f"定位新尾节点位置: 从头向后走 {{steps_to_new_tail}} 步")
+
+        # 找到新的尾节点
+        new_tail = head
+        for i in range(steps_to_new_tail):
+            queue.highlight_node(node_map[new_tail.next], metadata=f"向后移动 {{i + 1}}/{{steps_to_new_tail}} 步")
+            new_tail = new_tail.next
+            if i > 0:  # 保持前一个节点的高亮一会儿
+                queue.unhighlight_node(node_map[new_tail.next])
+
+        # 标记新的头节点
+        new_head = new_tail.next
+        queue.highlight_node(node_map[new_head], metadata="找到新的头节点")
+
+        # 创建一个新链表来展示旋转结果
+        # 首先复制新头节点作为旋转后链表的起点
+        new_head_id = queue.create_list(new_head.val, list_name=rotated_list, metadata="开始构建旋转后的链表")
+
+        # 复制从新头节点到原链表末尾的节点
+        temp = new_head.next
+        prev_id = new_head_id
+        while temp:
+            node_id = queue.append_node(temp.val, list_name=rotated_list,
+                                        metadata=f"添加旋转后的节点: {{temp.val}}")
+            queue.highlight_link(prev_id, node_id, metadata="连接到旋转后的链表")
+            prev_id = node_id
+            temp = temp.next
+
+        # 复制从原链表头到新尾节点的节点
+        temp = head
+        while temp != new_tail.next:
+            node_id = queue.append_node(temp.val, list_name=rotated_list,
+                                        metadata=f"添加原链表前段节点: {{temp.val}}")
+            queue.highlight_link(prev_id, node_id, metadata="连接到旋转后的链表")
+            prev_id = node_id
+            temp = temp.next
+
+        # 在原链表上展示断开和连接的操作
+        queue.highlight_link(node_map[current], node_map[head], metadata="在原链表中: 将尾节点连接到头节点")
+        queue.highlight_link(node_map[new_tail], node_map[new_head],
+                             metadata="在原链表中: 断开新尾节点和新头节点之间的连接")
+
+        return new_head
+
+    # 执行链表旋转
+    rotated_head = rotateRight(head, k)
+
+    # 标记原始链表和旋转后的链表
+    queue.highlight_node(node_map[head], metadata="原始链表的头节点")
+    queue.highlight_node(node_map[rotated_head], metadata="旋转后的链表头节点")
+
+    return queue
+        ```
+        """
+
         human_message = """
         请将以下Python代码转换为使用OperationQueue生成可视化操作的版本:
         
@@ -449,15 +574,20 @@ class CodeAnalyzer:
         
         输入数据为: {input_data}
         
+        问题描述为: {problem_description}
+        
+        可视化策略: {visualization_strategy}
+        
         OperationQueue类的信息:
         {op_queue_info}
         
         请严格按照要求生成visualize_algorithm函数，确保它返回OperationQueue对象。不要包含任何调用示例或打印语句。
+        最重要的是，确保正确保存和跟踪所有生成的ID，以便后续操作能够正确引用。
         """
-        
+
         return self.llm_factory.create_chat_prompt_chain(
             system_message=system_message,
             human_message_template=human_message,
             temperature=0.2,  # 降低temperature以获得更确定的输出
-            max_tokens=3000
+            max_tokens=4000
         )
