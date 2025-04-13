@@ -199,41 +199,168 @@ class CodeAnalyzer:
         """
         return """
         OperationQueue 类提供以下方法：
-        
+
+
         1. create_array(array, array_id=None, metadata="创建数组") -> str
-           - 创建一个新数组并添加到操作队列
-           - 参数:
-             * array: 数组内容，通常是整数列表
-             * array_id: 可选的数组标识符，如果不提供则自动生成
-             * metadata: 操作的描述信息
-           - 返回: 数组标识符 (array_id)
-        
+
+        创建一个新数组并添加到操作队列
+
+        参数:
+
+        array: 数组内容，通常是整数列表
+
+        array_id: 可选，数组标识符，未提供时自动生成
+
+        metadata: 操作描述信息
+
+        返回: 数组标识符 (array_id)
+
         2. swap_elements(indices, array_id, metadata=None) -> None
-           - 交换数组中的两个元素
-           - 参数:
-             * indices: 两个元素的索引列表，例如 [0, 1]
-             * array_id: 数组标识符
-             * metadata: 可选的操作描述
-        
+
+        交换数组中的两个元素
+
+        参数:
+
+        indices: 两个元素的索引，例如 [0, 1]
+
+        array_id: 数组标识符
+
+        metadata: 可选，操作描述
+
         3. highlight(indices, array_id, metadata=None) -> None
-           - 高亮数组中的元素
-           - 参数:
-             * indices: 要高亮的元素索引列表，例如 [0, 1, 2]
-             * array_id: 数组标识符
-             * metadata: 可选的操作描述
-        
+
+        高亮数组中的元素
+
+        参数:
+
+        indices: 要高亮的索引列表，例如 [1, 3]
+
+        array_id: 数组标识符
+
+        metadata: 可选，操作描述
+
         4. unhighlight(indices, array_id, metadata=None) -> None
-           - 取消高亮数组中的元素
-           - 参数:
-             * indices: 要取消高亮的元素索引列表
-             * array_id: 数组标识符
-             * metadata: 可选的操作描述
-        
+
+        取消高亮数组元素
+
+        参数:
+
+        indices: 索引列表
+
+        array_id: 数组标识符
+
+        metadata: 可选，操作描述
+
         5. get_queue() -> List
-           - 获取完整的操作队列
-           
+
+        获取操作队列中的所有操作（列表）
+
         6. generate_json() -> str
-           - 生成JSON格式的操作队列
+
+        返回操作队列的 JSON 字符串表示
+
+        树结构操作
+        7. create_root(value, node_id=None, metadata=None) -> str
+
+        创建树的根节点
+
+        参数:
+
+        value: 根节点的值
+
+        node_id: 可选，节点 ID，自动生成
+
+        metadata: 可选，操作描述
+
+        返回: 节点 ID
+
+        8. add_child(parent_id, value, node_id=None, metadata=None) -> str
+
+        向指定父节点添加子节点
+
+        参数:
+
+        parent_id: 父节点 ID
+
+        value: 子节点值
+
+        node_id: 可选，自动生成
+
+        metadata: 可选，操作描述
+
+        返回: 子节点 ID
+
+        9. remove_node(node_id, metadata=None) -> None
+
+        删除节点及其子树
+
+        参数:
+
+        node_id: 要删除的节点 ID
+
+        metadata: 可选，操作描述
+
+        10. highlight_node(node_id, metadata=None) -> None
+        11. unhighlight_node(node_id, metadata=None) -> None
+
+        高亮/取消高亮树节点
+
+        12. update_value(node_id, value, metadata=None) -> None
+
+        更新节点的值
+
+        13. highlight_link(source_id, target_id, metadata=None) -> None
+        14. unhighlight_link(source_id, target_id, metadata=None) -> None
+
+        高亮/取消高亮两个节点间的边
+
+        15. reparent_node(node_id, new_parent_id, metadata=None) -> None
+
+        改变某个节点的父节点
+
+        链表操作
+        16. create_list(value, node_id=None, list_name="linkedList", metadata=None) -> str
+
+        创建链表头节点
+
+        返回: 节点 ID
+
+        17. append_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
+
+        在链表尾部添加节点
+
+        18. prepend_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
+
+        在链表头部添加节点
+
+        19. insert_after(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
+        20. insert_before(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
+
+        在指定节点前/后插入节点
+
+        21. remove_list_node(node_id, list_name="linkedList", metadata=None) -> None
+
+        删除链表中的某个节点
+
+        22. reverse_list(list_name="linkedList", metadata=None) -> None
+
+        整体反转链表
+
+        23. reverse_segment(start_id, end_id, list_name="linkedList", metadata=None) -> None
+
+        反转链表中一段区间
+
+        24. swap_nodes(id1, id2, metadata=None) -> None
+
+        交换链表中两个节点的值
+
+        25. merge_lists(list1_name, list2_name, new_list_id="merged", metadata=None) -> None
+
+        合并两个链表为新链表
+
+        26. split_list(list_name, split_after_id, new_list_id="splitList", metadata=None) -> None
+
+        拆分链表为两段
         """
     
     def _indent_code(self, code: str, spaces: int = 4) -> str:
@@ -292,14 +419,14 @@ class CodeAnalyzer:
         1. 保持原始算法的主要逻辑不变
         2. 在关键步骤（如比较、交换、选择元素等）添加可视化操作
         3. 使用OperationQueue类提供的方法创建可视化操作
-        4. 确保为传入的输入数据创建初始数组可视化
-        5. 确保算法在执行过程中正确地修改输入数据的副本，而不是原始输入
+        4. OperationQueue类提供的方法只能加入操作到可视化队列中(相当于打印)，不能代替实际的数据结构，没有实际的功能
+        5. 为了保证操作正确，你需要创建原始数据结构的副本来执行操作队列（这要求你利用数据结构副本的实际元素作为使用OperationQueue类的参数）
         
         严格遵循以下格式要求：
-        - 你的函数必须命名为 visualize_algorithm
+        - 必须有一个函数名为 visualize_algorithm，负责接收input_data作为参数，并返回OperationQueue的实例
         - 函数参数必须保持为 input_data
         - 不要在函数内部重新定义OperationQueue类
-        - 必须返回OperationQueue的实例，不要打印它
+        - visualize_algorithm必须可执行（在引入OperationQueue类后）
         - 不要包含任何调用示例代码
         - 不要包含markdown代码块标记
         

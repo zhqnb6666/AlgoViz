@@ -2,6 +2,8 @@
 """
 AlgoViz演示模块 - 展示如何使用input_processor和code_analyzer
 """
+import json
+import os
 
 from input_processor import InputProcessor
 from code_analyzer import CodeAnalyzer
@@ -33,6 +35,7 @@ def process_query(user_input: str):
         print(f"已提取{result['language']}代码，长度: {len(result['code'])}")
     else:
         print("已生成问题解决代码")
+        print(result['problem_description'])
     
     print(f"输入数据: {result['input_data']}")
     
