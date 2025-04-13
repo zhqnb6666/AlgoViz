@@ -421,12 +421,13 @@ class CodeAnalyzer:
         3. 使用OperationQueue类提供的方法创建可视化操作
         4. OperationQueue类提供的方法只能加入操作到可视化队列中(相当于打印)，不能代替实际的数据结构，没有实际的功能
         5. 为了保证操作正确，你需要创建原始数据结构的副本来执行操作队列（这要求你利用数据结构副本的实际元素作为使用OperationQueue类的参数）
+        6. 有关节点的内容数据结构副本需要包含node_id等信息（OperationQueue中的函数会返回id)便于进行高亮和取消高亮操作
         
         严格遵循以下格式要求：
         - 必须有一个函数名为 visualize_algorithm，负责接收input_data作为参数，并返回OperationQueue的实例
         - 函数参数必须保持为 input_data
         - 不要在函数内部重新定义OperationQueue类
-        - visualize_algorithm必须可执行（在引入OperationQueue类后）
+        - visualize_algorithm必须可执行，如果存在未定义的类（OperationQueue类除外），比如ListNode类，必须保证其在代码某处被定义
         - 不要包含任何调用示例代码
         - 不要包含markdown代码块标记
         
