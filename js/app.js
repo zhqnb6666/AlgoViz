@@ -19,7 +19,7 @@ createApp({
         const showTreeContainer = ref(false);
         
         // 预定义操作队列
-        const operationQueue = ref(DefaultOperations);
+        const operationQueue = ref(defaultOperations);
         
         // 计算属性
         const progress = computed(() => {
