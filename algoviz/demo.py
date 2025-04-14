@@ -61,7 +61,9 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-    给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置，例如输入：head = [1,2,3,4,5], k = 2 输出：[4,5,1,2,3]
+    给你一个链表数组，每个链表都已经按升序排列。
+
+请你将所有链表合并到一个升序链表中，返回合并后的链表。 
     """
     
     process_query(user_query)

@@ -45,14 +45,15 @@ class OperationQueue:
             metadata=metadata
         )
 
-    def highlight(self, indices: List[int], array_id: str, metadata: Optional[str] = None) -> None:
+    def highlight(self, indices: List[int], array_id: str, color: str = "#FF9999",
+                  metadata: Optional[str] = None) -> None:
         """高亮元素操作"""
         if metadata is None:
             metadata = f"高亮索引{', '.join(map(str, indices))}的元素"
-            
+
         self.add_operation(
             operation="highlight",
-            data={"indices": indices, "id": array_id},
+            data={"indices": indices, "id": array_id, "color": color},
             metadata=metadata
         )
 

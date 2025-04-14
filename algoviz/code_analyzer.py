@@ -93,18 +93,18 @@ class CodeAnalyzer:
         op_queue_info = self._get_operation_queue_info()
 
         # 先生成可视化策略
-        visualization_strategy = self.visualization_strategy_generator.invoke({
-            "code": code,
-            "problem_description": problem_description,
-            "op_queue_info": op_queue_info
-        })
+        # visualization_strategy = self.visualization_strategy_generator.invoke({
+        #     "code": code,
+        #     "problem_description": problem_description,
+        #     "op_queue_info": op_queue_info
+        # })
 
         instrumented_code = self.code_instrumenter.invoke({
             "code": code,
             "input_data": str(input_data),
             "op_queue_info": op_queue_info,
-            "problem_description": problem_description,
-            "visualization_strategy": visualization_strategy
+            "problem_description": problem_description
+            # ,"visualization_strategy": visualization_strategy
         })
 
         # 提取代码块（如果存在）
@@ -312,31 +312,27 @@ class CodeAnalyzer:
     def _create_visualization_strategy_generator(self):
         """创建可视化策略生成器链"""
         system_message = """
-        你是一个算法可视化专家，精通分析代码并为其设计最佳可视化策略。你的任务是分析给定的代码，识别其使用的数据结构和算法模式，并提供详细的可视化策略建议。
-
+        你是一个算法可视化专家，精通分析代码并为其设计最佳可视化策略。你的任务是分析给定的代码，识别其使用的数据结构和算法模式，并提供简洁而详细的可视化策略建议。
 请分析代码并识别以下内容：
 1. 主要数据结构类型（数组、链表、树、图等）
 2. 算法类型和模式（排序、搜索、动态规划等）
 3. 关键操作点和需要可视化的步骤
-4. 数据结构的转换和重建过程（如何可视化从一个状态到另一个状态的变化）
-5. 需要特别跟踪的变量和状态
+4. 数据结构的转换和状态变化（特别是从一个状态到另一个状态的变化）
 
-输出应该详细描述如何进行可视化，包括：
-- 需要使用的 OperationQueue 方法（特别注意使用可创建新数据结构的方法）
-- 各个步骤的可视化策略，尤其是：
-  * 当算法涉及创建新的数据结构时，应使用create_list、create_array等方法显式创建新结构
-  * 当算法修改现有结构时，应详细展示每一步的修改过程
-  * 当算法进行结构转换时（如从一个链表到另一个链表），应同时展示两个结构并可视化它们之间的关系
-- 应在哪些点添加辅助可视化元素（如箭头、标注等）以清晰展示算法逻辑
-- 如何展示中间状态和最终结果的对比
+对于可视化策略，请遵循以下原则：
+- 每一步操作都应该有明确的目的和解释
+- 每次高亮操作后必须配对相应的取消高亮操作
+- 当算法涉及数据结构转换时，必须创建新的数据结构实例来展示转换后的状态
+- 使用具体的方法名称指定操作（如create_list、create_array、append_node等）
+- 为每个操作提供简洁而信息丰富的metadata解释
 
-特别强调：
-- 不要仅依赖高亮/取消高亮操作
-- 必须可视化算法涉及的所有数据结构构造过程
-- 如果算法涉及结构转换（如链表反转、树的重新平衡等），创建新的数据结构实例来展示转换后的状态 ，需要添加到生成的可视化策略中
-- 使用有意义的metadata字符串详细解释每一步操作
+严格禁止：
+- 过度依赖高亮/取消高亮操作
+- 提供实际代码示例
+- 生成未在OperationQueue中定义的方法
+- 省略数据结构的创建和转换步骤
 
-你的分析应该清晰、全面，以便后续的代码仪器化模块能够理解如何最好地可视化这段代码。
+请确保你的可视化策略能完整展示算法的整个执行过程，特别是数据结构的变化和转换，对于结果的展现则要创建新的对应数据结构。
         """
 
         human_message = """
@@ -350,8 +346,6 @@ class CodeAnalyzer:
 
         OperationQueue类的信息：
         {op_queue_info}
-        
-        请提供一个完整的可视化策略，包括需要可视化的关键步骤、数据结构、ID管理策略等。
         """
 
         return self.llm_factory.create_chat_prompt_chain(
@@ -365,37 +359,41 @@ class CodeAnalyzer:
         """创建代码仪器化链"""
         system_message = """
         你是一个专业的代码仪器化专家，精通Python编程和算法可视化。你的任务是将Python算法代码转换为带有可视化操作的版本。
-        
-        ### 核心要求
-        1. 保持原始算法的主要逻辑不变
-        2. 结合问题描述在关键步骤（如比较、交换、选择、添加、创建元素等）添加可视化操作
-        3. 使用OperationQueue类提供的方法创建可视化操作
-        4. OperationQueue类提供的方法只能加入操作到可视化队列中(相当于打印)，不能代替实际的数据结构操作
-        5. 你必须创建原始数据结构的副本来执行算法，并使用OperationQueue记录每一步关键操作
-        6. 你需要确保在源代码创建或修改数据结构内容的同时使用OperationQueue类进行相应的可视化记录
-        7. 最后的结果需要展现出来
-        
-        ### ID管理机制(对于链表和树而言，数组可忽略）
-        1. 必须创建并维护一个ID映射表，将代码中的节点或元素与OperationQueue操作中的ID关联起来
-        2. 每次创建新元素时，保存OperationQueue返回的ID，以便后续操作引用
-        3. 对于树节点、链表节点等，都需要保存其ID，而不只是值
-        4. 当进行swap、highlight等操作时，必须使用正确的存储ID而非索引或值
-        
-        ### 可视化插入关键点
-        1. 数据结构初始化/创建时
-        2. 元素比较时（使用highlight标记当前比较的元素）
-        3. 元素交换/修改时
-        4. 算法中的关键决策点
-        5. 递归调用前后
-        6. 子函数调用前后（如果与算法核心逻辑相关）
-        
-        ### 格式要求
-        - 必须有一个函数名为 visualize_algorithm，负责接收input_data作为参数，并返回OperationQueue的实例
-        - 函数参数必须保持为 input_data
-        - 不要重新定义OperationQueue类（非常重要）
-        - visualize_algorithm必须可执行，如果存在未定义的类，需要确保其在代码某处被定义，除了OperationQueue类
-        - 不要包含任何调用示例代码
-        - 不要包含markdown代码块标记
+
+### 核心要求
+1. 保持原始算法的主要逻辑不变
+2. 结合问题描述在关键步骤添加可视化操作
+3. 使用传入的OperationQueue实例来记录可视化操作，**不要自己定义OperationQueue类**
+4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
+5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
+
+### 必须遵循的规则
+1. **不要定义OperationQueue类**，它已经存在于运行环境中
+2. 每次高亮操作(highlight)必须有对应的取消高亮操作(unhighlight)
+3. 对于数据结构的转换或结果展示，必须创建单独的数据结构(如"rotatedList")来展示结果
+4. 必须保存所有节点/元素的ID以便正确引用
+
+### ID管理机制
+1. 为每个节点或元素分配一个id属性，并记录在映射表中
+2. 每次创建新元素时，保存OperationQueue返回的ID
+3. 所有可视化操作必须使用正确的ID而非元素值
+
+### 必须实现的可视化功能
+1. 数据结构初始化与创建的可视化
+2. 算法执行过程中的每个关键步骤的可视化
+3. **结果展示：明确创建新的数据结构展示算法的最终结果**
+4. 对于元素的比较、交换、移动等操作添加明确的可视化
+
+### 格式要求
+- 函数名必须为 visualize_algorithm，接收input_data作为参数，返回OperationQueue的实例
+- 除OperationQueue外，如有必要可定义算法所需的辅助类(如ListNode、TreeNode等)
+- 不包含任何调用示例代码或打印语句
+- 不包含任何markdown代码块标记
+
+### 代码质量要求
+- 确保生成的代码可以直接执行，不会产生运行时错误
+- 添加必要的注释以解释可视化逻辑
+- 确保每步操作都有有意义的metadata
         
         
         ### 示例1：二叉树算法可视化
@@ -576,8 +574,6 @@ def visualize_algorithm(input_data, k=2):
         
         问题描述为: {problem_description}
         
-        可视化策略: {visualization_strategy}
-        
         OperationQueue类的信息:
         {op_queue_info}
         
@@ -588,6 +584,6 @@ def visualize_algorithm(input_data, k=2):
         return self.llm_factory.create_chat_prompt_chain(
             system_message=system_message,
             human_message_template=human_message,
-            temperature=0.2,  # 降低temperature以获得更确定的输出
+            temperature=0.8,  # 降低temperature以获得更确定的输出
             max_tokens=4000
         )
