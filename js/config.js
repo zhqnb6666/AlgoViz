@@ -28,6 +28,14 @@ const CONFIG = {
         tree: {
             nodeRadius: 12,
             highlightedNodeRadius: 15
+        },
+
+        // 图可视化配置
+        graph: {
+            nodeRadius: 12,
+            highlightedNodeRadius: 15,
+            linkWidth: 2,
+            highlightedLinkWidth: 4
         }
     },
     
@@ -36,7 +44,8 @@ const CONFIG = {
         width: 1000,
         arrayHeight: 160,
         linkedListHeight: 300,
-        treeHeight: 500
+        treeHeight: 500,
+        graphHeight: 600
     },
     
     // 延迟时间（毫秒）

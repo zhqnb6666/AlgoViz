@@ -61,7 +61,28 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-    给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置，例如输入：head = [1,2,3,4,5], k = 2 输出：[4,5,1,2,3]
+实现Dijkstra算法，输入图结构如下：
+- 节点：A(0), B(1), C(2), D(3)
+- 边：A→B(4), A→C(2), B→D(3), C→B(1), C→D(5)
+起点是A，可视化最短路径查找过程
+
+# 对应的输入数据结构为：
+input_data = {
+    'nodes': [
+        {'id': 0, 'value': 'A', 'attributes': {'position': {'x': 200, 'y': 300}}},
+        {'id': 1, 'value': 'B', 'attributes': {'position': {'x': 400, 'y': 300}}},
+        {'id': 2, 'value': 'C', 'attributes': {'position': {'x': 200, 'y': 500}}},
+        {'id': 3, 'value': 'D', 'attributes': {'position': {'x': 400, 'y': 500}}}
+    ],
+    'edges': [
+        {'id': 0, 'from': 0, 'to': 1, 'weight': 4},
+        {'id': 1, 'from': 0, 'to': 2, 'weight': 2},
+        {'id': 2, 'from': 1, 'to': 3, 'weight': 3},
+        {'id': 3, 'from': 2, 'to': 1, 'weight': 1},
+        {'id': 4, 'from': 2, 'to': 3, 'weight': 5}
+    ],
+    'start_node': 0  # 起点节点ID
+}
     """
     
-    process_query(user_query)
+process_query(user_query)

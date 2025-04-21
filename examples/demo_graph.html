@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图结构算法可视化</title>
+    <!-- 引入必要库 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 项目本地文件 -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/models/graph.js"></script>
+    <script src="../js/visualizations/graph.js"></script>
+
+</head>
+<body class="bg-gray-100 p-8">
+<div class="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">图结构可视化演示</h1>
+
+    <!-- 控制面板 -->
+    <div class="controls mb-6 space-x-4">
+        <button onclick="startVisualization()"
+                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            开始演示
+        </button>
+        <button onclick="resetVisualization()"
+                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            重置
+        </button>
+    </div>
+
+    <!-- 可视化容器 -->
+    <div id="graph-visualization"
+         class="border rounded-lg p-4 bg-gray-50 w-full h-[600px]">
+    </div>
+    <!-- 操作说明 -->
+    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <h3 class="text-lg font-semibold mb-2">交互功能说明</h3>
+        <ul class="list-disc pl-6 text-gray-700">
+            <li>鼠标拖动节点可调整位置</li>
+            <li>双击节点可查看详细信息</li>
+            <li>力导向布局会自动调整节点位置</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // 初始化图可视化
+    GraphVisualization.init('#graph-visualization');
+
+    const operations = [
+        {"operation": "create_graph", "data": {"id": "graph1", "directed": true}, "metadata": "创建有向图"},
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node1",
+                "value": 10,
+                "attributes": {"color": "blue", "position": {"x": 200, "y": 300}}
+            },
+            "metadata": "添加节点node1"
+        },
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node2",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 400, "y": 300}}
+            },
+            "metadata": "添加节点node2"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge1",
+                "source_id": "node1",
+                "target_id": "node2",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node2"
+        },
+        {"operation": "highlight_node", "data": {"graph_id": "graph1", "id": "node1"}, "metadata": "高亮node1"},
+        {"operation": "unhighlight_node", "data": {"graph_id": "graph1", "id": "node1"}, "metadata": "取消高亮node1"},
+        {"operation": "highlight_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "高亮边edge1"},
+        {"operation": "unhighlight_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "取消高亮边edge1"},
+        {
+            "operation": "update_node",
+            "data": {"graph_id": "graph1", "id": "node1", "value": 15, "attributes": {"color": "red"}},
+            "metadata": "更新节点node1"
+        },
+        {
+            "operation": "update_edge",
+            "data": {"graph_id": "graph1", "id": "edge1", "weight": 8, "attributes": {"color": "blue"}},
+            "metadata": "更新边edge1"
+        },
+        {"operation": "remove_edge", "data": {"graph_id": "graph1", "id": "edge1"}, "metadata": "删除边edge1"},
+        {"operation": "remove_node", "data": {"graph_id": "graph1", "id": "node2"}, "metadata": "删除节点node2"},
+
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node2",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 400, "y": 300}}
+            },
+            "metadata": "添加节点node2"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge10",
+                "source_id": "node1",
+                "target_id": "node2",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node2"
+        },
+
+
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node3",
+                "value": 10,
+                "attributes": {"color": "blue", "position": {"x": 100, "y": 500}}
+            },
+            "metadata": "添加节点node3"
+        },
+        {
+            "operation": "add_node",
+            "data": {
+                "graph_id": "graph1",
+                "id": "node4",
+                "value": 20,
+                "attributes": {"color": "green", "position": {"x": 600, "y": 400}}
+            },
+            "metadata": "添加节点node4"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge2",
+                "source_id": "node3",
+                "target_id": "node4",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node3->node4"
+        },
+        {
+            "operation": "add_edge",
+            "data": {
+                "graph_id": "graph1",
+                "id": "edge3",
+                "source_id": "node1",
+                "target_id": "node3",
+                "weight": 5,
+                "attributes": {"style": "dashed"}
+            },
+            "metadata": "添加边node1->node3"
+        },
+        {
+            "operation": "get_neighbors",
+            "data": {"graph_id": "graph1", "node_id": "node1"},
+            "metadata": "获取节点node1的邻居"
+        },
+        {
+            "operation": "contract_edge",
+            "data": {"graph_id": "graph1", "edge_id": "edge10", "new_node_id": "contracted_node"},
+            "metadata": "收缩边edge10"
+        },
+        {
+            "operation": "merge_nodes",
+            "data": {"graph_id": "graph1", "nodes": ["node3", "node4"], "new_node_id": "merged_node", "value": 25},
+            "metadata": "合并节点node3和node4"
+        },
+
+    ];
+
+    // 执行可视化演示
+    let currentStep = 0;
+
+    async function startVisualization() {
+        console.log('startVisualization');
+        while (currentStep < operations.length) {
+            const op = operations[currentStep];
+            await executeOperation(op);
+            currentStep++;
+            await new Promise(r => setTimeout(r, 1500)); // 1.5秒间隔
+        }
+    }
+
+    async function executeOperation(operation) {
+        console.log('[执行操作]', operation.operation);
+        try {
+            switch (operation.operation) {
+                case 'create_graph':
+                    GraphModel.createGraph(operation.data.id, operation.data.directed);
+                    break;
+
+                case 'add_node':
+                    GraphModel.addNode(
+                        operation.data.graph_id,
+                        operation.data.id,
+                        operation.data.value,
+                        operation.data.attributes
+                    );
+                    break;
+
+                case 'add_edge':
+                    // 修正字段名从source_id/target_id改为source/target
+                    GraphModel.addEdge(
+                        operation.data.graph_id,
+                        operation.data.id,
+                        operation.data.source_id || operation.data.source, // 兼容两种字段命名
+                        operation.data.target_id || operation.data.target,
+                        operation.data.weight,
+                        operation.data.attributes
+                    );
+                    break;
+
+                case 'highlight_node':
+                    GraphModel.highlightNode(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'unhighlight_node':
+                    GraphModel.unhighlightNode(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'highlight_edge':
+                    GraphModel.highlightEdge(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'unhighlight_edge':
+                    GraphModel.unhighlightEdge(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'update_node':
+                    GraphModel.updateNode(
+                        operation.data.graph_id,
+                        operation.data.id,
+                        operation.data.value,
+                        operation.data.attributes
+                    );
+                    break;
+
+                case 'update_edge':
+                    // 需要先在GraphModel中添加updateEdge方法
+                    GraphModel.updateEdge(
+                        operation.data.graph_id,
+                        operation.data.id,
+                        operation.data.weight,
+                        operation.data.attributes
+                    );
+                    break;
+
+                case 'remove_edge':
+                    GraphModel.removeEdge(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'remove_node':
+                    GraphModel.removeNode(operation.data.graph_id, operation.data.id);
+                    break;
+
+                case 'contract_edge':
+                    GraphModel.contractEdge(
+                        operation.data.graph_id,
+                        operation.data.edge_id,
+                        operation.data.new_node_id
+                    );
+                    break;
+
+                case 'merge_nodes':
+                    GraphModel.mergeNodes(
+                        operation.data.graph_id,
+                        operation.data.nodes,
+                        operation.data.new_node_id,
+                        operation.data.value
+                    );
+                    break;
+                case 'get_neighbors': {
+                    const neighbors = GraphModel.getNeighbors(
+                        operation.data.graph_id,
+                        operation.data.node_id
+                    );
+
+                    // 高亮邻居节点
+                    neighbors.forEach(id =>
+                        GraphModel.highlightNode(operation.data.graph_id, id)
+                    );
+                    GraphVisualization.render(operation.data.graph_id);
+
+                    // 保持高亮1秒
+                    await new Promise(r => setTimeout(r, 1000));
+
+                    // 取消高亮
+                    neighbors.forEach(id =>
+                        GraphModel.unhighlightNode(operation.data.graph_id, id)
+                    );
+                    GraphVisualization.render(operation.data.graph_id);
+
+                    console.log(`节点 ${operation.data.node_id} 的邻居:`, neighbors);
+                    break;
+                }
+
+                default:
+                    console.warn('未知操作:', operation.operation);
+            }
+            GraphVisualization.render(operation.data.graph_id || 'main_graph');
+        } catch (error) {
+            console.error('操作执行失败:', error);
+        }
+    }
+
+
+    // 重置可视化
+    function resetVisualization() {
+        currentStep = 0;
+        GraphModel.graphs = {};
+        d3.select("#graph-visualization").selectAll("*").remove();
+        GraphVisualization.init('#graph-visualization');
+    }
+</script>
+</body>
+</html>
