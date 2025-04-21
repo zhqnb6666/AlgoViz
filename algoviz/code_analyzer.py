@@ -192,34 +192,34 @@ class CodeAnalyzer:
         # 二维数组操作
         5. create_array2d(array, array_id=None, metadata="创建二维数组") -> str
         创建一个新的二维数组
-
-        6. swap_elements2d(pos1, pos2, array_id, metadata=None) -> None
+        
+        6. swap_elements2d(row1, col1, row2, col2, array_id, metadata=None) -> None
         交换二维数组中的两个元素
-
+        
         7. highlight2d(positions, array_id, color="#FF9999", metadata=None) -> None
-        高亮二维数组中的元素
-
+        高亮二维数组中的元素，positions为(行,列)元组列表
+        
         8. unhighlight2d(positions, array_id, metadata=None) -> None
-        取消高亮二维数组中的元素
-
+        取消高亮二维数组中的元素，positions为(行,列)元组列表
+        
         9. swap_rows2d(row1, row2, array_id, metadata=None) -> None
         交换二维数组中的两行
-
+        
         10. swap_columns2d(col1, col2, array_id, metadata=None) -> None
         交换二维数组中的两列
-
-        11. update_element2d(position, value, array_id, metadata=None) -> None
+        
+        11. update_element2d(row, col, value, array_id, metadata=None) -> None
         更新二维数组中的元素值
-
+        
         12. add_row2d(row, position, array_id, metadata=None) -> None
         在二维数组中添加一行
-
+        
         13. add_column2d(column, position, array_id, metadata=None) -> None
         在二维数组中添加一列
-
+        
         14. remove_row2d(position, array_id, metadata=None) -> None
         删除二维数组中的一行
-
+        
         15. remove_column2d(position, array_id, metadata=None) -> None
         删除二维数组中的一列
 
@@ -407,6 +407,7 @@ class CodeAnalyzer:
 2. 每次高亮操作(highlight)必须有对应的取消高亮操作(unhighlight)
 3. 对于数据结构的转换或结果展示，必须创建单独的数据结构(如"rotatedList")来展示结果
 4. 必须保存所有节点/元素的ID以便正确引用
+5. 二维数组只支持方阵，对于行长度不等的二维数组，需要使用一维数组进行可视化
 
 ### ID管理机制
 1. 为每个节点或元素分配一个id属性，并记录在映射表中
