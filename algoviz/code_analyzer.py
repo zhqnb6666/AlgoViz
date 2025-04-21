@@ -176,7 +176,7 @@ class CodeAnalyzer:
         return """
         OperationQueue 类提供以下方法：
 
-
+        # 一维数组操作
         1. create_array(array, array_id=None, metadata="创建数组") -> str
         创建一个新数组并添加到操作队列
 
@@ -189,7 +189,42 @@ class CodeAnalyzer:
         4. unhighlight(indices, array_id, metadata=None) -> None
         取消高亮数组中的元素
 
-        7. create_root(value, node_id=None, metadata=None) -> str
+        # 二维数组操作
+        5. create_array2d(array, array_id=None, metadata="创建二维数组") -> str
+        创建一个新的二维数组
+
+        6. swap_elements2d(pos1, pos2, array_id, metadata=None) -> None
+        交换二维数组中的两个元素
+
+        7. highlight2d(positions, array_id, color="#FF9999", metadata=None) -> None
+        高亮二维数组中的元素
+
+        8. unhighlight2d(positions, array_id, metadata=None) -> None
+        取消高亮二维数组中的元素
+
+        9. swap_rows2d(row1, row2, array_id, metadata=None) -> None
+        交换二维数组中的两行
+
+        10. swap_columns2d(col1, col2, array_id, metadata=None) -> None
+        交换二维数组中的两列
+
+        11. update_element2d(position, value, array_id, metadata=None) -> None
+        更新二维数组中的元素值
+
+        12. add_row2d(row, position, array_id, metadata=None) -> None
+        在二维数组中添加一行
+
+        13. add_column2d(column, position, array_id, metadata=None) -> None
+        在二维数组中添加一列
+
+        14. remove_row2d(position, array_id, metadata=None) -> None
+        删除二维数组中的一行
+
+        15. remove_column2d(position, array_id, metadata=None) -> None
+        删除二维数组中的一列
+
+        # 树操作
+        16. create_root(value, node_id=None, metadata=None) -> str
         创建树的根节点
 
         8. add_child(parent_id, value, node_id=None, metadata=None) -> str

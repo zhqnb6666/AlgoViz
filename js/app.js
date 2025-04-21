@@ -17,6 +17,7 @@ createApp({
         const showArrayContainer = ref(false);
         const showLinkedListContainer = ref(false);
         const showTreeContainer = ref(false);
+        const showArray2DContainer = ref(false);
         
         // 预定义操作队列
         const operationQueue = ref(defaultOperations);
@@ -50,46 +51,6 @@ createApp({
                 
                 const operation = operationQueue.value[currentStep.value];
                 currentOperation.value = operation.metadata || "执行操作";
-                
-                // 根据操作类型预先显示容器
-                if (operation.operation.startsWith("create_array") || 
-                    operation.operation === "swap_elements" || 
-                    operation.operation === "highlight" || 
-                    operation.operation === "unhighlight") {
-                    showArrayContainer.value = true;
-                } else if (operation.operation.includes("list") || 
-                          operation.operation.includes("node") ||
-                          operation.operation.includes("append") ||
-                          operation.operation.includes("prepend") ||
-                          operation.operation.includes("merge")) {
-                    showLinkedListContainer.value = true;
-                } else if (operation.operation.includes("tree") ||
-                          operation.operation.includes("root") ||
-                          operation.operation.includes("child")) {
-                    showTreeContainer.value = true;
-                }
-                
-                // // 特殊处理第一次create操作，确保初始化正确完成
-                // if (operation.operation === "create_array" && 
-                //     (!ArrayVisualization.svg || Object.keys(ArrayModel.data).length === 0)) {
-                //     await handleCreateArray(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // } else if (operation.operation === "create_list" && 
-                //           (!LinkedListVisualization.svg || 
-                //           Object.keys(LinkedListModel.lists).filter(k => LinkedListModel.lists[k]).length === 0)) {
-                //     await handleCreateList(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // } else if (operation.operation === "create_root" && 
-                //           (!TreeVisualization.svg || Object.keys(TreeModel.trees).length === 0)) {
-                //     await handleCreateRoot(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // }
                 
                 switch (operation.operation) {
                     // 数组操作
@@ -168,6 +129,50 @@ createApp({
                         break;
                     case "unhighlight_tree_node":
                         await handleUnhighlightTreeNode(operation.data);
+                        break;
+                    
+                    // 二维数组操作
+                    case "create_array2d":
+                        await handleCreateArray2D(operation.data);
+                        break;
+                    case "swap_elements2d":
+                        await handleSwapElements2D(operation.data);
+                        break;
+                    case "highlight2d":
+                        await handleHighlight2D(operation.data);
+                        break;
+                    case "unhighlight2d":
+                        await handleUnhighlight2D(operation.data);
+                        break;
+                    case "swap_rows2d":
+                        await handleSwapRows2D(operation.data);
+                        break;
+                    case "swap_columns2d":
+                        await handleSwapColumns2D(operation.data);
+                        break;
+                    case "transpose2d":
+                        await handleTranspose2D(operation.data);
+                        break;
+                    case "update_element2d":
+                        await handleUpdateElement2D(operation.data);
+                        break;
+                    case "add_row2d":
+                        await handleAddRow2D(operation.data);
+                        break;
+                    case "add_column2d":
+                        await handleAddColumn2D(operation.data);
+                        break;
+                    case "remove_row2d":
+                        await handleRemoveRow2D(operation.data);
+                        break;
+                    case "remove_column2d":
+                        await handleRemoveColumn2D(operation.data);
+                        break;
+                    case "resize2d":
+                        await handleResize2D(operation.data);
+                        break;
+                    case "subarray2d":
+                        await handleSubarray2D(operation.data);
                         break;
                         
                     default:
@@ -327,6 +332,81 @@ createApp({
             return TreeVisualization.unhighlightNode(data.id, animationSpeed.value);
         };
         
+        // 二维数组操作处理
+        const handleCreateArray2D = async (data) => {
+            Array2DVisualization.init();
+            showArray2DContainer.value = true;
+            await Utils.delay(1000);
+            Array2DModel.create(data.id, data.array);
+            Array2DVisualization.init();
+            return Utils.delay(CONFIG.delay.standard, animationSpeed.value);
+        };
+        
+        const handleSwapElements2D = async (data) => {
+            Array2DModel.swapElements(data.id, data.pos1, data.pos2);
+            return Array2DVisualization.animateElementSwap(data.id, data.pos1, data.pos2, animationSpeed.value);
+        };
+        
+        const handleHighlight2D = async (data) => {
+            Array2DModel.highlightElements(data.id, data.positions, data.color);
+            return Array2DVisualization.animateHighlight(data.id, data.positions, data.color, animationSpeed.value);
+        };
+        
+        const handleUnhighlight2D = async (data) => {
+            Array2DModel.unhighlightElements(data.id, data.positions);
+            return Array2DVisualization.animateUnhighlight(data.id, data.positions, animationSpeed.value);
+        };
+        
+        const handleSwapRows2D = async (data) => {
+            Array2DModel.swapRows(data.id, data.row1, data.row2);
+            return Array2DVisualization.animateRowSwap(data.id, data.row1, data.row2, animationSpeed.value);
+        };
+        
+        const handleSwapColumns2D = async (data) => {
+            Array2DModel.swapColumns(data.id, data.col1, data.col2);
+            return Array2DVisualization.animateColumnSwap(data.id, data.col1, data.col2, animationSpeed.value);
+        };
+        
+        const handleTranspose2D = async (data) => {
+            Array2DModel.transpose(data.id, data.newId);
+            return Array2DVisualization.animateTranspose(data.id, data.newId, animationSpeed.value);
+        };
+        
+        const handleUpdateElement2D = async (data) => {
+            Array2DModel.updateElement(data.id, data.position, data.value);
+            return Array2DVisualization.animateElementUpdate(data.id, data.position, data.value, animationSpeed.value);
+        };
+        
+        const handleAddRow2D = async (data) => {
+            Array2DModel.addRow(data.id, data.row, data.position);
+            return Array2DVisualization.animateAddRow(data.id, data.position, animationSpeed.value);
+        };
+        
+        const handleAddColumn2D = async (data) => {
+            Array2DModel.addColumn(data.id, data.column, data.position);
+            return Array2DVisualization.animateAddColumn(data.id, data.position, animationSpeed.value);
+        };
+        
+        const handleRemoveRow2D = async (data) => {
+            Array2DModel.removeRow(data.id, data.position);
+            return Array2DVisualization.animateRemoveRow(data.id, data.row, animationSpeed.value);
+        };
+        
+        const handleRemoveColumn2D = async (data) => {
+            Array2DModel.removeColumn(data.id, data.position);
+            return Array2DVisualization.animateRemoveColumn(data.id, data.col, animationSpeed.value);
+        };
+        
+        const handleResize2D = async (data) => {
+            Array2DModel.resize(data.id, data.rows, data.cols, data.defaultValue);
+            return Array2DVisualization.animateResize(data.id, animationSpeed.value);
+        };
+        
+        const handleSubarray2D = async (data) => {
+            Array2DModel.subarray(data.id, data.startRow, data.startCol, data.endRow, data.endCol, data.newId);
+            return Array2DVisualization.animateSubarray(data.id, data.newId, data.startRow, data.startCol, data.endRow, data.endCol, animationSpeed.value);
+        };
+        
         // 执行队列
         const executeQueue = async () => {
             while (!isPaused.value && isRunning.value && currentStep.value < operationQueue.value.length) {
@@ -380,6 +460,11 @@ createApp({
             ArrayModel.highlightColors = {};
             ArrayModel.elementIndices = {};
             
+            // 重置二维数组
+            Array2DModel.data = {};
+            Array2DModel.highlighted = {};
+            Array2DModel.highlightColors = {};
+            
             // 重置链表
             LinkedListModel.lists = {};
             LinkedListModel.nodes = {};
@@ -392,6 +477,7 @@ createApp({
             showArrayContainer.value = false;
             showLinkedListContainer.value = false;
             showTreeContainer.value = false;
+            showArray2DContainer.value = false;
             
             // 清除所有可视化区域，但不创建新的SVG
             d3.select("#array-visualization").selectAll("*").remove();
@@ -412,6 +498,7 @@ createApp({
             showArrayContainer.value = false;
             showLinkedListContainer.value = false;
             showTreeContainer.value = false;
+            showArray2DContainer.value = false;
             
             // 不预先初始化可视化组件，等到实际需要时才初始化
             // 确保状态清晰
@@ -443,7 +530,8 @@ createApp({
             // 容器显示状态
             showArrayContainer,
             showLinkedListContainer,
-            showTreeContainer
+            showTreeContainer,
+            showArray2DContainer
         };
     }
-}).mount("#app"); 
+}).mount("#app");

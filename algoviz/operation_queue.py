@@ -9,6 +9,137 @@ class OperationQueue:
         self.queue = []
         self.array_id_counter = 0
         self.node_id_counter = 0
+        self.array2d_id_counter = 0
+        
+    def get_next_array2d_id(self) -> str:
+        """获取下一个二维数组ID"""
+        array2d_id = f"arr2d{self.array2d_id_counter}"
+        self.array2d_id_counter += 1
+        return array2d_id
+        
+    def create_array2d(self, array: List[List[int]], array_id: Optional[str] = None, metadata: str = "创建二维数组") -> str:
+        """创建二维数组操作"""
+        if array_id is None:
+            array_id = self.get_next_array2d_id()
+            
+        self.add_operation(
+            operation="create_array2d",
+            data={"array": [row.copy() for row in array], "id": array_id},
+            metadata=metadata
+        )
+        return array_id
+
+    def swap_elements2d(self, pos1: Dict[str, int], pos2: Dict[str, int], array_id: str, metadata: Optional[str] = None) -> None:
+        """交换二维数组中的两个元素"""
+        if metadata is None:
+            metadata = f"交换位置({pos1['row']},{pos1['col']})和({pos2['row']},{pos2['col']})的元素"
+            
+        self.add_operation(
+            operation="swap_elements2d",
+            data={"pos1": pos1, "pos2": pos2, "id": array_id},
+            metadata=metadata
+        )
+
+    def highlight2d(self, positions: List[Dict[str, int]], array_id: str, color: str = "#FF9999", metadata: Optional[str] = None) -> None:
+        """高亮二维数组中的元素"""
+        if metadata is None:
+            positions_str = ", ".join([f"({pos['row']},{pos['col']})" for pos in positions])
+            metadata = f"高亮位置{positions_str}的元素"
+
+        self.add_operation(
+            operation="highlight2d",
+            data={"positions": positions, "id": array_id, "color": color},
+            metadata=metadata
+        )
+
+    def unhighlight2d(self, positions: List[Dict[str, int]], array_id: str, metadata: Optional[str] = None) -> None:
+        """取消高亮二维数组中的元素"""
+        if metadata is None:
+            positions_str = ", ".join([f"({pos['row']},{pos['col']})" for pos in positions])
+            metadata = f"取消高亮位置{positions_str}的元素"
+            
+        self.add_operation(
+            operation="unhighlight2d",
+            data={"positions": positions, "id": array_id},
+            metadata=metadata
+        )
+
+    def swap_rows2d(self, row1: int, row2: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """交换二维数组中的两行"""
+        if metadata is None:
+            metadata = f"交换第{row1}行和第{row2}行"
+            
+        self.add_operation(
+            operation="swap_rows2d",
+            data={"row1": row1, "row2": row2, "id": array_id},
+            metadata=metadata
+        )
+
+    def swap_columns2d(self, col1: int, col2: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """交换二维数组中的两列"""
+        if metadata is None:
+            metadata = f"交换第{col1}列和第{col2}列"
+            
+        self.add_operation(
+            operation="swap_columns2d",
+            data={"col1": col1, "col2": col2, "id": array_id},
+            metadata=metadata
+        )
+
+    def update_element2d(self, position: Dict[str, int], value: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """更新二维数组中的元素值"""
+        if metadata is None:
+            metadata = f"更新位置({position['row']},{position['col']})的元素值为{value}"
+            
+        self.add_operation(
+            operation="update_element2d",
+            data={"position": position, "value": value, "id": array_id},
+            metadata=metadata
+        )
+
+    def add_row2d(self, row: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """在二维数组中添加一行"""
+        if metadata is None:
+            metadata = f"在位置{position}添加新行"
+            
+        self.add_operation(
+            operation="add_row2d",
+            data={"row": row.copy(), "position": position, "id": array_id},
+            metadata=metadata
+        )
+
+    def add_column2d(self, column: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """在二维数组中添加一列"""
+        if metadata is None:
+            metadata = f"在位置{position}添加新列"
+            
+        self.add_operation(
+            operation="add_column2d",
+            data={"column": column.copy(), "position": position, "id": array_id},
+            metadata=metadata
+        )
+
+    def remove_row2d(self, position: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """删除二维数组中的一行"""
+        if metadata is None:
+            metadata = f"删除第{position}行"
+            
+        self.add_operation(
+            operation="remove_row2d",
+            data={"position": position, "id": array_id},
+            metadata=metadata
+        )
+
+    def remove_column2d(self, position: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """删除二维数组中的一列"""
+        if metadata is None:
+            metadata = f"删除第{position}列"
+            
+        self.add_operation(
+            operation="remove_column2d",
+            data={"position": position, "id": array_id},
+            metadata=metadata
+        )
         
     def get_next_array_id(self) -> str:
         """获取下一个数组ID"""

@@ -113,8 +113,14 @@
             <div class="grid grid-cols-1 gap-4">
                 <!-- 数组可视化 -->
                 <div v-if="(activeTab === '全部' || activeTab === '数组') && showArrayContainer" class="visualization-container">
-                    <h3 class="text-lg font-semibold mb-2">数组结构</h3>
+                    <h3 class="text-lg font-semibold mb-2">一维数组结构</h3>
                     <div id="array-visualization" class="w-full overflow-x-auto pb-4"></div>
+                </div>
+                
+                <!-- 二维数组可视化 -->
+                <div v-if="(activeTab === '全部' || activeTab === '数组') && showArray2DContainer" class="visualization-container">
+                    <h3 class="text-lg font-semibold mb-2">二维数组结构</h3>
+                    <div id="array2d-visualization" class="w-full overflow-x-auto pb-4"></div>
                 </div>
                 
                 <!-- 链表可视化 -->
@@ -162,10 +168,12 @@
     <script src="js/utils.js"></script>
     <!-- 数据模型 -->
     <script src="js/models/array.js"></script>
+    <script src="js/models/array2D.js"></script>
     <script src="js/models/linkedList.js"></script>
     <script src="js/models/tree.js"></script>
     <!-- 可视化逻辑 -->
     <script src="js/visualizations/array.js"></script>
+    <script src="js/visualizations/array2D.js"></script>
     <script src="js/visualizations/linkedList.js"></script>
     <script src="js/visualizations/tree.js"></script>
     <!-- 操作队列 -->

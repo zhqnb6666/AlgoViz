@@ -1,323 +1,223 @@
 const defaultOperations = [
   {
-    "operation": "create_list",
+    "operation": "create_array2d",
     "data": {
-      "value": 1,
-      "id": "node0",
-      "list_name": "list_0"
+      "array": [],
+      "id": "result"
     },
-    "metadata": "创建链表: list_0 头节点"
+    "metadata": "初始化结果二维数组"
   },
   {
-    "operation": "append_node",
+    "operation": "create_array",
     "data": {
-      "value": 4,
-      "id": "node1",
-      "list_name": "list_0"
+      "array": [
+        5,
+        3,
+        8,
+        5,
+        3,
+        2,
+        8,
+        4
+      ],
+      "id": "inputArray"
     },
-    "metadata": "添加节点: 4"
+    "metadata": "输入数组"
   },
   {
-    "operation": "append_node",
+    "operation": "highlight",
     "data": {
-      "value": 5,
-      "id": "node2",
-      "list_name": "list_0"
+      "indices": [
+        0
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "添加节点: 5"
+    "metadata": "处理数字: 5"
   },
   {
-    "operation": "create_list",
+    "operation": "unhighlight",
     "data": {
-      "value": 1,
-      "id": "node3",
-      "list_name": "list_1"
+      "indices": [
+        0
+      ],
+      "id": "inputArray"
     },
-    "metadata": "创建链表: list_1 头节点"
+    "metadata": "处理完成: 5"
   },
   {
-    "operation": "append_node",
+    "operation": "highlight",
     "data": {
-      "value": 3,
-      "id": "node4",
-      "list_name": "list_1"
+      "indices": [
+        1
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "添加节点: 3"
+    "metadata": "处理数字: 3"
   },
   {
-    "operation": "append_node",
+    "operation": "unhighlight",
     "data": {
-      "value": 4,
-      "id": "node5",
-      "list_name": "list_1"
+      "indices": [
+        1
+      ],
+      "id": "inputArray"
     },
-    "metadata": "添加节点: 4"
+    "metadata": "处理完成: 3"
   },
   {
-    "operation": "create_list",
+    "operation": "highlight",
     "data": {
-      "value": 2,
-      "id": "node6",
-      "list_name": "list_2"
+      "indices": [
+        2
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "创建链表: list_2 头节点"
+    "metadata": "处理数字: 8"
   },
   {
-    "operation": "append_node",
+    "operation": "unhighlight",
     "data": {
-      "value": 6,
-      "id": "node7",
-      "list_name": "list_2"
+      "indices": [
+        2
+      ],
+      "id": "inputArray"
     },
-    "metadata": "添加节点: 6"
+    "metadata": "处理完成: 8"
   },
   {
-    "operation": "create_list",
+    "operation": "highlight",
     "data": {
-      "value": 0,
-      "id": "node8",
-      "list_name": "mergedList"
+      "indices": [
+        3
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "创建合并链表的虚拟头节点"
+    "metadata": "处理数字: 2"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight",
     "data": {
-      "id": "node0"
+      "indices": [
+        3
+      ],
+      "id": "inputArray"
     },
-    "metadata": "将节点: 1 推入堆"
+    "metadata": "处理完成: 2"
   },
   {
-    "operation": "highlight_node",
+    "operation": "highlight",
     "data": {
-      "id": "node3"
+      "indices": [
+        4
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "将节点: 1 推入堆"
+    "metadata": "处理数字: 4"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight",
     "data": {
-      "id": "node6"
+      "indices": [
+        4
+      ],
+      "id": "inputArray"
     },
-    "metadata": "将节点: 2 推入堆"
+    "metadata": "处理完成: 4"
   },
   {
-    "operation": "highlight_node",
+    "operation": "add_row2d",
     "data": {
-      "id": "node0"
+      "row": [
+        5,
+        3,
+        8,
+        2,
+        4
+      ],
+      "position": 0,
+      "id": "result"
     },
-    "metadata": "弹出堆顶节点: 1"
+    "metadata": "添加新的行: [5, 3, 8, 2, 4]"
   },
   {
-    "operation": "append_node",
+    "operation": "highlight",
     "data": {
-      "value": 1,
-      "id": "node9",
-      "list_name": "mergedList"
+      "indices": [
+        0
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "合并节点: 1"
+    "metadata": "处理数字: 5"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight",
     "data": {
-      "id": "node1"
+      "indices": [
+        0
+      ],
+      "id": "inputArray"
     },
-    "metadata": "将下一个节点: 4 推入堆"
+    "metadata": "处理完成: 5"
   },
   {
-    "operation": "unhighlight_node",
+    "operation": "highlight",
     "data": {
-      "id": "node0"
+      "indices": [
+        1
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "处理完成节点: 1"
+    "metadata": "处理数字: 3"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight",
     "data": {
-      "id": "node3"
+      "indices": [
+        1
+      ],
+      "id": "inputArray"
     },
-    "metadata": "弹出堆顶节点: 1"
+    "metadata": "处理完成: 3"
   },
   {
-    "operation": "append_node",
+    "operation": "highlight",
     "data": {
-      "value": 1,
-      "id": "node10",
-      "list_name": "mergedList"
+      "indices": [
+        2
+      ],
+      "id": "inputArray",
+      "color": "#FF9999"
     },
-    "metadata": "合并节点: 1"
+    "metadata": "处理数字: 8"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight",
     "data": {
-      "id": "node4"
+      "indices": [
+        2
+      ],
+      "id": "inputArray"
     },
-    "metadata": "将下一个节点: 3 推入堆"
+    "metadata": "处理完成: 8"
   },
   {
-    "operation": "unhighlight_node",
+    "operation": "add_row2d",
     "data": {
-      "id": "node3"
+      "row": [
+        5,
+        3,
+        8
+      ],
+      "position": 1,
+      "id": "result"
     },
-    "metadata": "处理完成节点: 1"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node6"
-    },
-    "metadata": "弹出堆顶节点: 2"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 2,
-      "id": "node11",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 2"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node7"
-    },
-    "metadata": "将下一个节点: 6 推入堆"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node6"
-    },
-    "metadata": "处理完成节点: 2"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node4"
-    },
-    "metadata": "弹出堆顶节点: 3"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 3,
-      "id": "node12",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 3"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node5"
-    },
-    "metadata": "将下一个节点: 4 推入堆"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node4"
-    },
-    "metadata": "处理完成节点: 3"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node1"
-    },
-    "metadata": "弹出堆顶节点: 4"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 4,
-      "id": "node13",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 4"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node2"
-    },
-    "metadata": "将下一个节点: 5 推入堆"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node1"
-    },
-    "metadata": "处理完成节点: 4"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node5"
-    },
-    "metadata": "弹出堆顶节点: 4"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 4,
-      "id": "node14",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 4"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node5"
-    },
-    "metadata": "处理完成节点: 4"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node2"
-    },
-    "metadata": "弹出堆顶节点: 5"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 5,
-      "id": "node15",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 5"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node2"
-    },
-    "metadata": "处理完成节点: 5"
-  },
-  {
-    "operation": "highlight_node",
-    "data": {
-      "id": "node7"
-    },
-    "metadata": "弹出堆顶节点: 6"
-  },
-  {
-    "operation": "append_node",
-    "data": {
-      "value": 6,
-      "id": "node16",
-      "list_name": "mergedList"
-    },
-    "metadata": "合并节点: 6"
-  },
-  {
-    "operation": "unhighlight_node",
-    "data": {
-      "id": "node7"
-    },
-    "metadata": "处理完成节点: 6"
+    "metadata": "添加新的行: [5, 3, 8]"
   }
 ];

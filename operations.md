@@ -193,180 +193,269 @@
 # 二维数组
 
 {
-  "operation": "create_2d_array",
-  "data": {
-    "array": [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9]
-    ],
-    "id": "arr2d_1"
-  },
-  "metadata": "创建一个3x3的二维数组"
-}
-{
-  "operation": "swap_elements",
-  "data": {
-    "position1": {"row": 0, "col": 0},
-    "position2": {"row": 1, "col": 1},
-    "id": "arr2d_1"
-  },
-  "metadata": "交换位置(0,0)和(1,1)的元素"
-}
-{
-  "operation": "highlight_element",
-  "data": {
-    "position": {"row": 0, "col": 2},
-    "id": "arr2d_1"
-  },
-  "metadata": "高亮位置(0,2)的元素"
-}
-{
-  "operation": "highlight_elements",
-  "data": {
-    "positions": [
-      {"row": 0, "col": 0},
-      {"row": 0, "col": 1}
-    ],
-    "id": "arr2d_1"
-  },
-  "metadata": "高亮多个元素"
-}
-{
-  "operation": "unhighlight_element",
-  "data": {
-    "position": {"row": 0, "col": 2},
-    "id": "arr2d_1"
-  },
-  "metadata": "取消高亮位置(0,2)的元素"
-}
-{
-  "operation": "unhighlight_elements",
-  "data": {
-    "positions": [
-      {"row": 0, "col": 0},
-      {"row": 0, "col": 1}
-    ],
-    "id": "arr2d_1"
-  },
-  "metadata": "取消高亮多个元素"
-}
-{
-  "operation": "highlight_row",
-  "data": {
-    "row": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "高亮第1行(从0开始计数)"
-}
-{
-  "operation": "unhighlight_row",
-  "data": {
-    "row": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "取消高亮第1行"
-}
-{
-  "operation": "highlight_column",
-  "data": {
-    "col": 2,
-    "id": "arr2d_1"
-  },
-  "metadata": "高亮第2列(从0开始计数)"
-}
-{
-  "operation": "unhighlight_column",
-  "data": {
-    "col": 2,
-    "id": "arr2d_1"
-  },
-  "metadata": "取消高亮第2列"
-}
-{
-  "operation": "update_element",
-  "data": {
-    "position": {"row": 2, "col": 2},
-    "value": 100,
-    "id": "arr2d_1"
-  },
-  "metadata": "更新位置(2,2)的元素值为100"
-}
-{
-  "operation": "swap_rows",
-  "data": {
-    "row1": 0,
-    "row2": 2,
-    "id": "arr2d_1"
-  },
-  "metadata": "交换第0行和第2行"
-}
-{
-  "operation": "swap_columns",
-  "data": {
-    "col1": 0,
-    "col2": 2,
-    "id": "arr2d_1"
-  },
-  "metadata": "交换第0列和第2列"
-}
-{
-  "metadata": "矩阵转置"
-}
-{
-  "operation": "add_row",
-  "data": {
-    "row": [10, 11, 12],
-    "position": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "在位置1插入新行"
-}
-{
-  "operation": "add_column",
-  "data": {
-    "column": [10, 11, 12],
-    "position": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "在位置1插入新列"
-}
-{
-  "operation": "remove_row",
-  "data": {
-    "row": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "删除第1行"
-}
-{
-  "operation": "remove_column",
-  "data": {
-    "col": 1,
-    "id": "arr2d_1"
-  },
-  "metadata": "删除第1列"
-}
-{
-  "operation": "resize",
-  "data": {
-    "rows": 4,
-    "cols": 5,
-    "default_value": 0,
-    "id": "arr2d_1"
-  },
-  "metadata": "将数组调整为4行5列，新增位置用0填充"
-}
-{
-  "operation": "subarray",
-  "data": {
-    "start_row": 0,
-    "start_col": 0,
-    "end_row": 1,
-    "end_col": 1,
-    "id": "arr2d_1",
-    "new_id": "arr2d_sub"
-  },
-  "metadata": "提取子数组并赋予新ID"
-}
 
+​    "operation": "create_array2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "array": [
+
+​        [1, 2, 3, 4],
+
+​        [5, 6, 7, 8],
+
+​        [9, 10, 11, 12]
+
+​      ]
+
+​    },
+
+​    "metadata": "创建二维数组 matrix1"
+
+  },
+
+  {
+
+​    "operation": "highlight2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "positions": [
+
+​        {"row": 0, "col": 0},
+
+​        {"row": 0, "col": 1},
+
+​        {"row": 0, "col": 2},
+
+​        {"row": 0, "col": 3}
+
+​      ],
+
+​      "color": "#FFCCCC"
+
+​    },
+
+​    "metadata": "高亮第一行"
+
+  },
+
+  {
+
+​    "operation": "unhighlight2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "positions": [
+
+​        {"row": 0, "col": 0},
+
+​        {"row": 0, "col": 1},
+
+​        {"row": 0, "col": 2},
+
+​        {"row": 0, "col": 3}
+
+​      ]
+
+​    },
+
+​    "metadata": "取消高亮第一行"
+
+  },
+
+  {
+
+​    "operation": "highlight2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "positions": [
+
+​       {"row": 0, "col": 0},
+
+​       {"row": 1, "col": 0},
+
+​       {"row": 2, "col": 0}
+
+​     ],
+
+​      "color": "#CCFFCC"
+
+​    },
+
+​    "metadata": "高亮第一列"
+
+  },
+
+  {
+
+​    "operation": "swap_elements2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "pos1": {"row": 0, "col": 0},
+
+​      "pos2": {"row": 2, "col": 2}
+
+​    },
+
+​    "metadata": "交换元素 (0,0) 和 (2,2)"
+
+  },
+
+  {
+
+​    "operation": "unhighlight2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "positions": [
+
+​        {"row": 0, "col": 0},
+
+​        {"row": 1, "col": 0},
+
+​        {"row": 2, "col": 0}
+
+​      ]
+
+​    },
+
+​    "metadata": "取消高亮第一列"
+
+  },
+
+  {
+
+​    "operation": "swap_rows2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "row1": 0,
+
+​      "row2": 2
+
+​    },
+
+​    "metadata": "交换行 0 和行 2"
+
+  },
+
+  {
+
+​    "operation": "swap_columns2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "col1": 0,
+
+​      "col2": 3
+
+​    },
+
+​    "metadata": "交换列 0 和列 3"
+
+  },
+
+  {
+
+​    "operation": "update_element2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "position": {"row": 1, "col": 1},
+
+​      "value": 99
+
+​    },
+
+​    "metadata": "更新元素 (1,1) 为 99"
+
+  },
+
+  {
+
+​    "operation": "add_row2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "row": [1, 2, 3, 4],
+
+​      "position": 1
+
+​    },
+
+​    "metadata": "在位置 1 添加一行"
+
+  },
+
+  {
+
+​    "operation": "add_column2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "column": [1, 2, 3, 4],
+
+​      "position": 2
+
+​    },
+
+​    "metadata": "在位置 2 添加一列"
+
+  },
+
+  {
+
+​    "operation": "remove_row2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "position": 0
+
+​    },
+
+​    "metadata": "删除位置 0 的行"
+
+  },
+
+  {
+
+​    "operation": "remove_column2d",
+
+​    "data": {
+
+​      "id": "matrix1",
+
+​      "position": 2
+
+​    },
+
+​    "metadata": "删除位置 2 的列"
+
+  }
