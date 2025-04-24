@@ -16,161 +16,181 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-gray-50">
-    <div id="app" v-cloak class="container mx-auto px-4 py-8 max-w-6xl">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">数据结构与算法可视化</h1>
-            <p class="text-gray-600">支持数组、链表和树结构的可视化演示</p>
-        </header>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <!-- 控制按钮 -->
-            <div class="flex flex-wrap gap-4 mb-6">
-                <button 
-                    @click="startVisualization" 
+<div id="app" v-cloak class="container mx-auto px-4 py-8 max-w-6xl">
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">数据结构与算法可视化</h1>
+        <p class="text-gray-600">支持数组、链表和树结构的可视化演示</p>
+    </header>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <!-- 控制按钮 -->
+        <div class="flex flex-wrap gap-4 mb-6">
+            <button
+                    @click="startVisualization"
                     class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="isRunning || isOperationLocked">
-                    <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-play'"></i>
-                    <span class="ml-2">开始</span>
-                </button>
-                <button 
-                    @click="pauseVisualization" 
+                <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-play'"></i>
+                <span class="ml-2">开始</span>
+            </button>
+            <button
+                    @click="pauseVisualization"
                     class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="!isRunning || isPaused || isOperationLocked">
-                    <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-pause'"></i>
-                    <span class="ml-2">暂停</span>
-                </button>
-                <button 
-                    @click="stepVisualization" 
+                <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-pause'"></i>
+                <span class="ml-2">暂停</span>
+            </button>
+            <button
+                    @click="stepVisualization"
                     class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="(isRunning && !isPaused) || isOperationLocked">
-                    <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-step-forward'"></i>
-                    <span class="ml-2">下一步</span>
-                </button>
-                <button 
-                    @click="resetVisualization" 
+                <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-step-forward'"></i>
+                <span class="ml-2">下一步</span>
+            </button>
+            <button
+                    @click="resetVisualization"
                     class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="isOperationLocked">
-                    <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-redo-alt'"></i>
-                    <span class="ml-2">重置</span>
-                </button>
-            </div>
-            
-            <!-- 动画速度控制 -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">动画速度</label>
-                <input 
-                    type="range" 
-                    min="1" 
-                    max="10" 
-                    v-model="animationSpeed" 
+                <i class="fas" :class="isOperationLocked ? 'fa-spinner fa-spin' : 'fa-redo-alt'"></i>
+                <span class="ml-2">重置</span>
+            </button>
+        </div>
+
+        <!-- 动画速度控制 -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">动画速度</label>
+            <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    v-model="animationSpeed"
                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>慢</span>
-                    <span>快</span>
-                </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>慢</span>
+                <span>快</span>
             </div>
-            
-            <!-- 进度条 -->
-            <div class="mb-8">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="text-sm font-medium text-gray-700">进度</div>
-                    <div class="text-sm text-gray-500">{{ progressText }}</div>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${progress}%` }"></div>
-                </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-medium text-gray-700">进度</div>
+                <div class="text-sm text-gray-500">{{ progressText }}</div>
             </div>
-            
-            <!-- 数据结构选择器 -->
-            <div class="flex mb-4 border-b">
-                <button 
-                    v-for="tab in ['全部', '数组', '链表', '树']" 
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${progress}%` }"></div>
+            </div>
+        </div>
+
+        <!-- 数据结构选择器 -->
+        <div class="flex mb-4 border-b">
+            <button
+                    v-for="tab in ['全部', '数组', '链表', '树', '图']"
                     :key="tab"
                     @click="activeTab = tab"
                     class="px-4 py-2 mr-2 focus:outline-none"
                     :class="activeTab === tab ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500 hover:text-gray-700'">
-                    {{ tab }}
-                </button>
-            </div>
-            
-            <!-- 当前操作信息 -->
-            <div class="p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-800 mb-4">
-                <div class="flex items-center">
-                    <div v-if="isOperationLocked" class="mr-3">
-                        <i class="fas fa-spinner fa-spin text-blue-600"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">{{ isOperationLocked ? '操作进行中...' : '当前操作' }}</div>
-                        <div>{{ currentOperation }}</div>
-                    </div>
-                    <div v-if="isOperationLocked" class="ml-3 text-sm text-blue-600">
-                        请等待当前操作完成...
-                    </div>
+                {{ tab }}
+            </button>
+        </div>
+
+        <!-- 当前操作信息 -->
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-800 mb-4">
+            <div class="flex items-center">
+                <div v-if="isOperationLocked" class="mr-3">
+                    <i class="fas fa-spinner fa-spin text-blue-600"></i>
                 </div>
-            </div>
-            
-            <!-- 可视化区域 -->
-            <div class="grid grid-cols-1 gap-4">
-                <!-- 数组可视化 -->
-                <div v-if="(activeTab === '全部' || activeTab === '数组') && showArrayContainer" class="visualization-container">
-                    <h3 class="text-lg font-semibold mb-2">数组结构</h3>
-                    <div id="array-visualization" class="w-full overflow-x-auto pb-4"></div>
+                <div class="flex-1">
+                    <div class="font-medium">{{ isOperationLocked ? '操作进行中...' : '当前操作' }}</div>
+                    <div>{{ currentOperation }}</div>
                 </div>
-                
-                <!-- 链表可视化 -->
-                <div v-if="(activeTab === '全部' || activeTab === '链表') && showLinkedListContainer" class="visualization-container">
-                    <h3 class="text-lg font-semibold mb-2">链表结构</h3>
-                    <div id="linked-list-visualization" class="w-full overflow-x-auto pb-4"></div>
-                </div>
-                
-                <!-- 树可视化 -->
-                <div v-if="(activeTab === '全部' || activeTab === '树') && showTreeContainer" class="visualization-container">
-                    <h3 class="text-lg font-semibold mb-2">树结构</h3>
-                    <div id="tree-visualization" class="w-full overflow-x-auto pb-4"></div>
+                <div v-if="isOperationLocked" class="ml-3 text-sm text-blue-600">
+                    请等待当前操作完成...
                 </div>
             </div>
         </div>
-        
-        <!-- 说明信息 -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">多数据结构可视化说明</h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <h4 class="font-semibold text-lg mb-2">数组结构</h4>
-                    <p>数组是一种线性数据结构，由一组连续的内存位置组成。</p>
-                    <div class="mt-2"><span class="font-semibold">支持操作：</span>创建数组、高亮元素、交换元素、取消高亮</div>
+
+        <!-- 可视化区域 -->
+        <div class="grid grid-cols-1 gap-4">
+            <!-- 数组可视化 -->
+            <div v-if="(activeTab === '全部' || activeTab === '数组') && showArrayContainer"
+                 class="visualization-container">
+                <h3 class="text-lg font-semibold mb-2">数组结构</h3>
+                <div id="array-visualization" class="w-full overflow-x-auto pb-4"></div>
+            </div>
+
+            <!-- 链表可视化 -->
+            <div v-if="(activeTab === '全部' || activeTab === '链表') && showLinkedListContainer"
+                 class="visualization-container">
+                <h3 class="text-lg font-semibold mb-2">链表结构</h3>
+                <div id="linked-list-visualization" class="w-full overflow-x-auto pb-4"></div>
+            </div>
+
+            <!-- 树可视化 -->
+            <div v-if="(activeTab === '全部' || activeTab === '树') && showTreeContainer"
+                 class="visualization-container">
+                <h3 class="text-lg font-semibold mb-2">树结构</h3>
+                <div id="tree-visualization" class="w-full overflow-x-auto pb-4"></div>
+            </div>
+
+            <!-- 图可视化 -->
+            <div v-if="(activeTab === '全部' || activeTab === '图')&&showGraphContainer" class="visualization-container">
+                <h3 class="text-lg font-semibold mb-2">图结构</h3>
+                <div id="graph-visualization" class="w-full overflow-x-auto pb-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 说明信息 -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">多数据结构可视化说明</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h4 class="font-semibold text-lg mb-2">数组结构</h4>
+                <p>数组是一种线性数据结构，由一组连续的内存位置组成。</p>
+                <div class="mt-2"><span class="font-semibold">支持操作：</span>创建数组、高亮元素、交换元素、取消高亮</div>
+            </div>
+
+            <div>
+                <h4 class="font-semibold text-lg mb-2">链表结构</h4>
+                <p>链表是一种线性数据结构，由一系列节点组成，每个节点包含数据和指向下一个节点的引用。</p>
+                <div class="mt-2"><span class="font-semibold">支持操作：</span>创建链表、添加节点、删除节点、插入节点、反转链表等
                 </div>
-                
-                <div>
-                    <h4 class="font-semibold text-lg mb-2">链表结构</h4>
-                    <p>链表是一种线性数据结构，由一系列节点组成，每个节点包含数据和指向下一个节点的引用。</p>
-                    <div class="mt-2"><span class="font-semibold">支持操作：</span>创建链表、添加节点、删除节点、插入节点、反转链表等</div>
+            </div>
+
+            <div>
+                <h4 class="font-semibold text-lg mb-2">树结构</h4>
+                <p>树是一种非线性数据结构，由节点和连接节点的边组成。每个节点可以有多个子节点。</p>
+                <div class="mt-2"><span class="font-semibold">支持操作：</span>创建根节点、添加子节点、删除节点、高亮节点、更新值等
                 </div>
-                
-                <div>
-                    <h4 class="font-semibold text-lg mb-2">树结构</h4>
-                    <p>树是一种非线性数据结构，由节点和连接节点的边组成。每个节点可以有多个子节点。</p>
-                    <div class="mt-2"><span class="font-semibold">支持操作：</span>创建根节点、添加子节点、删除节点、高亮节点、更新值等</div>
+            </div>
+
+            <div>
+                <h4 class="font-semibold text-lg mb-2">图结构</h4>
+                <p>图是一种非线性数据结构，由节点（顶点）和连接节点的边组成，支持有向/无向图和加权图。</p>
+                <div class="mt-2"><span class="font-semibold">支持操作：</span>创建图、添加/删除节点、添加/删除边、节点合并、边收缩、路径查找、邻居查询等
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- 引入JS文件 -->
-    <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <!-- 数据模型 -->
-    <script src="js/models/array.js"></script>
-    <script src="js/models/linkedList.js"></script>
-    <script src="js/models/tree.js"></script>
-    <!-- 可视化逻辑 -->
-    <script src="js/visualizations/array.js"></script>
-    <script src="js/visualizations/linkedList.js"></script>
-    <script src="js/visualizations/tree.js"></script>
-    <!-- 操作队列 -->
-    <script src="operations/defaultOperations.js"></script>
-    <!-- 主应用 -->
-    <script src="js/app.js"></script>
+</div>>
+
+        <!-- 引入JS文件 -->
+        <script src="js/config.js"></script>
+        <script src="js/utils.js"></script>
+        <!-- 数据模型 -->
+        <script src="js/models/array.js"></script>
+        <script src="js/models/linkedList.js"></script>
+        <script src="js/models/tree.js"></script>
+        <script src="js/models/graph.js"></script>
+        <!-- 可视化逻辑 -->
+        <script src="js/visualizations/array.js"></script>
+        <script src="js/visualizations/linkedList.js"></script>
+        <script src="js/visualizations/tree.js"></script>
+        <script src="js/visualizations/graph.js"></script>
+        <!-- 操作队列 -->
+        <script src="operations/defaultOperations.js"></script>
+        <!-- 主应用 -->
+        <script src="js/app.js"></script>
 </body>
 </html>

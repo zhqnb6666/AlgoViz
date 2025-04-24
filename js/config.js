@@ -45,7 +45,7 @@ const CONFIG = {
         arrayHeight: 160,
         linkedListHeight: 300,
         treeHeight: 500,
-        graphHeight: 600
+        graphHeight: 800
     },
     
     // 延迟时间（毫秒）

@@ -382,3 +382,222 @@ class OperationQueue:
     def clear(self) -> None:
         """清空操作队列"""
         self.queue = []
+
+
+    def create_graph(self, graph_id: str, directed: bool = False, metadata: Optional[str] = None) -> None:
+        """创建图操作"""
+        if metadata is None:
+            direction = "有向图" if directed else "无向图"
+            metadata = f"创建{direction} {graph_id}"
+
+        self.add_operation(
+            operation="create_graph",
+            data={
+                "id": graph_id,
+                "directed": directed
+            },
+            metadata=metadata
+        )
+
+    def add_node(self, graph_id: str, node_id: str, value: Any,
+                 attributes: Dict[str, Any], metadata: Optional[str] = None) -> None:
+        """添加图节点操作"""
+        if metadata is None:
+            metadata = f"在图{graph_id}添加节点{node_id}"
+
+        self.add_operation(
+            operation="add_node",
+            data={
+                "graph_id": graph_id,
+                "id": node_id,
+                "value": value,
+                "attributes": attributes
+            },
+            metadata=metadata
+        )
+
+    def remove_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+        """删除图节点操作（重载现有方法）"""
+        if metadata is None:
+            metadata = f"从图{graph_id}删除节点{node_id}"
+
+        self.add_operation(
+            operation="remove_node",
+            data={
+                "graph_id": graph_id,
+                "id": node_id
+            },
+            metadata=metadata
+        )
+
+    def update_node(self, graph_id: str, node_id: str, value: Any,
+                    attributes: Dict[str, Any], metadata: Optional[str] = None) -> None:
+        """更新图节点操作"""
+        if metadata is None:
+            metadata = f"更新图{graph_id}的节点{node_id}"
+
+        self.add_operation(
+            operation="update_node",
+            data={
+                "graph_id": graph_id,
+                "id": node_id,
+                "value": value,
+                "attributes": attributes
+            },
+            metadata=metadata
+        )
+
+    def add_edge(self, graph_id: str, edge_id: str, source_id: str, target_id: str,
+                 weight: float, attributes: Dict[str, Any], metadata: Optional[str] = None) -> None:
+        """添加边操作"""
+        if metadata is None:
+            metadata = f"在图{graph_id}添加边{source_id}→{target_id}"
+
+        self.add_operation(
+            operation="add_edge",
+            data={
+                "graph_id": graph_id,
+                "id": edge_id,
+                "source_id": source_id,
+                "target_id": target_id,
+                "weight": weight,
+                "attributes": attributes
+            },
+            metadata=metadata
+        )
+
+    def remove_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+        """删除边操作"""
+        if metadata is None:
+            metadata = f"从图{graph_id}删除边{edge_id}"
+
+        self.add_operation(
+            operation="remove_edge",
+            data={
+                "graph_id": graph_id,
+                "id": edge_id
+            },
+            metadata=metadata
+        )
+
+    def update_edge(self, graph_id: str, edge_id: str, weight: float,
+                    attributes: Dict[str, Any], metadata: Optional[str] = None) -> None:
+        """更新边操作"""
+        if metadata is None:
+            metadata = f"更新图{graph_id}的边{edge_id}"
+
+        self.add_operation(
+            operation="update_edge",
+            data={
+                "graph_id": graph_id,
+                "id": edge_id,
+                "weight": weight,
+                "attributes": attributes
+            },
+            metadata=metadata
+        )
+
+    def highlight_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+        """高亮图节点操作（重载现有方法）"""
+        if metadata is None:
+            metadata = f"高亮图{graph_id}的节点{node_id}"
+
+        self.add_operation(
+            operation="highlight_node",
+            data={
+                "graph_id": graph_id,
+                "id": node_id
+            },
+            metadata=metadata
+        )
+
+    def unhighlight_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+        """取消高亮图节点操作（重载现有方法）"""
+        if metadata is None:
+            metadata = f"取消高亮图{graph_id}的节点{node_id}"
+
+        self.add_operation(
+            operation="unhighlight_node",
+            data={
+                "graph_id": graph_id,
+                "id": node_id
+            },
+            metadata=metadata
+        )
+
+    def highlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+        """高亮边操作"""
+        if metadata is None:
+            metadata = f"高亮图{graph_id}的边{edge_id}"
+
+        self.add_operation(
+            operation="highlight_edge",
+            data={
+                "graph_id": graph_id,
+                "id": edge_id
+            },
+            metadata=metadata
+        )
+
+    def unhighlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+        """取消高亮边操作"""
+        if metadata is None:
+            metadata = f"取消高亮图{graph_id}的边{edge_id}"
+
+        self.add_operation(
+            operation="unhighlight_edge",
+            data={
+                "graph_id": graph_id,
+                "id": edge_id
+            },
+            metadata=metadata
+        )
+
+    def merge_nodes(self, graph_id: str, node_ids: List[str], new_node_id: str,
+                    value: Any, metadata: Optional[str] = None) -> None:
+        """合并节点操作"""
+        if metadata is None:
+            nodes_str = ", ".join(node_ids)
+            metadata = f"合并节点{nodes_str}为{new_node_id}"
+
+        self.add_operation(
+            operation="merge_nodes",
+            data={
+                "graph_id": graph_id,
+                "nodes": node_ids,
+                "new_node_id": new_node_id,
+                "value": value
+            },
+            metadata=metadata
+        )
+
+    def contract_edge(self, graph_id: str, edge_id: str, new_node_id: str,
+                      metadata: Optional[str] = None) -> None:
+        """收缩边操作"""
+        if metadata is None:
+            metadata = f"收缩图{graph_id}的边{edge_id}为节点{new_node_id}"
+
+        self.add_operation(
+            operation="contract_edge",
+            data={
+                "graph_id": graph_id,
+                "edge_id": edge_id,
+                "new_node_id": new_node_id
+            },
+            metadata=metadata
+        )
+
+    # 需要修改现有方法签名以支持重载
+    def get_neighbors(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+        """获取相邻节点操作"""
+        if metadata is None:
+            metadata = f"获取图{graph_id}中节点{node_id}的邻居"
+
+        self.add_operation(
+            operation="get_neighbors",
+            data={
+                "graph_id": graph_id,
+                "node_id": node_id
+            },
+            metadata=metadata
+        )

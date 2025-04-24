@@ -61,7 +61,7 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-实现Dijkstra算法，输入图结构如下：
+实现dfs算法，输入图结构如下：
 - 节点：A(0), B(1), C(2), D(3)
 - 边：A→B(4), A→C(2), B→D(3), C→B(1), C→D(5)
 起点是A，可视化最短路径查找过程
@@ -83,6 +83,6 @@ input_data = {
     ],
     'start_node': 0  # 起点节点ID
 }
-    """
+   """
     
 process_query(user_query)

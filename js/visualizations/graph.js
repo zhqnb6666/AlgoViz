@@ -14,17 +14,13 @@ const GraphVisualization = {
     },
 
     init(containerId = "#graph-visualization") {
+        /*
         const container = d3.select(containerId);
         const width = container.node().clientWidth;
         const height = container.node().clientHeight;
 
         container.selectAll("svg").remove();
 
-//        this.svg = d3.select(containerId)
-//            .append("svg")
-//            .attr("width", CONFIG.svgContainer.width)
-//            .attr("height", CONFIG.svgContainer.graphHeight);
-        // 使用动态尺寸
         this.svg = container.append("svg")
             .attr("width", width)
             .attr("height", height);
@@ -37,6 +33,13 @@ const GraphVisualization = {
                 y: height / 2
             }
         };
+        */
+        const container = d3.select(containerId);
+        container.selectAll("svg").remove();
+        this.svg = container.append("svg")
+            .attr("width", CONFIG.svgContainer.width)
+            .attr("height", CONFIG.svgContainer.graphHeight);
+
 
         // 定义箭头（增强链表箭头样式）
         this.svg.append("defs").selectAll("marker")
@@ -60,6 +63,12 @@ const GraphVisualization = {
         this.svg.selectAll(".node").call(drag);
 
     },
+
+    animateUpdate(speed = 1, graphId) {
+        this.render(graphId);
+        return Utils.delay(CONFIG.delay.standard / speed);
+    },
+
 
     render(graphId) {
         const graph = GraphModel.graphs[graphId];
@@ -182,6 +191,7 @@ const GraphVisualization = {
             .style("stroke-width", "2px");
 
         edgeLabels.exit().remove();
+
 
     },
 
