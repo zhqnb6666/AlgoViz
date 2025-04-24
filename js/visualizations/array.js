@@ -164,6 +164,187 @@ const ArrayVisualization = {
         });
     },
     
+    // 动画更新单个元素
+    animateUpdateElement(arrayId, index, value, animationSpeed) {
+        // 如果没有SVG容器，直接返回Promise
+        if (!this.svg) {
+            return Promise.resolve();
+        }
+        
+        // 查找对应元素
+        const element = this.svg.selectAll(`.array-element-${arrayId}`)
+            .filter((d, i) => i === index);
+        
+        if (element.empty()) {
+            return Promise.resolve();
+        }
+        
+        // 闪烁效果
+        element.select("rect")
+            .transition()
+            .duration(CONFIG.delay.highlight / (2 * animationSpeed))
+            .attr("fill", "#ffcc00")
+            .transition()
+            .duration(CONFIG.delay.highlight / (2 * animationSpeed))
+            .attr("fill", () => {
+                if (ArrayModel.highlighted[arrayId] && ArrayModel.highlighted[arrayId].includes(index)) {
+                    return ArrayModel.highlightColors[arrayId][index] || CONFIG.visualization.array.defaultHighlightColor;
+                }
+                return "white";
+            });
+        
+        // 更新文本
+        element.select("text")
+            .transition()
+            .duration(CONFIG.delay.highlight / animationSpeed)
+            .attr("opacity", 0)
+            .transition()
+            .duration(0)
+            .text(value)
+            .transition()
+            .duration(CONFIG.delay.highlight / animationSpeed)
+            .attr("opacity", 1);
+        
+        return Utils.delay(CONFIG.delay.highlight, animationSpeed);
+    },
+    
+    // 动画更新多个元素
+    animateUpdateElements(arrayId, updates, animationSpeed) {
+        // 如果没有SVG容器，直接返回Promise
+        if (!this.svg) {
+            return Promise.resolve();
+        }
+        
+        // 为每个更新创建一个Promise
+        const promises = updates.map(update => {
+            return this.animateUpdateElement(arrayId, update.index, update.value, animationSpeed * 1.5);
+        });
+        
+        // 等待所有更新完成
+        return Promise.all(promises);
+    },
+    
+    // 动画更新整个数组
+    animateUpdateArray(arrayId, animationSpeed) {
+        // 如果没有SVG容器，直接返回Promise
+        if (!this.svg) {
+            return Promise.resolve();
+        }
+        
+        // 先让整个数组淡出
+        this.svg.select(`.array-group-${arrayId}`)
+            .transition()
+            .duration(CONFIG.delay.standard / (2 * animationSpeed))
+            .style("opacity", 0)
+            .transition()
+            .duration(CONFIG.delay.standard / (2 * animationSpeed))
+            .style("opacity", 1);
+            
+        // 重新渲染
+        return new Promise(resolve => {
+            setTimeout(() => {
+                this.render();
+                resolve();
+            }, CONFIG.delay.standard / animationSpeed);
+        });
+    },
+    
+    // 动画插入元素
+    animateInsertElement(arrayId, index, value, animationSpeed) {
+        // 如果没有SVG容器，直接返回Promise
+        if (!this.svg) {
+            return Promise.resolve();
+        }
+        
+        const array = ArrayModel.data[arrayId];
+        
+        // 先移动插入位置后的所有元素，为新元素腾出空间
+        const elementsToMove = this.svg.selectAll(`.array-element-${arrayId}`)
+            .filter((d, i) => i >= index);
+        
+        // 对每个需要移动的元素，将其位置向右移动一格
+        elementsToMove.each(function(d, i) {
+            const currentElement = d3.select(this);
+            const currentIndex = index + i;
+            const newX = (currentIndex + 1) * (CONFIG.visualization.array.squareSize + CONFIG.visualization.array.gap);
+            
+            currentElement
+                .transition()
+                .duration(CONFIG.delay.standard / (2 * animationSpeed))
+                .attr("transform", `translate(${newX}, 0)`);
+        });
+        
+        // 等待元素移动完成，然后创建新元素并淡入
+        return new Promise(resolve => {
+            setTimeout(() => {
+                // 重新渲染以确保所有元素正确定位
+                this.render();
+                
+                // 高亮新插入的元素
+                this.svg.selectAll(`.array-element-${arrayId}`)
+                    .filter((d, i) => i === index)
+                    .select("rect")
+                    .attr("fill", "#ffcc00")
+                    .transition()
+                    .duration(CONFIG.delay.highlight / animationSpeed)
+                    .attr("fill", "white");
+                
+                resolve();
+            }, CONFIG.delay.standard / animationSpeed);
+        });
+    },
+    
+    // 动画删除元素
+    animateRemoveElement(arrayId, index, animationSpeed) {
+        // 如果没有SVG容器，直接返回Promise
+        if (!this.svg) {
+            return Promise.resolve();
+        }
+        
+        const array = ArrayModel.data[arrayId];
+        
+        // 将要删除的元素高亮并淡出
+        const elementToRemove = this.svg.selectAll(`.array-element-${arrayId}`)
+            .filter((d, i) => i === index);
+        
+        elementToRemove
+            .select("rect")
+            .transition()
+            .duration(CONFIG.delay.highlight / (2 * animationSpeed))
+            .attr("fill", "#ff6666");
+            
+        elementToRemove
+            .transition()
+            .duration(CONFIG.delay.standard / (2 * animationSpeed))
+            .style("opacity", 0);
+        
+        // 计算需要移动的后续元素
+        const elementsToMove = this.svg.selectAll(`.array-element-${arrayId}`)
+            .filter((d, i) => i > index);
+        
+        // 等待删除元素淡出后，移动后续元素填补空缺
+        setTimeout(() => {
+            elementsToMove.each(function(d, i) {
+                const currentElement = d3.select(this);
+                const currentIndex = index + i + 1;
+                const newX = (currentIndex - 1) * (CONFIG.visualization.array.squareSize + CONFIG.visualization.array.gap);
+                
+                currentElement
+                    .transition()
+                    .duration(CONFIG.delay.standard / (2 * animationSpeed))
+                    .attr("transform", `translate(${newX}, 0)`);
+            });
+        }, CONFIG.delay.standard / (2 * animationSpeed));
+        
+        return new Promise(resolve => {
+            setTimeout(() => {
+                // 重新渲染以确保所有元素正确定位
+                this.render();
+                resolve();
+            }, CONFIG.delay.standard / animationSpeed);
+        });
+    },
+    
     // 动画高亮元素
     animateHighlight(arrayId, indices, color, animationSpeed) {
         // 如果没有SVG容器，直接返回Promise

@@ -66,6 +66,21 @@ createApp({
                     case "unhighlight":
                         await handleUnhighlight(operation.data);
                         break;
+                    case "update_element":
+                        await handleUpdateElement(operation.data);
+                        break;
+                    case "update_elements":
+                        await handleUpdateElements(operation.data);
+                        break;
+                    case "update_array":
+                        await handleUpdateArray(operation.data);
+                        break;
+                    case "insert_element":
+                        await handleInsertElement(operation.data);
+                        break;
+                    case "remove_element":
+                        await handleRemoveElement(operation.data);
+                        break;
                         
                     // 链表操作
                     case "create_list":
@@ -225,6 +240,31 @@ createApp({
         const handleUnhighlight = async (data) => {
             ArrayModel.unhighlight(data.id, data.indices);
             return ArrayVisualization.animateUnhighlight(data.id, data.indices, animationSpeed.value);
+        };
+        
+        const handleUpdateElement = async (data) => {
+            ArrayModel.updateElement(data.id, data.index, data.value);
+            return ArrayVisualization.animateUpdateElement(data.id, data.index, data.value, animationSpeed.value);
+        };
+        
+        const handleUpdateElements = async (data) => {
+            ArrayModel.updateElements(data.id, data.updates);
+            return ArrayVisualization.animateUpdateElements(data.id, data.updates, animationSpeed.value);
+        };
+        
+        const handleUpdateArray = async (data) => {
+            ArrayModel.updateArray(data.id, data.array);
+            return ArrayVisualization.animateUpdateArray(data.id, animationSpeed.value);
+        };
+        
+        const handleInsertElement = async (data) => {
+            ArrayModel.insertElement(data.id, data.index, data.value);
+            return ArrayVisualization.animateInsertElement(data.id, data.index, data.value, animationSpeed.value);
+        };
+        
+        const handleRemoveElement = async (data) => {
+            ArrayModel.removeElement(data.id, data.index);
+            return ArrayVisualization.animateRemoveElement(data.id, data.index, animationSpeed.value);
         };
         
         // 链表操作处理
