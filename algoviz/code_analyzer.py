@@ -609,8 +609,10 @@ def visualize_algorithm(input_data, k=2):
         ### 示例3：图算法可视化  - 不要重新定义OperationQueue类（非常重要）
         ```
 def visualize_algorithm(input_data):
-    queue = OperationQueue()
+    queue = OperationQueue() #不要重新定义OperationQueue类（非常重要）
     
+    
+    # 注意下面的create_graph add_node add_edge方法是OperationQueue类的方法 你不用重新定义OperationQueue类，这个类已经人工实现不用你定义直接用里面的方法就行（非常重要） 你的代码开头必须包含类似的代码块，且必须使用这3个OperationQueue类的方法
     # 创建图的元数据
     graph_id = "main_graph"
     directed = False
