@@ -266,11 +266,11 @@ class CodeAnalyzer:
         
         创建图结构
     
-        28. add_node(graph_id, node_id, value, attributes, metadata=None) -> None
+        28. add_node(graph_id, node_id, value, metadata=None) -> None
         
-        添加图节点，需包含位置等属性
+        添加图节点
     
-        29. add_edge(graph_id, edge_id, source_id, target_id, weight, attributes, metadata=None) -> None
+        29. add_edge(graph_id, edge_id, source_id, target_id, weight, metadata=None) -> None
         
         添加带权重的边
         
@@ -278,9 +278,9 @@ class CodeAnalyzer:
         
         删除边
         
-        31. merge_nodes(graph_id, node_ids, new_node_id, value, metadata=None) -> None
+        31. remove_graph_node(graph_id, node_id, metadata=None) -> None
         
-        合并多个节点
+        删除图节点
         
         32. contract_edge(graph_id, edge_id, new_node_id, metadata=None) -> None
         
@@ -608,98 +608,100 @@ def visualize_algorithm(input_data, k=2):
         
         ### 示例3：图算法可视化  - 不要重新定义OperationQueue类（非常重要）
         ```
-def visualize_algorithm(input_data): 
+def visualize_algorithm(input_data):
     queue = OperationQueue()
-    graph_id = "bfs_graph"
     
-    # 创建图
-    queue.create_graph(graph_id, directed=False, metadata="创建无向图")
-
-    # 节点边映射表
+    # 创建图的元数据
+    graph_id = "main_graph"
+    directed = False
+    
+    # 创建图结构
+    queue.create_graph(graph_id, directed, metadata="创建无向图")
+    
+    # 节点ID映射表（存储节点值到ID的映射）
     node_map = {{}}
-    edge_map = {{}}
-    visited_map = {{}}  # 访问状态跟踪
-
-    # 构建图结构
-    for node in input_data['nodes']:
+    
+    # 添加节点（假设输入数据格式为：[节点值列表，边列表]）
+    nodes, edges = input_data
+    
+    # 创建所有节点
+    for value in nodes:
         node_id = queue.add_node(
             graph_id=graph_id,
-            node_id=f"node{{node['id']}}",
-            value=node['value'],
-            attributes=node['attributes'],
-            metadata=f"添加节点 {{node['value']}}"
+            node_id=f"node{{(value}}",
+            value=value,
+            metadata=f"添加节点{{value}}"
         )
-        node_map[node['id']] = node_id
-        visited_map[node_id] = False  # 初始化访问状态
-
-    for edge in input_data['edges']:
-        edge_id = queue.add_edge(
+        node_map[value] = node_id
+    
+    # 添加所有边
+    for edge in edges:
+        src_val, dest_val = edge
+        edge_id = f"edge_{{src_val}}-{{dest_val}}"
+        queue.add_edge(
             graph_id=graph_id,
-            edge_id=f"edge{{edge['id']}}",
-            source_id=node_map[edge['from']],
-            target_id=node_map[edge['to']],
-            weight=edge.get('weight', 1),
-            attributes=edge.get('attributes', {{}}),
-            metadata=f"连接 {{edge['from']}}↔{{edge['to']}}"
+            edge_id=edge_id,
+            source_id=node_map[src_val],
+            target_id=node_map[dest_val],
+            weight=1,
+            metadata=f"添加边 {{src_val}}-{{dest_val}}"
         )
-        edge_map[edge['id']] = edge_id
-
-    def bfs(start_id):
-        # 初始化队列和访问状态
-        from collections import deque
-        q = deque()
+    
+    # BFS算法可视化（假设起点是第一个节点）
+    start_value = nodes[0]
+    visited = set()
+    bfs_queue = [start_value]
+    
+    queue.highlight_graph_node(
+        graph_id=graph_id,
+        node_id=node_map[start_value],
+        metadata=f"BFS起点：{{start_value}}"
+    )
+    
+    while bfs_queue:
+        current_val = bfs_queue.pop(0)
+        current_id = node_map[current_val]
         
-        start_node_id = node_map[start_id]
-        queue.highlight_graph_node(graph_id, start_node_id, metadata="起点节点")
-        q.append(start_node_id)
-        visited_map[start_node_id] = True
+        # 标记当前节点为已访问
+        visited.add(current_val)
         
-        # 创建独立队列可视化
-        queue_viz_id = queue.create_list("BFS队列", list_name="bfs_queue", metadata="初始化BFS队列")
-
-        while q:
-            current_id = q.popleft()
+        # 获取相邻节点（根据边数据）
+        neighbors = []
+        for edge in edges:
+            if edge[0] == current_val:
+                neighbors.append(edge[1])
+            elif not directed and edge[1] == current_val:
+                neighbors.append(edge[0])
+        
+        # 处理相邻节点
+        for neighbor in neighbors:
+            neighbor_id = node_map[neighbor]
             
-            # 高亮当前处理节点
-            queue.highlight_graph_node(graph_id, current_id, metadata=f"处理节点 {{current_id}}")
-            queue.append_node(current_id, list_name="processing", metadata="当前处理节点")
+            # 高亮边
+            edge_id = f"edge_{{min(current_val,neighbor)}}-{{max(current_val,neighbor)}}"
+            queue.highlight_edge(
+                graph_id=graph_id,
+                edge_id=edge_id,
+                metadata=f"探索边 {{current_val}}-{{neighbor}}"
+            )
             
-            # 查找相邻边
-            for edge in input_data['edges']:
-                if edge['from'] == current_id or edge['to'] == current_id:
-                    edge_id = edge_map[edge['id']]
-                    neighbor_id = node_map[edge['to']] if edge['from'] == current_id else node_map[edge['from']]
-                    
-                    # 高亮检查中的边
-                    queue.highlight_edge(graph_id, edge_id, metadata=f"检查边 {{current_id}}↔{{neighbor_id}}")
-                    
-                    if not visited_map[neighbor_id]:
-                        # 发现新节点
-                        queue.highlight_graph_node(graph_id, neighbor_id, metadata=f"发现未访问节点 {{neighbor_id}}")
-                        queue.append_node(neighbor_id, list_name="bfs_queue", metadata="新节点加入队列")
-                        
-                        visited_map[neighbor_id] = True
-                        q.append(neighbor_id)
-                        
-                        # 标记为已访问
-                        queue.update_node(
-                            graph_id=graph_id,
-                            node_id=neighbor_id,
-                            value=f"{{neighbor_id}}(已访问)",
-                            metadata="标记为已访问"
-                        )
-                    
-                    queue.unhighlight_edge(graph_id, edge_id)
-            
-            # 取消高亮当前节点
-            queue.unhighlight_graph_node(graph_id, current_id)
-            queue.remove_list_node(current_id, list_name="processing")
-
-    # 执行BFS遍历
-    bfs(input_data['start_node'])
+            if neighbor not in visited and neighbor not in bfs_queue:
+                # 高亮新发现的节点
+                queue.highlight_graph_node(
+                    graph_id=graph_id,
+                    node_id=neighbor_id,
+                    metadata=f"发现新节点：{{neighbor}}"
+                )
+                bfs_queue.append(neighbor)
+        
+        # 取消高亮当前节点
+        queue.unhighlight_graph_node(
+            graph_id=graph_id,
+            node_id=current_id,
+            metadata=f"完成处理节点：{{current_val}}"
+        )
+    
     return queue
-
-
         ```
         
         """

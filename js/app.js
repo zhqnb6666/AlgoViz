@@ -204,17 +204,26 @@ createApp({
                     case "unhighlight_graph_node":
                         await handleUnhighlightGraphNode(operation.data);
                         break;
+                    case "highlight_edge":
+                        await handleHighlightEdge(operation.data);
+                        break;
+                    case "unhighlight_edge":
+                        await handleUnhighlightEdge(operation.data);
+                        break;
                     case "update_node":
                         await handleUpdateGraphNode(operation.data);
+                        break;
+                    case "update_edge":
+                        await handleUpdateEdge(operation.data);
                         break;
                     case "remove_edge":
                         await handleRemoveGraphEdge(operation.data);
                         break;
+                    case "remove_graph_node":
+                        await handleRemoveGraphNode(operation.data);
+                        break;
                     case "contract_edge":
                         await handleContractEdge(operation.data);
-                        break;
-                    case "merge_nodes":
-                        await handleMergeNodes(operation.data);
                         break;
                     case "get_neighbors":
                         await handleGetNeighbors(operation.data);
@@ -417,10 +426,25 @@ createApp({
             return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
         };
 
+        const handleHighlightEdge = async (data) => {
+            GraphModel.highlightEdge(data.graph_id, data.id);
+            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+        }
+
+        const handleUnhighlightEdge = async (data) => {
+            GraphModel.unhighlightEdge(data.graph_id, data.id);
+            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+        }
+
         const handleUpdateGraphNode = async (data) => {
             GraphModel.updateNode(data.graph_id, data.id, data.value, data.attributes);
             return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
         };
+
+        const handleUpdateEdge = async (data) => {
+            GraphModel.updateEdge(data.graph_id, data.id, data.weight, data.attributes);
+            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+        }
 
         const handleContractEdge = async (data) => {
             GraphModel.contractEdge(data.graph_id, data.edge_id, data.new_node_id);
@@ -428,13 +452,6 @@ createApp({
 
         };
 
-        const handleMergeNodes = async (data) => {
-
-            GraphModel.mergeNodes(data.graph_id, data.nodes, data.new_node_id, data.value);
-
-
-            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
-        };
 
         const handleGetNeighbors = async (data) => {
             const neighbors = GraphModel.getNeighbors(
@@ -467,6 +484,13 @@ createApp({
 
             return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
         }
+
+        const handleRemoveGraphNode = async (data) => {
+            GraphModel.removeNode(data.graph_id, data.id);
+            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+        }
+
+
 
 
         // 执行队列

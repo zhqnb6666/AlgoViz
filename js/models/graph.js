@@ -121,40 +121,54 @@ const GraphModel = {
             size: 30
         });
 
-        // 新增：记录需要清理的边
         const edgesToRemove = new Set();
+        const processedEdges = new Set(); // 新增：防止重复处理
 
         nodeIds.forEach(nodeId => {
             const node = graph.nodes[nodeId];
             [...node.edges].forEach(edgeId => {
+                if (processedEdges.has(edgeId)) return; // 新增：防止重复处理
+                processedEdges.add(edgeId);
+
                 const edge = graph.edges[edgeId];
+                const wasSource = edge.source === nodeId;
+                const wasTarget = edge.target === nodeId;
 
-                // 修改前
-                // if (edge.source === nodeId) edge.source = newNodeId;
-                // if (edge.target === nodeId) edge.target = newNodeId;
+                // 记录原始关联节点
+                const oldSource = edge.source;
+                const oldTarget = edge.target;
 
-                // 修改后：检查是否形成自环边
-                const originalSource = edge.source;
-                const originalTarget = edge.target;
+                // 更新边关联
+                if (wasSource) edge.source = newNodeId;
+                if (wasTarget) edge.target = newNodeId;
 
-                if (edge.source === nodeId) edge.source = newNodeId;
-                if (edge.target === nodeId) edge.target = newNodeId;
+                // 更新节点边集合（关键修复点）
+                if (wasSource) {
+                    graph.nodes[oldSource].edges.delete(edgeId);
+                    graph.nodes[newNodeId].edges.add(edgeId);
+                }
+                if (wasTarget && !graph.directed) {
+                    graph.nodes[oldTarget].edges.delete(edgeId);
+                    graph.nodes[newNodeId].edges.add(edgeId);
+                }
 
-                // 如果边两端都指向新节点，则标记删除
-                if (edge.source === newNodeId && edge.target === newNodeId) {
+                // 仅当收缩操作且是被收缩的边才标记删除
+                if (nodeIds.length === 2 &&
+                    (oldSource === nodeIds[0] || oldSource === nodeIds[1]) &&
+                    (oldTarget === nodeIds[0] || oldTarget === nodeIds[1])) {
                     edgesToRemove.add(edgeId);
                 }
             });
             this.removeNode(graphId, nodeId);
         });
 
-        // 新增：清理自环边
         edgesToRemove.forEach(edgeId => {
             this.removeEdge(graphId, edgeId);
         });
 
         return mergedNode;
     }
+
     ,
 
     // 收缩边

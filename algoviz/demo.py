@@ -61,28 +61,11 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-实现dfs算法，输入图结构如下：
-- 节点：A(0), B(1), C(2), D(3)
-- 边：A→B(4), A→C(2), B→D(3), C→B(1), C→D(5)
-起点是A，可视化最短路径查找过程
-
-# 对应的输入数据结构为：
-input_data = {
-    'nodes': [
-        {'id': 0, 'value': 'A', 'attributes': {'position': {'x': 200, 'y': 300}}},
-        {'id': 1, 'value': 'B', 'attributes': {'position': {'x': 400, 'y': 300}}},
-        {'id': 2, 'value': 'C', 'attributes': {'position': {'x': 200, 'y': 500}}},
-        {'id': 3, 'value': 'D', 'attributes': {'position': {'x': 400, 'y': 500}}}
-    ],
-    'edges': [
-        {'id': 0, 'from': 0, 'to': 1, 'weight': 4},
-        {'id': 1, 'from': 0, 'to': 2, 'weight': 2},
-        {'id': 2, 'from': 1, 'to': 3, 'weight': 3},
-        {'id': 3, 'from': 2, 'to': 1, 'weight': 1},
-        {'id': 4, 'from': 2, 'to': 3, 'weight': 5}
-    ],
-    'start_node': 0  # 起点节点ID
-}
+请实现深度优先搜索(dfs)算法可视化，输入图结构如下：
+input_data = (
+    [1,2,3,4,5],  # 节点值
+    [(1,2), (1,3), (2,4), (3,4), (4,5)]  # 边
+)
    """
     
 process_query(user_query)

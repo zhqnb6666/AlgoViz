@@ -88,51 +88,6 @@ const GraphVisualization = {
         // 在绘制节点前清空旧元素
         this.svg.selectAll(".node, .link").remove();
 
-        // 绘制节点（保持原有样式逻辑）
-        const nodes = this.svg.selectAll(".node")
-            .data(Object.values(graph.nodes), d => d.id);
-
-        // 退出节点处理
-        nodes.exit().remove();
-
-        // 新增节点处理
-        const nodeEnter = nodes.enter().append("g")
-            .attr("class", "node")
-            .attr("transform", d => `translate(${d.x},${d.y})`);
-
-//        nodeEnter.append("circle")
-//            .attr("r", this.config.nodeRadius)
-//            .attr("fill", "#fff")
-//            .attr("stroke", "#333");
-        nodeEnter.append("circle")
-            .attr("r", d =>
-                graph.highlightedNodes.has(d.id)
-                    ? this.config.highlightedRadius
-                    : this.config.nodeRadius
-            )
-            .attr("fill", d =>
-                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#fff"
-            )
-            .attr("stroke", "#333");
-
-//        nodeEnter.append("text")
-//            .attr("dy", ".35em")
-//            .attr("text-anchor", "middle");
-        // 修改节点渲染部分
-        nodeEnter.append("text")
-            .attr("dy", ".35em")
-            .attr("text-anchor", "middle")
-            .text(d => d.value) // 增加显示节点值
-            .style("font-size", "12px")
-            .style("fill", "#333")
-            .style("user-select", "none"); // 防止文字被选中
-
-
-        // 更新所有节点位置
-        nodes.merge(nodeEnter)
-            .transition()
-            .duration(500)
-            .attr("transform", d => `translate(${d.x},${d.y})`);
 
         // 绘制边（保持原有逻辑）
         const links = this.svg.selectAll(".link")
@@ -192,6 +147,67 @@ const GraphVisualization = {
 
         edgeLabels.exit().remove();
 
+        // 绘制节点（保持原有样式逻辑）
+        const nodes = this.svg.selectAll(".node")
+            .data(Object.values(graph.nodes), d => d.id);
+
+        // 退出节点处理
+        nodes.exit().remove();
+
+        // 新增节点处理
+        const nodeEnter = nodes.enter().append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+//        nodeEnter.append("circle")
+//            .attr("r", this.config.nodeRadius)
+//            .attr("fill", "#fff")
+//            .attr("stroke", "#333");
+        nodeEnter.append("circle")
+            .attr("r", d =>
+                graph.highlightedNodes.has(d.id)
+                    ? this.config.highlightedRadius
+                    : this.config.nodeRadius
+            )
+            .attr("fill", d =>
+                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
+            )
+            .style("fill", d =>  // 添加style方式设置
+                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
+            )
+            .attr("stroke", "#333");
+
+//        nodeEnter.append("text")
+//            .attr("dy", ".35em")
+//            .attr("text-anchor", "middle");
+        // 修改节点渲染部分
+        nodeEnter.append("text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text(d => d.value) // 增加显示节点值
+            .style("font-size", "12px")
+            .style("fill", "#333")
+            .style("user-select", "none"); // 防止文字被选中
+
+
+        // 更新所有节点位置
+        nodes.merge(nodeEnter)
+            .transition()
+            .duration(500)
+            .attr("transform", d => `translate(${d.x},${d.y})`)
+            .select("circle") // 添加对circle元素的选择
+            .attr("r", d =>
+                graph.highlightedNodes.has(d.id)
+                    ? this.config.highlightedRadius
+                    : this.config.nodeRadius
+            )
+            .attr("fill", d =>
+                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
+            )
+            .style("fill", d =>
+                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
+            )
+
 
     },
 
@@ -207,6 +223,8 @@ const GraphVisualization = {
 
     // 拖动处理（新增交互逻辑）
     dragstarted(event, d) {
+        d3.select(event.sourceEvent.target).raise(); // 拖动时提升当前节点
+
         d.fx = d.x;
         d.fy = d.y;
     },
