@@ -27,14 +27,14 @@ class CodeAnalyzer:
         self.visualization_strategy_generator = self._create_visualization_strategy_generator()
         self.code_instrumenter = self._create_code_instrumenter()
 
-    def analyze(self, code: str, language: str, problem_description: str, input_data: List[Any]) -> OperationQueue:
+    def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
         """
         分析代码并生成操作队列
         
         参数:
             code: 源代码
             language: 代码语言
-            input_data: 输入数据
+            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
             problem_description: 问题描述
             
         返回:
@@ -47,10 +47,10 @@ class CodeAnalyzer:
             python_code = code
 
         # 生成带操作队列的代码
-        instrumented_code = self._instrument_code(python_code, input_data, problem_description)
+        instrumented_code = self._instrument_code(python_code, input_params, problem_description)
 
         # 执行仪器化代码并获取操作队列
-        queue = self._execute_instrumented_code(instrumented_code, input_data)
+        queue = self._execute_instrumented_code(instrumented_code, input_params)
 
         return queue
 
@@ -78,13 +78,13 @@ class CodeAnalyzer:
         # 如果没有代码块格式，直接返回
         return converted_code.strip()
 
-    def _instrument_code(self, code: str, input_data: List[Any], problem_description: str) -> str:
+    def _instrument_code(self, code: str, input_params: Union[List[Any], Dict[str, Any]], problem_description: str) -> str:
         """
         生成带操作队列的仪器化代码
         
         参数:
             code: Python 代码
-            input_data: 输入数据
+            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
             problem_description: 问题描述
         返回:
             仪器化后的代码
@@ -101,7 +101,7 @@ class CodeAnalyzer:
 
         instrumented_code = self.code_instrumenter.invoke({
             "code": code,
-            "input_data": str(input_data),
+            "input_data": str(input_params),
             "op_queue_info": op_queue_info,
             "problem_description": problem_description
             # ,"visualization_strategy": visualization_strategy
@@ -114,13 +114,13 @@ class CodeAnalyzer:
 
         return instrumented_code.strip()
 
-    def _execute_instrumented_code(self, code: str, input_data: List[Any]) -> OperationQueue:
+    def _execute_instrumented_code(self, code: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
         """
         执行仪器化代码并获取操作队列
         
         参数:
             code: 仪器化后的 Python 代码
-            input_data: 输入数据
+            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
             
         返回:
             操作队列
@@ -129,7 +129,6 @@ class CodeAnalyzer:
         # 准备执行环境
         exec_globals = {
             'OperationQueue': OperationQueue,
-            'input_data': input_data,
             'queue': OperationQueue(),
             'print': print,
             'len': len,
@@ -148,15 +147,34 @@ class CodeAnalyzer:
             'str': str,
             'bool': bool
         }
+        
+        # 向执行环境中添加输入参数
+        if isinstance(input_params, dict):
+            # 添加每个参数
+            for key, value in input_params.items():
+                exec_globals[key] = value
+            # 为向后兼容也添加input_data
+            exec_globals['input_data'] = next(iter(input_params.values())) if input_params else []
+        else:
+            # 如果是列表，则按原来方式处理
+            exec_globals['input_data'] = input_params
 
         # 执行代码
         exec(code, exec_globals)
 
         # 尝试直接调用固定函数名
         if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
-            result = exec_globals['visualize_algorithm'](input_data)
-            if isinstance(result, OperationQueue):
-                return result
+            # 尝试多种调用方式，支持不同参数形式
+            try:
+                if isinstance(input_params, dict):
+                    result = exec_globals['visualize_algorithm'](**input_params)
+                else:
+                    result = exec_globals['visualize_algorithm'](input_params)
+                    
+                if isinstance(result, OperationQueue):
+                    return result
+            except Exception as e:
+                print(f"执行visualize_algorithm时出错: {e}")
 
         # 备用方案：查找环境中的所有OperationQueue实例
         for var_name, var_value in exec_globals.items():
@@ -402,6 +420,12 @@ class CodeAnalyzer:
 4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
 5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
 
+### 多参数支持
+1. 检查输入参数的格式，支持单个列表参数和多个命名参数两种情况
+2. 对于多参数情况，visualize_algorithm函数应当定义多个参数而非单一input_data参数
+3. 例如：对于两个链表相加的问题，应该定义为 def visualize_algorithm(l1, l2) 而非 def visualize_algorithm(input_data)
+4. 确保正确处理每个参数，为每个数据结构创建适当的可视化
+
 ### 必须遵循的规则
 1. **不要定义OperationQueue类**，它已经存在于运行环境中
 2. 每次高亮操作(highlight)必须有对应的取消高亮操作(unhighlight)
@@ -421,7 +445,7 @@ class CodeAnalyzer:
 4. 对于元素的比较、交换、移动等操作添加明确的可视化
 
 ### 格式要求
-- 函数名必须为 visualize_algorithm，接收input_data作为参数，返回OperationQueue的实例
+- 函数名必须为 visualize_algorithm，接收必要的参数，返回OperationQueue的实例
 - 除OperationQueue外，如有必要可定义算法所需的辅助类(如ListNode、TreeNode等)
 - 不包含任何调用示例代码或打印语句
 - 不包含任何markdown代码块标记
@@ -482,7 +506,7 @@ class CodeAnalyzer:
             return queue
         ```
         
-        ### 示例2：链表算法可视化
+        ### 示例2：链表算法可视化 (单参数)
         ```
         class ListNode:
     def __init__(self, val=0, next=None):
@@ -504,14 +528,14 @@ def visualize_algorithm(input_data, k=2):
     # 创建头节点
     head = ListNode(input_data[0])
     list_name = "linkedList"
-    head.id = queue.create_list(head.val, list_name=original_list, metadata="创建链表头节点")
+    head.id = queue.create_list(head.val, list_name=list_name, metadata="创建链表头节点")
     node_map[head] = head.id
 
     # 构建链表其余部分
     current = head
     for value in input_data[1:]:
         current.next = ListNode(value)
-        current.next.id = queue.append_node(current.next.val, list_name=original_list,
+        current.next.id = queue.append_node(current.next.val, list_name=list_name,
                                             metadata=f"添加节点: {{current.next.val}}")
         node_map[current.next] = current.next.id
         current = current.next
@@ -596,7 +620,7 @@ def visualize_algorithm(input_data, k=2):
     queue.highlight_node(node_map[rotated_head], metadata="旋转后的链表头节点")
 
     return queue
-        ```
+
         """
 
         human_message = """
@@ -606,7 +630,7 @@ def visualize_algorithm(input_data, k=2):
         {code}
         ```
         
-        输入数据为: {input_data}
+        输入参数为: {input_data}
         
         问题描述为: {problem_description}
         
@@ -615,6 +639,10 @@ def visualize_algorithm(input_data, k=2):
         
         请严格按照要求生成visualize_algorithm函数，确保它返回OperationQueue对象。不要包含任何调用示例或打印语句。
         最重要的是，确保正确保存和跟踪所有生成的ID，以便后续操作能够正确引用。
+        
+        特别注意：
+        1. 如果输入参数是字典形式，表示多个参数，函数定义应相应处理多参数
+        2. 对于多参数情况，visualize_algorithm应当接受多个命名参数而非单个列表
         """
 
         return self.llm_factory.create_chat_prompt_chain(

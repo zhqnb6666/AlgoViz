@@ -1,419 +1,520 @@
 const defaultOperations = [
   {
-    "operation": "create_array2d",
+    "operation": "create_array",
     "data": {
       "array": [
-        [
-          1,
-          2
-        ],
-        [
-          2,
-          3
-        ],
-        [
-          4,
-          5
-        ]
+        1,
+        0,
+        -1,
+        0,
+        -2,
+        2
       ],
-      "id": "nums1"
+      "id": "numsArray"
     },
-    "metadata": "创建二维数组nums1"
+    "metadata": "创建初始数组"
   },
   {
-    "operation": "create_array2d",
+    "operation": "create_array",
     "data": {
       "array": [
-        [
-          1,
-          4
-        ],
-        [
-          3,
-          2
-        ],
-        [
-          4,
-          1
-        ]
+        -2,
+        -1,
+        0,
+        0,
+        1,
+        2
       ],
-      "id": "nums2"
+      "id": "sortedNumsArray"
     },
-    "metadata": "创建二维数组nums2"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
-      ],
-      "id": "nums1",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums1 中的元素: id=1, val=2"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
-      ],
-      "id": "nums1"
-    },
-    "metadata": "取消高亮位置(0,0), (0,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
-      ],
-      "id": "nums1",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums1 中的元素: id=2, val=3"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
-      ],
-      "id": "nums1"
-    },
-    "metadata": "取消高亮位置(1,0), (1,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
-      ],
-      "id": "nums1",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums1 中的元素: id=4, val=5"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
-      ],
-      "id": "nums1"
-    },
-    "metadata": "取消高亮位置(2,0), (2,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
-      ],
-      "id": "nums2",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums2 中的元素: id=1, val=4"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
-      ],
-      "id": "nums2"
-    },
-    "metadata": "取消高亮位置(0,0), (0,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
-      ],
-      "id": "nums2",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums2 中的元素: id=3, val=2"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
-      ],
-      "id": "nums2"
-    },
-    "metadata": "取消高亮位置(1,0), (1,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
-      ],
-      "id": "nums2",
-      "color": "#FF9999"
-    },
-    "metadata": "处理 nums2 中的元素: id=4, val=1"
-  },
-  {
-    "operation": "unhighlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
-      ],
-      "id": "nums2"
-    },
-    "metadata": "取消高亮位置(2,0), (2,1)的元素"
+    "metadata": "数组排序完成"
   },
   {
     "operation": "create_array2d",
     "data": {
-      "array": [
-        [
-          1,
-          6
-        ],
-        [
-          2,
-          3
-        ],
-        [
-          3,
-          2
-        ],
-        [
-          4,
-          6
-        ]
-      ],
-      "id": "result"
+      "array": [],
+      "id": "resultQuadruplets"
     },
     "metadata": "创建结果二维数组"
   },
   {
-    "operation": "highlight2d",
+    "operation": "highlight",
     "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
+      "indices": [
+        0
       ],
-      "id": "result",
+      "id": "sortedNumsArray",
       "color": "#FF9999"
     },
-    "metadata": "结果中元素: id=1, val=6"
+    "metadata": "固定第一个数字: nums[0] = -2"
   },
   {
-    "operation": "unhighlight2d",
+    "operation": "highlight",
     "data": {
-      "positions": [
-        {
-          "row": 0,
-          "col": 0
-        },
-        {
-          "row": 0,
-          "col": 1
-        }
+      "indices": [
+        1
       ],
-      "id": "result"
-    },
-    "metadata": "取消高亮位置(0,0), (0,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
-      ],
-      "id": "result",
+      "id": "sortedNumsArray",
       "color": "#FF9999"
     },
-    "metadata": "结果中元素: id=2, val=3"
+    "metadata": "固定第二个数字: nums[1] = -1"
   },
   {
-    "operation": "unhighlight2d",
+    "operation": "highlight",
     "data": {
-      "positions": [
-        {
-          "row": 1,
-          "col": 0
-        },
-        {
-          "row": 1,
-          "col": 1
-        }
+      "indices": [
+        2,
+        5
       ],
-      "id": "result"
-    },
-    "metadata": "取消高亮位置(1,0), (1,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
-      ],
-      "id": "result",
+      "id": "sortedNumsArray",
       "color": "#FF9999"
     },
-    "metadata": "结果中元素: id=3, val=2"
+    "metadata": "初始化双指针"
   },
   {
-    "operation": "unhighlight2d",
+    "operation": "highlight",
     "data": {
-      "positions": [
-        {
-          "row": 2,
-          "col": 0
-        },
-        {
-          "row": 2,
-          "col": 1
-        }
+      "indices": [
+        2,
+        5
       ],
-      "id": "result"
-    },
-    "metadata": "取消高亮位置(2,0), (2,1)的元素"
-  },
-  {
-    "operation": "highlight2d",
-    "data": {
-      "positions": [
-        {
-          "row": 3,
-          "col": 0
-        },
-        {
-          "row": 3,
-          "col": 1
-        }
-      ],
-      "id": "result",
+      "id": "sortedNumsArray",
       "color": "#FF9999"
     },
-    "metadata": "结果中元素: id=4, val=6"
+    "metadata": "检查双指针位置: left=2, right=5"
   },
   {
-    "operation": "unhighlight2d",
+    "operation": "unhighlight",
     "data": {
-      "positions": [
-        {
-          "row": 3,
-          "col": 0
-        },
-        {
-          "row": 3,
-          "col": 1
-        }
+      "indices": [
+        2
       ],
-      "id": "result"
+      "id": "sortedNumsArray"
     },
-    "metadata": "取消高亮位置(3,0), (3,1)的元素"
+    "metadata": "总和小于目标，移动左指针: nums[2] = 0"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=3, right=5"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "总和小于目标，移动左指针: nums[3] = 0"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4,
+        5
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=4, right=5"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "找到目标四元组: -2, -1, 1, 2"
+  },
+  {
+    "operation": "add_row2d",
+    "data": {
+      "row": [
+        -2,
+        -1,
+        1,
+        2
+      ],
+      "position": 0,
+      "id": "resultQuadruplets"
+    },
+    "metadata": "添加新的四元组到结果数组"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        5,
+        4
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第二个数字固定: nums[1]"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "固定第二个数字: nums[2] = 0"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "初始化双指针"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=3, right=5"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "找到目标四元组: -2, 0, 0, 2"
+  },
+  {
+    "operation": "add_row2d",
+    "data": {
+      "row": [
+        -2,
+        0,
+        0,
+        2
+      ],
+      "position": 1,
+      "id": "resultQuadruplets"
+    },
+    "metadata": "添加新的四元组到结果数组"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4,
+        4
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第二个数字固定: nums[2]"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第一个数字固定: nums[0]"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "固定第一个数字: nums[1] = -1"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "固定第二个数字: nums[2] = 0"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "初始化双指针"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=3, right=5"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        5
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "总和大于目标，移动右指针: nums[5] = 2"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3,
+        4
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3,
+        4
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=3, right=4"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "找到目标四元组: -1, 0, 0, 1"
+  },
+  {
+    "operation": "add_row2d",
+    "data": {
+      "row": [
+        -1,
+        0,
+        0,
+        1
+      ],
+      "position": 2,
+      "id": "resultQuadruplets"
+    },
+    "metadata": "添加新的四元组到结果数组"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4,
+        3
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第二个数字固定: nums[2]"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第一个数字固定: nums[1]"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "固定第一个数字: nums[2] = 0"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "固定第二个数字: nums[3] = 0"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "初始化双指针"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4,
+        5
+      ],
+      "id": "sortedNumsArray",
+      "color": "#FF9999"
+    },
+    "metadata": "检查双指针位置: left=4, right=5"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        5
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "总和大于目标，移动右指针: nums[5] = 2"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4,
+        4
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成当前双指针检查"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第二个数字固定: nums[3]"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "sortedNumsArray"
+    },
+    "metadata": "完成第一个数字固定: nums[2]"
   }
 ];

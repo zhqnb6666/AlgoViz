@@ -18,17 +18,43 @@ const ArrayVisualization = {
             return;
         }
         
-        const totalHeight = Math.max(CONFIG.svgContainer.arrayHeight, arrayCount * 100);
+        // 计算所需的容器尺寸
+        const { width, height } = this.calculateRequiredDimensions();
         
         // 创建新的SVG容器
         this.svg = d3.select("#array-visualization")
             .append("svg")
-            .attr("width", CONFIG.svgContainer.width)
-            .attr("height", totalHeight)
+            .attr("width", width)
+            .attr("height", height)
             .attr("class", "mx-auto");
             
         // 渲染数组
         this.render();
+    },
+    
+    // 计算所需的容器尺寸
+    calculateRequiredDimensions() {
+        // 计算所有数组所需的高度
+        const arrayCount = Object.keys(ArrayModel.data).length;
+        const verticalOffset = 80; // 每个数组的垂直间距
+        const height = Math.max(
+            CONFIG.svgContainer.arrayHeight,
+            arrayCount * verticalOffset + 40 // 添加额外空间
+        );
+        
+        // 计算最长数组所需的宽度
+        let maxArrayLength = 0;
+        for (const arrayId in ArrayModel.data) {
+            const array = ArrayModel.data[arrayId];
+            const arrayNameWidth = arrayId.length * 9; // 估算数组名宽度
+            const arrayElementsWidth = array.length * (CONFIG.visualization.array.squareSize + CONFIG.visualization.array.gap);
+            
+            maxArrayLength = Math.max(maxArrayLength, arrayNameWidth + arrayElementsWidth + 60); // 60是左侧标签的预留空间
+        }
+        
+        const width = Math.max(CONFIG.svgContainer.width, maxArrayLength);
+        
+        return { width, height };
     },
     
     // 渲染数组
@@ -52,6 +78,10 @@ const ArrayVisualization = {
                 // 为该数组创建一个组
                 const groupY = arrayIndex * verticalOffset;
                 
+                // 计算数组名宽度以确保标签不重叠
+                const nameWidth = arrayId.length * 9; // 估算文本宽度
+                const labelOffset = Math.max(10, nameWidth);
+                
                 // 添加数组标识
                 this.svg.append("text")
                     .attr("x", 10)
@@ -62,10 +92,10 @@ const ArrayVisualization = {
                     .attr("font-weight", "bold")
                     .text(arrayId);
                 
-                // 创建数组元素组
+                // 创建数组元素组，确保与标签有足够间距
                 const group = this.svg.append("g")
                     .attr("class", `array-group array-group-${arrayId}`)
-                    .attr("transform", `translate(60, ${groupY})`);
+                    .attr("transform", `translate(${labelOffset + 50}, ${groupY})`);
                     
                 // 为数组元素创建子组
                 const elementGroups = group.selectAll(`.array-element-${arrayId}`)
@@ -130,11 +160,33 @@ const ArrayVisualization = {
         }
     },
     
+    // 检查是否需要重新调整容器大小
+    checkAndResizeContainer() {
+        if (!this.svg) return false;
+        
+        const { width, height } = this.calculateRequiredDimensions();
+        const currentWidth = parseInt(d3.select("#array-visualization svg").attr("width"));
+        const currentHeight = parseInt(d3.select("#array-visualization svg").attr("height"));
+        
+        // 如果尺寸有变化则重新初始化
+        if (width > currentWidth || height > currentHeight) {
+            return true;
+        }
+        
+        return false;
+    },
+    
     // 动画交换元素
     animateSwap(arrayId, i, j, animationSpeed) {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.standard, animationSpeed);
         }
         
         const array = ArrayModel.data[arrayId];
@@ -171,6 +223,12 @@ const ArrayVisualization = {
             return Promise.resolve();
         }
         
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return this.animateHighlight(arrayId, indices, color, animationSpeed);
+        }
+        
         // 更新视图中的高亮
         this.svg.selectAll(`.array-element-${arrayId}`)
             .filter((d, i) => indices.includes(i))
@@ -187,6 +245,12 @@ const ArrayVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return this.animateUnhighlight(arrayId, indices, animationSpeed);
         }
         
         // 更新视图中的高亮

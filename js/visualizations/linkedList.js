@@ -21,13 +21,17 @@ const LinkedListVisualization = {
             return;
         }
         
-        // 创建新的SVG容器
+        // 计算所需的容器高度和宽度
+        const requiredHeight = this.calculateRequiredHeight();
+        const requiredWidth = this.calculateRequiredWidth();
+        
+        // 创建新的SVG容器，使用动态计算的尺寸
         this.svg = d3.select("#linked-list-visualization")
             .append("svg")
-            .attr("width", CONFIG.svgContainer.width)
-            .attr("height", CONFIG.svgContainer.linkedListHeight)
+            .attr("width", Math.max(CONFIG.svgContainer.width, requiredWidth))
+            .attr("height", Math.max(CONFIG.svgContainer.linkedListHeight, requiredHeight))
             .append("g")
-            .attr("transform", `translate(50, ${CONFIG.svgContainer.linkedListHeight/2})`);
+            .attr("transform", `translate(50, ${Math.max(CONFIG.svgContainer.linkedListHeight, requiredHeight)/2})`);
             
         // 定义箭头标记
         this.svg.append("defs").append("marker")
@@ -46,6 +50,42 @@ const LinkedListVisualization = {
         this.render();
     },
     
+    // 计算所需的容器高度
+    calculateRequiredHeight() {
+        // 计算链表数量以确定垂直间距
+        const numLists = Object.keys(LinkedListModel.lists).filter(key => LinkedListModel.lists[key] != null).length;
+        const verticalSpacing = numLists <= 1 ? 0 : CONFIG.visualization.linkedList.verticalSpacing;
+        
+        // 最小高度为标准高度，增加链表数量时增加高度
+        return Math.max(
+            CONFIG.svgContainer.linkedListHeight,
+            (numLists * verticalSpacing) + 100 // 额外添加空间容纳标签
+        );
+    },
+    
+    // 计算所需的容器宽度
+    calculateRequiredWidth() {
+        // 遍历所有链表计算最大长度
+        let maxLength = 0;
+        
+        for (const listName in LinkedListModel.lists) {
+            if (!LinkedListModel.lists[listName]) continue;
+            
+            let length = 0;
+            let current = LinkedListModel.lists[listName];
+            
+            while (current) {
+                length++;
+                current = current.next;
+            }
+            
+            const requiredWidth = length * CONFIG.visualization.linkedList.horizontalSpacing + 100; // 额外添加空间
+            maxLength = Math.max(maxLength, requiredWidth);
+        }
+        
+        return Math.max(CONFIG.svgContainer.width, maxLength);
+    },
+    
     // 收集所有链表数据转换为可视化数据
     collectData() {
         this.nodesData = [];
@@ -60,9 +100,23 @@ const LinkedListVisualization = {
         for (const listName in LinkedListModel.lists) {
             if (!LinkedListModel.lists[listName]) continue;
             
-            let xPos = 0;
+            // 计算每个链表的起始位置
+            const nameLength = listName.length * 9; // 估算标签宽度
+            const startXPos = nameLength + 20; // 确保标签和第一个节点不重叠
+            
+            let xPos = startXPos;
             let yPos = listIndex * verticalSpacing - (verticalSpacing * (numLists - 1) / 2);
             let current = LinkedListModel.lists[listName];
+            
+            // 添加链表名称标签
+            this.nodesData.push({
+                id: `label-${listName}`,
+                value: listName,
+                x: 0,
+                y: yPos,
+                isLabel: true,
+                listName: listName
+            });
             
             while (current) {
                 this.nodesData.push({
@@ -70,6 +124,7 @@ const LinkedListVisualization = {
                     value: current.value,
                     x: xPos,
                     y: yPos,
+                    isLabel: false,
                     listName: listName // 添加链表名称以便于区分
                 });
                 
@@ -97,7 +152,7 @@ const LinkedListVisualization = {
         this.collectData();
         
         // 清除现有元素
-        this.svg.selectAll(".link, .node, .empty-hint").remove();
+        this.svg.selectAll(".link, .node, .empty-hint, .list-label").remove();
         
         // 如果没有节点数据，显示提示信息
         if (this.nodesData.length === 0) {
@@ -130,10 +185,25 @@ const LinkedListVisualization = {
                 }
                 return "";
             });
+        
+        // 绘制链表标签
+        const labels = this.svg.selectAll(".list-label")
+            .data(this.nodesData.filter(d => d.isLabel), d => d.id);
+            
+        labels.enter()
+            .append("text")
+            .attr("class", "list-label")
+            .attr("x", d => d.x)
+            .attr("y", d => d.y)
+            .attr("text-anchor", "start")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", "14px")
+            .attr("font-weight", "bold")
+            .text(d => d.value);
             
         // 绘制节点
         const nodes = this.svg.selectAll(".node")
-            .data(this.nodesData, d => d.id);
+            .data(this.nodesData.filter(d => !d.isLabel), d => d.id);
             
         const nodeGroups = nodes.enter()
             .append("g")
@@ -248,6 +318,17 @@ const LinkedListVisualization = {
         // 收集数据
         this.collectData();
         
+        // 检查是否需要调整容器大小
+        const requiredHeight = this.calculateRequiredHeight();
+        const requiredWidth = this.calculateRequiredWidth();
+        
+        // 如果需要调整容器大小，重新初始化
+        if (requiredHeight > parseInt(d3.select("#linked-list-visualization svg").attr("height")) ||
+            requiredWidth > parseInt(d3.select("#linked-list-visualization svg").attr("width"))) {
+            this.init();
+            return Utils.delay(CONFIG.delay.standard, animationSpeed);
+        }
+        
         // 更新连线
         const links = this.svg.selectAll(".link")
             .data(this.linksData, d => `${d.source.id}-${d.target.id}`);
@@ -281,9 +362,35 @@ const LinkedListVisualization = {
                 return "";
             });
             
+        // 更新标签
+        const labels = this.svg.selectAll(".list-label")
+            .data(this.nodesData.filter(d => d.isLabel), d => d.id);
+            
+        // 删除多余的标签
+        labels.exit().remove();
+        
+        // 新增标签
+        labels.enter()
+            .append("text")
+            .attr("class", "list-label")
+            .attr("x", d => d.x)
+            .attr("y", d => d.y)
+            .attr("text-anchor", "start")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", "14px")
+            .attr("font-weight", "bold")
+            .text(d => d.value);
+            
+        // 更新现有标签
+        labels.transition()
+            .duration(CONFIG.delay.standard / animationSpeed)
+            .attr("x", d => d.x)
+            .attr("y", d => d.y)
+            .text(d => d.value);
+            
         // 更新节点
         const nodes = this.svg.selectAll(".node")
-            .data(this.nodesData, d => d.id);
+            .data(this.nodesData.filter(d => !d.isLabel), d => d.id);
             
         // 删除多余的节点
         nodes.exit().remove();
