@@ -61,6 +61,145 @@ const ArrayModel = {
         return array;
     },
     
+    // 更新单个元素
+    updateElement(arrayId, index, value) {
+        this.init(arrayId);
+        const array = this.data[arrayId];
+        
+        if (index < 0 || index >= array.length) {
+            throw new Error(`更新元素索引超出范围: ${index}`);
+        }
+        
+        // 更新元素值
+        array[index] = value;
+        
+        // 更新元素索引映射
+        this.updateElementIndices(arrayId);
+        
+        return array;
+    },
+    
+    // 批量更新多个元素
+    updateElements(arrayId, updates) {
+        this.init(arrayId);
+        const array = this.data[arrayId];
+        
+        // 更新多个元素值
+        updates.forEach(update => {
+            const { index, value } = update;
+            if (index < 0 || index >= array.length) {
+                throw new Error(`更新元素索引超出范围: ${index}`);
+            }
+            array[index] = value;
+        });
+        
+        // 更新元素索引映射
+        this.updateElementIndices(arrayId);
+        
+        return array;
+    },
+    
+    // 更新整个数组
+    updateArray(arrayId, newArray) {
+        this.init(arrayId);
+        
+        // 更新整个数组
+        this.data[arrayId] = [...newArray];
+        
+        // 清除高亮状态，因为索引可能已经完全改变
+        this.highlighted[arrayId] = [];
+        this.highlightColors[arrayId] = {};
+        
+        // 更新元素索引映射
+        this.updateElementIndices(arrayId);
+        
+        return this.data[arrayId];
+    },
+    
+    // 在指定位置插入元素
+    insertElement(arrayId, index, value) {
+        this.init(arrayId);
+        const array = this.data[arrayId];
+        
+        if (index < 0 || index > array.length) {
+            throw new Error(`插入位置索引超出范围: ${index}`);
+        }
+        
+        // 插入元素
+        array.splice(index, 0, value);
+        
+        // 更新高亮状态：如果插入位置之后有高亮的元素，需要调整它们的索引
+        if (this.highlighted[arrayId].length > 0) {
+            // 调整高亮索引
+            this.highlighted[arrayId] = this.highlighted[arrayId].map(idx => {
+                if (idx >= index) return idx + 1;
+                return idx;
+            });
+            
+            // 调整高亮颜色索引
+            const newColors = {};
+            for (const [idx, color] of Object.entries(this.highlightColors[arrayId])) {
+                const numIdx = parseInt(idx, 10);
+                if (numIdx >= index) {
+                    newColors[numIdx + 1] = color;
+                } else {
+                    newColors[idx] = color;
+                }
+            }
+            this.highlightColors[arrayId] = newColors;
+        }
+        
+        // 更新元素索引映射
+        this.updateElementIndices(arrayId);
+        
+        return array;
+    },
+    
+    // 删除指定位置的元素
+    removeElement(arrayId, index) {
+        this.init(arrayId);
+        const array = this.data[arrayId];
+        
+        if (index < 0 || index >= array.length) {
+            throw new Error(`删除元素索引超出范围: ${index}`);
+        }
+        
+        // 删除元素
+        const removedElement = array.splice(index, 1)[0];
+        
+        // 更新高亮状态：删除对应的高亮，并调整后续索引
+        if (this.highlighted[arrayId].length > 0) {
+            // 移除被删除位置的高亮
+            this.highlighted[arrayId] = this.highlighted[arrayId].filter(idx => idx !== index);
+            
+            // 调整高亮索引
+            this.highlighted[arrayId] = this.highlighted[arrayId].map(idx => {
+                if (idx > index) return idx - 1;
+                return idx;
+            });
+            
+            // 删除对应位置的高亮颜色
+            delete this.highlightColors[arrayId][index];
+            
+            // 调整高亮颜色索引
+            const newColors = {};
+            for (const [idx, color] of Object.entries(this.highlightColors[arrayId])) {
+                const numIdx = parseInt(idx, 10);
+                if (numIdx > index) {
+                    newColors[numIdx - 1] = color;
+                } else if (numIdx < index) {
+                    newColors[idx] = color;
+                }
+            }
+            this.highlightColors[arrayId] = newColors;
+        }
+        
+        // 更新元素索引映射
+        this.updateElementIndices(arrayId);
+        
+        return removedElement;
+    },
+    
     // 高亮元素
     highlight(arrayId, indices, color = CONFIG.visualization.array.defaultHighlightColor) {
         this.init(arrayId);

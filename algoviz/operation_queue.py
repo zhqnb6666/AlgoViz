@@ -227,6 +227,68 @@ class OperationQueue:
             metadata=metadata
         )
 
+    def update_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """更新数组元素操作"""
+        if metadata is None:
+            metadata = f"更新索引{index}的元素值为{value}"
+            
+        self.add_operation(
+            operation="update_element",
+            data={"index": index, "value": value, "id": array_id},
+            metadata=metadata
+        )
+    
+    def update_elements(self, updates: List[Dict[str, int]], array_id: str, metadata: Optional[str] = None) -> None:
+        """批量更新数组元素操作
+        
+        Args:
+            updates: 更新列表，每个元素是一个字典，包含index和value两个键
+            array_id: 数组ID
+            metadata: 操作描述
+        """
+        if metadata is None:
+            indices = [update["index"] for update in updates]
+            metadata = f"批量更新索引{', '.join(map(str, indices))}的元素"
+            
+        self.add_operation(
+            operation="update_elements",
+            data={"updates": updates, "id": array_id},
+            metadata=metadata
+        )
+    
+    def update_array(self, array: List[int], array_id: str, metadata: Optional[str] = None) -> None:
+        """更新整个数组操作"""
+        if metadata is None:
+            metadata = f"更新整个数组"
+            
+        self.add_operation(
+            operation="update_array",
+            data={"array": array.copy(), "id": array_id},
+            metadata=metadata
+        )
+    
+    def insert_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """在数组中插入元素操作"""
+        if metadata is None:
+            metadata = f"在索引{index}位置插入值{value}"
+            
+        self.add_operation(
+            operation="insert_element",
+            data={"index": index, "value": value, "id": array_id},
+            metadata=metadata
+        )
+    
+    def remove_element(self, index: int, array_id: str, metadata: Optional[str] = None) -> None:
+        """从数组中删除元素操作"""
+        if metadata is None:
+            metadata = f"删除索引{index}位置的元素"
+            
+        self.add_operation(
+            operation="remove_element",
+            data={"index": index, "id": array_id},
+            metadata=metadata
+        )
+
     # 树操作相关方法
     def create_root(self, value: Any, node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
         """创建树的根节点"""
