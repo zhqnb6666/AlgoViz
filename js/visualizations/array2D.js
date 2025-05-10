@@ -1,4 +1,3 @@
-
 // 二维数组可视化
 const Array2DVisualization = {
     // SVG元素
@@ -19,25 +18,49 @@ const Array2DVisualization = {
             return;
         }
         
-        // 计算所需的高度 - 二维数组通常需要更多空间
-        let totalHeight = 0;
-        Object.entries(Array2DModel.data).forEach(([arrayId, array]) => {
-            const rows = array.length;
-            totalHeight += Math.max(100, rows * (CONFIG.visualization.array.squareSize + 10) + 50);
-        });
+        // 计算所需的容器尺寸
+        const { width, height } = this.calculateRequiredDimensions();
         
-        // 确保最小高度
-        totalHeight = Math.max(CONFIG.svgContainer.arrayHeight, totalHeight);
-        
-        // 创建新的SVG容器
+        // 创建新的SVG容器，使用计算的尺寸
         this.svg = d3.select("#array2d-visualization")
             .append("svg")
-            .attr("width", CONFIG.svgContainer.width)
-            .attr("height", totalHeight)
+            .attr("width", width)
+            .attr("height", height)
             .attr("class", "mx-auto");
             
         // 渲染数组
         this.render();
+    },
+    
+    // 计算所需的容器尺寸
+    calculateRequiredDimensions() {
+        // 计算所有数组所需的高度
+        let totalHeight = 0;
+        let maxWidth = CONFIG.svgContainer.width;
+        
+        Object.entries(Array2DModel.data).forEach(([arrayId, array]) => {
+            if (array.length === 0) return;
+            
+            // 计算行列数
+            const rows = array.length;
+            const cols = array[0].length;
+            
+            // 计算数组名称长度
+            const nameWidth = arrayId.length * 10; // 估算文本宽度
+            
+            // 计算这个二维数组需要的宽度：左侧标签(40) + 数组名称宽度 + 间距(20) + 每列宽度
+            const arrayWidth = 60 + nameWidth + (cols * (CONFIG.visualization.array.squareSize + 5));
+            maxWidth = Math.max(maxWidth, arrayWidth);
+            
+            // 计算这个二维数组需要的高度：每行高度 + 额外间距
+            const arrayHeight = Math.max(100, rows * (CONFIG.visualization.array.squareSize + 10) + 50);
+            totalHeight += arrayHeight;
+        });
+        
+        // 确保最小高度和宽度
+        const height = Math.max(CONFIG.svgContainer.arrayHeight, totalHeight);
+        
+        return { width: maxWidth, height };
     },
     
     // 渲染数组
@@ -65,9 +88,13 @@ const Array2DVisualization = {
                 const rows = array.length;
                 const cols = array[0].length;
                 
+                // 计算标签宽度，确保足够空间
+                const nameWidth = arrayId.length * 10; // 估算文本宽度
+                const labelOffset = Math.max(40, nameWidth + 10); // 确保足够空间显示标签
+                
                 // 添加数组标识
                 this.svg.append("text")
-                    .attr("x", 0)
+                    .attr("x", 10)
                     .attr("y", currentY + 20)
                     .attr("text-anchor", "start")
                     .attr("dominant-baseline", "middle")
@@ -75,10 +102,10 @@ const Array2DVisualization = {
                     .attr("font-weight", "bold")
                     .text(arrayId);
                 
-                // 创建数组元素组
+                // 创建数组元素组，确保与标签有足够间距
                 const group = this.svg.append("g")
                     .attr("class", `array-group array-group-${arrayId}`)
-                    .attr("transform", `translate(100, ${currentY})`);
+                    .attr("transform", `translate(${labelOffset + 50}, ${currentY})`);
                 
                 // 创建行组
                 const rowGroups = group.selectAll(`.array-row-${arrayId}`)
@@ -178,11 +205,35 @@ const Array2DVisualization = {
         }
     },
     
+    // 检查是否需要重新调整容器大小
+    checkAndResizeContainer() {
+        if (!this.svg) return false;
+        
+        const { width, height } = this.calculateRequiredDimensions();
+        const currentWidth = parseInt(d3.select("#array2d-visualization svg").attr("width"));
+        const currentHeight = parseInt(d3.select("#array2d-visualization svg").attr("height"));
+        
+        // 如果尺寸有变化则返回true
+        if (width > currentWidth || height > currentHeight) {
+            return true;
+        }
+        
+        return false;
+    },
+    
     // 动画交换元素
     animateElementSwap(arrayId, pos1, pos2, animationSpeed) {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateElementSwap(arrayId, pos1, pos2, animationSpeed);
+            });
         }
         
         // 获取元素位置信息
@@ -274,21 +325,26 @@ const Array2DVisualization = {
     
     // 获取数组单元格的坐标
     _getCellCoordinates(arrayId, row, col) {
-        // 基础偏移量 (因为整个数组组是从(100,y)开始的)
-        const baseX = 100;
+        // 基础偏移量
+        let baseX = 0;
         let baseY = 0;
         
-        // 查找正确的数组组位置
+        // 查找正确的数组组和对应的偏移
         const arrayEntries = Object.entries(Array2DModel.data);
         let currentY = 20;
         
         for (let i = 0; i < arrayEntries.length; i++) {
             const [id, array] = arrayEntries[i];
             if (id === arrayId) {
+                // 找到当前数组，计算其基础X坐标
+                const nameWidth = id.length * 10; // 估算文本宽度
+                const labelOffset = Math.max(40, nameWidth + 10); // 确保足够空间显示标签
+                baseX = labelOffset + 50; // 左侧空间 + 标签宽度
                 baseY = currentY;
                 break;
             }
             // 移动到下一个数组位置
+            if (array.length === 0) continue;
             const rows = array.length;
             currentY += rows * (CONFIG.visualization.array.squareSize + 10) + 50;
         }
@@ -305,6 +361,14 @@ const Array2DVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateHighlight(arrayId, positions, color, animationSpeed);
+            });
         }
         
         // 为每个位置应用高亮
@@ -326,6 +390,14 @@ const Array2DVisualization = {
             return Promise.resolve();
         }
         
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateUnhighlight(arrayId, positions, animationSpeed);
+            });
+        }
+        
         // 为每个位置取消高亮
         positions.forEach(pos => {
             this.svg.select(`.array-cell-${arrayId}-${pos.row}-${pos.col}`)
@@ -343,6 +415,14 @@ const Array2DVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateRowSwap(arrayId, row1, row2, animationSpeed);
+            });
         }
         
         // 获取行组
@@ -380,6 +460,14 @@ const Array2DVisualization = {
         if (!this.svg) {
             return Promise.resolve();
         }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateColumnSwap(arrayId, col1, col2, animationSpeed);
+            });
+        }
 
         // 数组维度
         const dimensions = Array2DModel.getDimensions(arrayId);
@@ -405,6 +493,14 @@ const Array2DVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateElementUpdate(arrayId, position, value, animationSpeed);
+            });
         }
         
         // 查找元素
@@ -452,6 +548,14 @@ const Array2DVisualization = {
             return Promise.resolve();
         }
         
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateAddRow(arrayId, position, animationSpeed);
+            });
+        }
+        
         // 先让整个数组淡出
         this.svg.select(`.array-group-${arrayId}`)
             .transition()
@@ -477,6 +581,14 @@ const Array2DVisualization = {
             return Promise.resolve();
         }
         
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateAddColumn(arrayId, position, animationSpeed);
+            });
+        }
+        
         // 与添加行类似的淡出淡入效果
         this.svg.select(`.array-group-${arrayId}`)
             .transition()
@@ -500,6 +612,14 @@ const Array2DVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateRemoveRow(arrayId, row, animationSpeed);
+            });
         }
         
         // 验证行索引的有效性
@@ -550,6 +670,14 @@ const Array2DVisualization = {
         // 如果没有SVG容器，直接返回Promise
         if (!this.svg) {
             return Promise.resolve();
+        }
+        
+        // 检查是否需要调整容器大小
+        if (this.checkAndResizeContainer()) {
+            this.init();
+            return Utils.delay(CONFIG.delay.highlight, animationSpeed).then(() => {
+                return this.animateRemoveColumn(arrayId, col, animationSpeed);
+            });
         }
         
         // 验证列索引的有效性
