@@ -147,7 +147,7 @@ class CodeAnalyzer:
             'str': str,
             'bool': bool
         }
-        
+
         # 向执行环境中添加输入参数
         if isinstance(input_params, dict):
             # 添加每个参数
@@ -170,7 +170,7 @@ class CodeAnalyzer:
                     result = exec_globals['visualize_algorithm'](**input_params)
                 else:
                     result = exec_globals['visualize_algorithm'](input_params)
-                    
+
                 if isinstance(result, OperationQueue):
                     return result
             except Exception as e:
@@ -313,6 +313,48 @@ class CodeAnalyzer:
         26. split_list(list_name, split_after_id, new_list_id="splitList", metadata=None) -> None
 
         拆分链表为两段
+        
+        图操作
+        27. create_graph(graph_id, directed=False, metadata=None) -> None
+        
+        创建图结构
+    
+        28. add_node(graph_id, node_id, value, metadata=None) -> None
+        
+        添加图节点
+    
+        29. add_edge(graph_id, edge_id, source_id, target_id, weight, metadata=None) -> None
+        
+        添加带权重的边
+        
+        30. remove_edge(graph_id, edge_id, metadata=None) -> None
+        
+        删除边
+        
+        31. remove_graph_node(graph_id, node_id, metadata=None) -> None
+        
+        删除图节点
+        
+        32. contract_edge(graph_id, edge_id, new_node_id, metadata=None) -> None
+        
+        收缩边
+        
+        33. highlight_edge(graph_id, edge_id, metadata=None) -> None
+        
+        高亮边
+        
+        34. unhighlight_edge(graph_id, edge_id, metadata=None) -> None
+        
+        取消高亮边
+        
+        35. highlight_graph_node(graph_id, node_id, metadata=None) -> None
+        
+        高亮图节点
+        
+        36. unhighlight_graph_node(graph_id, node_id, metadata=None) -> None
+        
+        取消高亮图节点
+        
         """
 
     def _indent_code(self, code: str, spaces: int = 4) -> str:
@@ -621,6 +663,108 @@ def visualize_algorithm(input_data, k=2):
 
     return queue
 
+        ```
+        
+        ### 示例3：图算法可视化  - 不要重新定义OperationQueue类（非常重要）
+        ```
+def visualize_algorithm(input_data):
+    queue = OperationQueue() #不要重新定义OperationQueue类（非常重要）
+    
+    
+    # 注意下面的create_graph add_node add_edge方法是OperationQueue类的方法 你不用重新定义OperationQueue类，这个类已经人工实现不用你定义直接用里面的方法就行（非常重要） 你的代码开头必须包含类似的代码块，且必须使用这3个OperationQueue类的方法
+    # 创建图的元数据
+    graph_id = "main_graph"
+    directed = False
+    
+    # 创建图结构
+    queue.create_graph(graph_id, directed, metadata="创建无向图")
+    
+    # 节点ID映射表（存储节点值到ID的映射）
+    node_map = {{}}
+    
+    # 添加节点（假设输入数据格式为：[节点值列表，边列表]）
+    nodes, edges = input_data
+    
+    # 创建所有节点
+    for value in nodes:
+        node_id = queue.add_node(
+            graph_id=graph_id,
+            node_id=f"node{{(value}}",
+            value=value,
+            metadata=f"添加节点{{value}}"
+        )
+        node_map[value] = node_id
+    
+    # 添加所有边
+    for edge in edges:
+        src_val, dest_val = edge
+        edge_id = f"edge_{{src_val}}-{{dest_val}}"
+        queue.add_edge(
+            graph_id=graph_id,
+            edge_id=edge_id,
+            source_id=node_map[src_val],
+            target_id=node_map[dest_val],
+            weight=1,
+            metadata=f"添加边 {{src_val}}-{{dest_val}}"
+        )
+    
+    # BFS算法可视化（假设起点是第一个节点）
+    start_value = nodes[0]
+    visited = set()
+    bfs_queue = [start_value]
+    
+    queue.highlight_graph_node(
+        graph_id=graph_id,
+        node_id=node_map[start_value],
+        metadata=f"BFS起点：{{start_value}}"
+    )
+    
+    while bfs_queue:
+        current_val = bfs_queue.pop(0)
+        current_id = node_map[current_val]
+        
+        # 标记当前节点为已访问
+        visited.add(current_val)
+        
+        # 获取相邻节点（根据边数据）
+        neighbors = []
+        for edge in edges:
+            if edge[0] == current_val:
+                neighbors.append(edge[1])
+            elif not directed and edge[1] == current_val:
+                neighbors.append(edge[0])
+        
+        # 处理相邻节点
+        for neighbor in neighbors:
+            neighbor_id = node_map[neighbor]
+            
+            # 高亮边
+            edge_id = f"edge_{{min(current_val,neighbor)}}-{{max(current_val,neighbor)}}"
+            queue.highlight_edge(
+                graph_id=graph_id,
+                edge_id=edge_id,
+                metadata=f"探索边 {{current_val}}-{{neighbor}}"
+            )
+            
+            if neighbor not in visited and neighbor not in bfs_queue:
+                # 高亮新发现的节点
+                queue.highlight_graph_node(
+                    graph_id=graph_id,
+                    node_id=neighbor_id,
+                    metadata=f"发现新节点：{{neighbor}}"
+                )
+                bfs_queue.append(neighbor)
+        
+        # 取消高亮当前节点
+        queue.unhighlight_graph_node(
+            graph_id=graph_id,
+            node_id=current_id,
+            metadata=f"完成处理节点：{{current_val}}"
+        )
+    
+    return queue
+        ```
+        
         """
 
         human_message = """
