@@ -159,8 +159,43 @@ class CodeAnalyzer:
             # 如果是列表，则按原来方式处理
             exec_globals['input_data'] = input_params
 
-        # 执行代码
-        exec(code, exec_globals)
+        # 执行代码，添加自动纠错机制
+        original_code = code
+        max_retries = 2
+        retry_count = 0
+        error_message = None
+        
+        while retry_count <= max_retries:
+            try:
+                # 执行代码
+                exec(code, exec_globals)
+                
+                # 如果执行成功，跳出循环
+                break
+                
+            except Exception as e:
+                # 捕获错误信息
+                error_message = f"执行代码时出错: {str(e)}\n{traceback.format_exc()}"
+                print(error_message)
+                
+                # 如果已达到最大重试次数，不再重试
+                if retry_count >= max_retries:
+                    print(f"已达到最大重试次数 ({max_retries})，停止重试")
+                    break
+                
+                # 否则使用LLM重新生成代码
+                retry_count += 1
+                print(f"正在进行第 {retry_count} 次代码修复...")
+                
+                # 使用LLM修复代码
+                fixed_code = self._repair_code_with_llm(original_code, error_message, input_params)
+                
+                if fixed_code:
+                    code = fixed_code
+                    print("已生成修复后的代码，正在重新执行...")
+                else:
+                    print("无法修复代码，将使用原始代码继续执行")
+                    break
 
         # 尝试直接调用固定函数名
         if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
@@ -795,3 +830,58 @@ def visualize_algorithm(input_data):
             temperature=0.8,  # 降低temperature以获得更确定的输出
             max_tokens=4000
         )
+
+    def _repair_code_with_llm(self, original_code: str, error_message: str, input_params: Union[List[Any], Dict[str, Any]]) -> Optional[str]:
+        """
+        使用LLM修复代码
+        
+        参数:
+            original_code: 原始仪器化代码
+            error_message: 错误信息
+            input_params: 输入参数
+            
+        返回:
+            修复后的代码，如果修复失败则返回None
+        """
+        try:
+            # 构建提示
+            system_message = """你是一个专业的Python代码修复专家。你需要修复AlgoViz项目中的仪器化代码错误。
+            仪器化代码是指在原始算法代码的基础上添加了可视化操作的代码，用于生成算法可视化的操作队列。
+            你需要根据错误信息修复代码，保持原有的算法逻辑不变，只修复导致错误的部分。
+            请返回完整的修复后代码，不要包含解释或标记。"""
+            
+            human_message = f"""我有一段仪器化代码执行时出错了，错误信息如下：
+            
+            {error_message}
+            
+            原始代码：
+            ```python
+            {original_code}
+            ```
+            
+            输入参数：{input_params}
+            
+            请修复这段代码，使其能够正常执行。只返回完整的修复后代码，不要包含任何解释或标记。"""
+            
+            # 创建LLM链
+            repair_chain = self.llm_factory.create_chat_prompt_chain(
+                system_message=system_message,
+                human_message_template=human_message,
+                model_name="gpt-4o",
+                temperature=0.2,
+                max_tokens=4000
+            )
+            
+            # 执行LLM链
+            fixed_code = repair_chain.invoke({})
+            
+            # 提取代码块（如果存在）
+            code_match = re.search(r'```python\n([\s\S]*?)\n```', fixed_code)
+            if code_match:
+                return code_match.group(1).strip()
+            
+            return fixed_code.strip()
+            
+        except Exception as e:
+            print(f"使用LLM修复代码时出错: {e}")
+            return None
