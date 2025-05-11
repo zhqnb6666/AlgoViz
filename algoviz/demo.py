@@ -38,6 +38,7 @@ def process_query(user_input: str):
         print(result['problem_description'])
     
     print(f"输入数据: {result['input_data']}")
+    print(result['code'])# 代码片段
     
     # 分析代码并生成操作队列
     print("正在分析代码并生成操作队列...")
@@ -61,11 +62,14 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 示例用法
     user_query = """
-请实现深度优先搜索(dfs)算法可视化，输入图结构如下：
-input_data = (
-    [1,2,3,4,5],  # 节点值
-    [(1,2), (1,3), (2,4), (3,4), (4,5)]  # 边
+    
+# Dijkstra算法输入数据（带权图）
+请仿照示例使用operationqueue可视化Dijkstra算法，下面提供的为示例输入数据
+dijkstra_input = (
+    [1,2,3,4,5],  # 节点
+    [(1,2,2), (1,3,5), (2,4,1), (3,4,3), (4,5,4)],  # 带权边（起点节点，终点节点，边的权重）
+    (1, 5)  # 指定的路径搜索的起点节点和终点节点
 )
-   """
+       """
     
 process_query(user_query)
