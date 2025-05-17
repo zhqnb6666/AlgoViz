@@ -4,6 +4,7 @@ const {createApp, ref, computed, onMounted, watch} = Vue;
 createApp({
     setup() {
         // 全局控制变量
+        const metadataHistory = ref([]);
         const isPaused = ref(true);
         const isRunning = ref(false);
         const currentStep = ref(0);
@@ -54,6 +55,12 @@ createApp({
 
                 const operation = operationQueue.value[currentStep.value];
                 currentOperation.value = operation.metadata || "执行操作";
+                metadataHistory.value.push({
+                    step: currentStep.value + 1,
+                    operation: operation.operation,
+                    metadata: operation.metadata || "执行操作",
+                    timestamp: new Date().toLocaleTimeString()
+                });
 
                 // 根据操作类型预先显示容器
                 if (operation.operation.startsWith("create_array") ||
@@ -581,9 +588,6 @@ createApp({
         }
 
 
-
-
-
         // 二维数组操作处理
         const handleCreateArray2D = async (data) => {
             Array2DVisualization.init();
@@ -751,6 +755,7 @@ createApp({
             LinkedListVisualization.linksData = [];
             TreeVisualization.svg = null;
             GraphVisualization.svg = null;
+            metadataHistory.value = [];
 
         };
 
@@ -796,7 +801,10 @@ createApp({
             showLinkedListContainer,
             showTreeContainer,
             showGraphContainer,
-            showArray2DContainer
+            showArray2DContainer,
+
+            // 操作队列
+            metadataHistory
         };
     }
 }).mount("#app");

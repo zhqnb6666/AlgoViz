@@ -2,7 +2,7 @@
 """
 代码分析模块 - 负责分析代码并生成操作队列
 """
-
+import difflib
 import re
 import ast
 import builtins
@@ -26,6 +26,9 @@ class CodeAnalyzer:
         self.code_converter = self._create_code_converter()
         self.visualization_strategy_generator = self._create_visualization_strategy_generator()
         self.code_instrumenter = self._create_code_instrumenter()
+
+        self.repair_cases = []  # 存储格式: (error_msg, code_snippet, params, fixed_code)
+        self.max_case_count = 5  # 最大存储案例数
 
     def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
         """
@@ -844,6 +847,16 @@ def visualize_algorithm(input_data):
             修复后的代码，如果修复失败则返回None
         """
         try:
+            # 构建案例提示部分
+            case_prompt = "历史成功修复案例：\n"
+            for i, case in enumerate(self.repair_cases[-3:], 1):  # 显示最近3个案例
+                case_prompt += f"""
+            案例{i}:
+            错误类型: {case['error'].split(':')[0]}
+            参数示例: {str(case['params'])[:50]}
+            修复关键点: {self._analyze_fix_diff(case['original'], case['fixed'])}
+                    """
+
             # 构建提示
             system_message = """你是一个专业的Python代码修复专家。你需要修复AlgoViz项目中的仪器化代码错误。
             仪器化代码是指在原始算法代码的基础上添加了可视化操作的代码，用于生成算法可视化的操作队列。
@@ -865,7 +878,7 @@ def visualize_algorithm(input_data):
             
             # 创建LLM链
             repair_chain = self.llm_factory.create_chat_prompt_chain(
-                system_message=system_message,
+                system_message= system_message,#case_prompt + system_message
                 human_message_template=human_message,
                 model_name="gpt-4o",
                 temperature=0.2,
@@ -878,10 +891,55 @@ def visualize_algorithm(input_data):
             # 提取代码块（如果存在）
             code_match = re.search(r'```python\n([\s\S]*?)\n```', fixed_code)
             if code_match:
+                self._add_repair_case(
+                    error_message=error_message,
+                    original_code=original_code,
+                    input_params=input_params,
+                    fixed_code=fixed_code
+                )
                 return code_match.group(1).strip()
-            
+
             return fixed_code.strip()
             
         except Exception as e:
             print(f"使用LLM修复代码时出错: {e}")
             return None
+
+
+        """
+        代码自动修复工具类
+        """
+        def _add_repair_case(self, error_message: str, original_code: str, input_params: Any, fixed_code: str):
+            """存储成功修复案例"""
+            case = {
+                'error': error_message,
+                'original': original_code,
+                'params': input_params,
+                'fixed': fixed_code
+            }
+            self.repair_cases.append(case)
+
+            # 保持队列长度
+            if len(self.repair_cases) > self.max_case_count:
+                self.repair_cases.pop(0)
+
+        def _analyze_fix_diff(self, original: str, fixed: str) -> str:
+            """分析代码差异生成自然语言描述"""
+            diff = difflib.ndiff(original.splitlines(), fixed.splitlines())
+            changes = [line for line in diff if line.startswith(('+ ', '- '))]
+
+            analysis = []
+            for change in changes[-3:]:  # 取关键修改
+                if change.startswith('+ '):
+                    analysis.append(f"添加代码: {change[2:]}")
+                elif change.startswith('- '):
+                    analysis.append(f"移除代码: {change[2:]}")
+
+            return '；'.join(analysis) if analysis else "代码逻辑调整"
+
+        def _find_similar_cases(self, current_error: str, params: Any) -> List:
+            """根据当前错误类型查找相似案例"""
+            error_type = current_error.split(':')[0].strip()
+            return [case for case in self.repair_cases
+                    if error_type in case['error']
+                    and str(params) == str(case['params'])]
