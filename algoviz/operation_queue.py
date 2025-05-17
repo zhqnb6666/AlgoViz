@@ -31,21 +31,6 @@ class OperationQueue:
         )
         return array_id
 
-    def swap_elements2d(self, row1: int, col1: int, row2: int, col2: int, array_id: str,
-                        metadata: Optional[str] = None) -> None:
-        """交换二维数组中的两个元素"""
-        if metadata is None:
-            metadata = f"交换位置({row1},{col1})和({row2},{col2})的元素"
-
-        pos1 = {"row": row1, "col": col1}
-        pos2 = {"row": row2, "col": col2}
-
-        self.add_operation(
-            operation="swap_elements2d",
-            data={"pos1": pos1, "pos2": pos2, "id": array_id},
-            metadata=metadata
-        )
-
     def highlight2d(self, positions: List[Tuple[int, int]], array_id: str, color: str = "#FF9999",
                     metadata: Optional[str] = None) -> None:
         """高亮二维数组中的元素
@@ -193,16 +178,6 @@ class OperationQueue:
         )
         return array_id
 
-    def swap_elements(self, indices: List[int], array_id: str, metadata: Optional[str] = None) -> None:
-        """交换元素操作"""
-        if metadata is None:
-            metadata = f"交换索引{indices[0]}和{indices[1]}的元素"
-            
-        self.add_operation(
-            operation="swap_elements",
-            data={"indices": indices, "id": array_id},
-            metadata=metadata
-        )
 
     def highlight(self, indices: List[int], array_id: str, color: str = "#FF9999",
                   metadata: Optional[str] = None) -> None:
@@ -804,6 +779,48 @@ class OperationQueue:
             data={
                 "graph_id": graph_id,
                 "node_id": node_id
+            },
+            metadata=metadata
+        )
+
+    # 变量区操作
+    def add_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
+        """添加变量到变量区"""
+        if metadata is None:
+            metadata = f"添加变量{name}，值为{value}"
+            
+        self.add_operation(
+            operation="add_variable",
+            data={
+                "name": name,
+                "value": value
+            },
+            metadata=metadata
+        )
+        
+    def update_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
+        """更新变量区中的变量值"""
+        if metadata is None:
+            metadata = f"更新变量{name}的值为{value}"
+            
+        self.add_operation(
+            operation="update_variable",
+            data={
+                "name": name,
+                "value": value
+            },
+            metadata=metadata
+        )
+        
+    def delete_variable(self, name: str, metadata: Optional[str] = None) -> None:
+        """从变量区删除变量"""
+        if metadata is None:
+            metadata = f"删除变量{name}"
+            
+        self.add_operation(
+            operation="delete_variable",
+            data={
+                "name": name
             },
             metadata=metadata
         )

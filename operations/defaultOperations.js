@@ -1,520 +1,659 @@
 const defaultOperations = [
   {
-    "operation": "create_array",
+    "operation": "add_variable",
     "data": {
-      "array": [
-        1,
-        0,
-        -1,
-        0,
-        -2,
-        2
-      ],
-      "id": "numsArray"
+      "name": "V",
+      "value": 6
     },
-    "metadata": "创建初始数组"
+    "metadata": "Number of vertices"
   },
   {
-    "operation": "create_array",
+    "operation": "add_variable",
     "data": {
-      "array": [
-        -2,
-        -1,
-        0,
-        0,
-        1,
-        2
-      ],
-      "id": "sortedNumsArray"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "数组排序完成"
+    "metadata": "Graph adjacency list"
   },
   {
-    "operation": "create_array2d",
+    "operation": "create_graph",
     "data": {
-      "array": [],
-      "id": "resultQuadruplets"
+      "id": "graph_1",
+      "directed": true
     },
-    "metadata": "创建结果二维数组"
+    "metadata": "Create directed graph"
   },
   {
-    "operation": "highlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        0
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_0",
+      "value": 0,
+      "attributes": {}
     },
-    "metadata": "固定第一个数字: nums[0] = -2"
+    "metadata": "Add node 0"
   },
   {
-    "operation": "highlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        1
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_1",
+      "value": 1,
+      "attributes": {}
     },
-    "metadata": "固定第二个数字: nums[1] = -1"
+    "metadata": "Add node 1"
   },
   {
-    "operation": "highlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        2,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_2",
+      "value": 2,
+      "attributes": {}
     },
-    "metadata": "初始化双指针"
+    "metadata": "Add node 2"
   },
   {
-    "operation": "highlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        2,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_3",
+      "value": 3,
+      "attributes": {}
     },
-    "metadata": "检查双指针位置: left=2, right=5"
+    "metadata": "Add node 3"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_4",
+      "value": 4,
+      "attributes": {}
     },
-    "metadata": "总和小于目标，移动左指针: nums[2] = 0"
+    "metadata": "Add node 4"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_node",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_5",
+      "value": 5,
+      "attributes": {}
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Add node 5"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "检查双指针位置: left=3, right=5"
+    "metadata": "Add edge from 0 to 1"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        3
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_0_1",
+      "source_id": "node_0",
+      "target_id": "node_1",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "总和小于目标，移动左指针: nums[3] = 0"
+    "metadata": "Add edge from 0 to 1"
   },
   {
-    "operation": "unhighlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        4,
-        5
-      ],
-      "id": "sortedNumsArray"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Add edge from 0 to 2"
   },
   {
-    "operation": "highlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        4,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_0_2",
+      "source_id": "node_0",
+      "target_id": "node_2",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "检查双指针位置: left=4, right=5"
+    "metadata": "Add edge from 0 to 2"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        0,
-        1,
-        4,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "找到目标四元组: -2, -1, 1, 2"
+    "metadata": "Add edge from 1 to 3"
   },
   {
-    "operation": "add_row2d",
+    "operation": "add_edge",
     "data": {
-      "row": [
-        -2,
-        -1,
-        1,
-        2
-      ],
-      "position": 0,
-      "id": "resultQuadruplets"
+      "graph_id": "graph_1",
+      "id": "edge_1_3",
+      "source_id": "node_1",
+      "target_id": "node_3",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "添加新的四元组到结果数组"
+    "metadata": "Add edge from 1 to 3"
   },
   {
-    "operation": "unhighlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        5,
-        4
-      ],
-      "id": "sortedNumsArray"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Add edge from 1 to 4"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        1
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_1_4",
+      "source_id": "node_1",
+      "target_id": "node_4",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "完成第二个数字固定: nums[1]"
+    "metadata": "Add edge from 1 to 4"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "固定第二个数字: nums[2] = 0"
+    "metadata": "Add edge from 2 to 4"
   },
   {
-    "operation": "highlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_2_4",
+      "source_id": "node_2",
+      "target_id": "node_4",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "初始化双指针"
+    "metadata": "Add edge from 2 to 4"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "检查双指针位置: left=3, right=5"
+    "metadata": "Add edge from 3 to 5"
   },
   {
-    "operation": "highlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        0,
-        2,
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_3_5",
+      "source_id": "node_3",
+      "target_id": "node_5",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "找到目标四元组: -2, 0, 0, 2"
+    "metadata": "Add edge from 3 to 5"
   },
   {
-    "operation": "add_row2d",
+    "operation": "update_variable",
     "data": {
-      "row": [
-        -2,
-        0,
-        0,
-        2
-      ],
-      "position": 1,
-      "id": "resultQuadruplets"
+      "name": "graph",
+      "value": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          3,
+          4
+        ],
+        "2": [
+          4
+        ],
+        "3": [
+          5
+        ],
+        "4": [
+          5
+        ],
+        "5": []
+      }
     },
-    "metadata": "添加新的四元组到结果数组"
+    "metadata": "Add edge from 4 to 5"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_edge",
     "data": {
-      "indices": [
-        4,
-        4
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_4_5",
+      "source_id": "node_4",
+      "target_id": "node_5",
+      "weight": 0,
+      "attributes": {}
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Add edge from 4 to 5"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_variable",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "完成第二个数字固定: nums[2]"
+    "metadata": "Visited vertices list"
   },
   {
-    "operation": "unhighlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        0
-      ],
-      "id": "sortedNumsArray"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "完成第一个数字固定: nums[0]"
+    "metadata": "Mark vertex 0 as visited"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_node",
     "data": {
-      "indices": [
-        1
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_0"
     },
-    "metadata": "固定第一个数字: nums[1] = -1"
+    "metadata": "Visit vertex 0"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_edge",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_0_1"
     },
-    "metadata": "固定第二个数字: nums[2] = 0"
+    "metadata": "Traverse edge from 0 to 1"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "初始化双指针"
+    "metadata": "Mark vertex 1 as visited"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_node",
     "data": {
-      "indices": [
-        3,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_1"
     },
-    "metadata": "检查双指针位置: left=3, right=5"
+    "metadata": "Visit vertex 1"
   },
   {
-    "operation": "unhighlight",
+    "operation": "highlight_edge",
     "data": {
-      "indices": [
-        5
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_1_3"
     },
-    "metadata": "总和大于目标，移动右指针: nums[5] = 2"
+    "metadata": "Traverse edge from 1 to 3"
   },
   {
-    "operation": "unhighlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        3,
-        4
-      ],
-      "id": "sortedNumsArray"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Mark vertex 3 as visited"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_node",
     "data": {
-      "indices": [
-        3,
-        4
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_3"
     },
-    "metadata": "检查双指针位置: left=3, right=4"
+    "metadata": "Visit vertex 3"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_edge",
     "data": {
-      "indices": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_3_5"
     },
-    "metadata": "找到目标四元组: -1, 0, 0, 1"
+    "metadata": "Traverse edge from 3 to 5"
   },
   {
-    "operation": "add_row2d",
+    "operation": "update_variable",
     "data": {
-      "row": [
-        -1,
-        0,
-        0,
-        1
-      ],
-      "position": 2,
-      "id": "resultQuadruplets"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "添加新的四元组到结果数组"
+    "metadata": "Mark vertex 5 as visited"
   },
   {
-    "operation": "unhighlight",
+    "operation": "highlight_node",
     "data": {
-      "indices": [
-        4,
-        3
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_5"
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Visit vertex 5"
   },
   {
-    "operation": "unhighlight",
+    "operation": "unhighlight_node",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_5"
     },
-    "metadata": "完成第二个数字固定: nums[2]"
+    "metadata": "Finished visiting vertex 5"
   },
   {
-    "operation": "unhighlight",
+    "operation": "unhighlight_edge",
     "data": {
-      "indices": [
-        1
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_3_5"
     },
-    "metadata": "完成第一个数字固定: nums[1]"
+    "metadata": "Finished traversing edge from 3 to 5"
   },
   {
-    "operation": "highlight",
+    "operation": "unhighlight_node",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "node_3"
     },
-    "metadata": "固定第一个数字: nums[2] = 0"
+    "metadata": "Finished visiting vertex 3"
   },
   {
-    "operation": "highlight",
+    "operation": "unhighlight_edge",
     "data": {
-      "indices": [
-        3
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_1_3"
     },
-    "metadata": "固定第二个数字: nums[3] = 0"
+    "metadata": "Finished traversing edge from 1 to 3"
   },
   {
-    "operation": "highlight",
+    "operation": "highlight_edge",
     "data": {
-      "indices": [
-        4,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "graph_id": "graph_1",
+      "id": "edge_1_4"
     },
-    "metadata": "初始化双指针"
+    "metadata": "Traverse edge from 1 to 4"
   },
   {
-    "operation": "highlight",
+    "operation": "update_variable",
     "data": {
-      "indices": [
-        4,
-        5
-      ],
-      "id": "sortedNumsArray",
-      "color": "#FF9999"
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     },
-    "metadata": "检查双指针位置: left=4, right=5"
+    "metadata": "Mark vertex 4 as visited"
   },
   {
-    "operation": "unhighlight",
+    "operation": "highlight_node",
     "data": {
-      "indices": [
-        5
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_4"
     },
-    "metadata": "总和大于目标，移动右指针: nums[5] = 2"
+    "metadata": "Visit vertex 4"
   },
   {
-    "operation": "unhighlight",
+    "operation": "unhighlight_node",
     "data": {
-      "indices": [
-        4,
-        4
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_4"
     },
-    "metadata": "完成当前双指针检查"
+    "metadata": "Finished visiting vertex 4"
   },
   {
-    "operation": "unhighlight",
+    "operation": "unhighlight_edge",
     "data": {
-      "indices": [
-        3
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "edge_1_4"
     },
-    "metadata": "完成第二个数字固定: nums[3]"
+    "metadata": "Finished traversing edge from 1 to 4"
   },
   {
-    "operation": "unhighlight",
+    "operation": "unhighlight_node",
     "data": {
-      "indices": [
-        2
-      ],
-      "id": "sortedNumsArray"
+      "graph_id": "graph_1",
+      "id": "node_1"
     },
-    "metadata": "完成第一个数字固定: nums[2]"
+    "metadata": "Finished visiting vertex 1"
+  },
+  {
+    "operation": "unhighlight_edge",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "edge_0_1"
+    },
+    "metadata": "Finished traversing edge from 0 to 1"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "edge_0_2"
+    },
+    "metadata": "Traverse edge from 0 to 2"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "metadata": "Mark vertex 2 as visited"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "node_2"
+    },
+    "metadata": "Visit vertex 2"
+  },
+  {
+    "operation": "unhighlight_node",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "node_2"
+    },
+    "metadata": "Finished visiting vertex 2"
+  },
+  {
+    "operation": "unhighlight_edge",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "edge_0_2"
+    },
+    "metadata": "Finished traversing edge from 0 to 2"
+  },
+  {
+    "operation": "unhighlight_node",
+    "data": {
+      "graph_id": "graph_1",
+      "id": "node_0"
+    },
+    "metadata": "Finished visiting vertex 0"
   }
 ];

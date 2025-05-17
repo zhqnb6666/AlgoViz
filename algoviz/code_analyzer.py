@@ -24,7 +24,6 @@ class CodeAnalyzer:
 
         # 创建代码转换器链
         self.code_converter = self._create_code_converter()
-        self.visualization_strategy_generator = self._create_visualization_strategy_generator()
         self.code_instrumenter = self._create_code_instrumenter()
 
     def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
@@ -198,9 +197,6 @@ class CodeAnalyzer:
         1. create_array(array, array_id=None, metadata="创建数组") -> str
         创建一个新数组并添加到操作队列
 
-        2. swap_elements(indices, array_id, metadata=None) -> None
-        交换数组中的两个元素
-
         3. highlight(indices, array_id, metadata=None) -> None
         高亮数组中的元素
 
@@ -210,10 +206,7 @@ class CodeAnalyzer:
         # 二维数组操作
         5. create_array2d(array, array_id=None, metadata="创建二维数组") -> str
         创建一个新的二维数组
-        
-        6. swap_elements2d(row1, col1, row2, col2, array_id, metadata=None) -> None
-        交换二维数组中的两个元素
-        
+              
         7. highlight2d(positions, array_id, color="#FF9999", metadata=None) -> None
         高亮二维数组中的元素，positions为(行,列)元组列表
         
@@ -241,118 +234,107 @@ class CodeAnalyzer:
         15. remove_column2d(position, array_id, metadata=None) -> None
         删除二维数组中的一列
 
+        # 变量区操作
+        16. add_variable(name, value, metadata=None) -> None
+        添加变量到变量区
+        
+        17. update_variable(name, value, metadata=None) -> None
+        更新变量区中的变量值
+        
+        18. delete_variable(name, metadata=None) -> None
+        从变量区删除变量
+
         # 树操作
-        16. create_root(value, node_id=None, metadata=None) -> str
+        19. create_root(value, node_id=None, metadata=None) -> str
         创建树的根节点
 
-        8. add_child(parent_id, value, node_id=None, metadata=None) -> str
+        20. add_child(parent_id, value, node_id=None, metadata=None) -> str
         向指定父节点添加子节点
-        9. remove_node(node_id, metadata=None) -> None
+        
+        21. remove_node(node_id, metadata=None) -> None
         删除树节点
 
-        10. highlight_node(node_id, metadata=None) -> None
+        22. highlight_node(node_id, metadata=None) -> None
         高亮树节点
 
-        11. unhighlight_node(node_id, metadata=None) -> None
+        23. unhighlight_node(node_id, metadata=None) -> None
         取消高亮树节点
 
-        12. update_value(node_id, value, metadata=None) -> None
-
+        24. update_value(node_id, value, metadata=None) -> None
         更新节点的值
 
-        13. highlight_link(source_id, target_id, metadata=None) -> None
+        25. highlight_link(source_id, target_id, metadata=None) -> None
         高亮两个节点间的边
 
-        14. unhighlight_link(source_id, target_id, metadata=None) -> None
+        26. unhighlight_link(source_id, target_id, metadata=None) -> None
         取消高亮两个节点间的边
 
-        15. reparent_node(node_id, new_parent_id, metadata=None) -> None
-
+        27. reparent_node(node_id, new_parent_id, metadata=None) -> None
         改变某个节点的父节点
 
-        链表操作
-        16. create_list(value, node_id=None, list_name , metadata=None) -> str
-
+        # 链表操作
+        28. create_list(value, node_id=None, list_name , metadata=None) -> str
         创建链表头节点
 
         返回: 节点 ID
 
-        17. append_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
-
+        29. append_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
         在链表尾部添加节点
 
-        18. prepend_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
-
+        30. prepend_node(value, list_name="linkedList", node_id=None, metadata=None) -> str
         在链表头部添加节点
 
-        19. insert_after(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
-        20. insert_before(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
-
+        31. insert_after(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
+        32. insert_before(target_id, value, list_name="linkedList", node_id=None, metadata=None) -> str
         在指定节点前/后插入节点
 
-        21. remove_list_node(node_id, list_name="linkedList", metadata=None) -> None
-
+        33. remove_list_node(node_id, list_name="linkedList", metadata=None) -> None
         删除链表中的某个节点
 
-        22. reverse_list(list_name="linkedList", metadata=None) -> None
-
+        34. reverse_list(list_name="linkedList", metadata=None) -> None
         整体反转链表
 
-        23. reverse_segment(start_id, end_id, list_name="linkedList", metadata=None) -> None
-
+        35. reverse_segment(start_id, end_id, list_name="linkedList", metadata=None) -> None
         反转链表中一段区间
 
-        24. swap_nodes(id1, id2, metadata=None) -> None
-
+        36. swap_nodes(id1, id2, metadata=None) -> None
         交换链表中两个节点的值
 
-        25. merge_lists(list1_name, list2_name, new_list_id="merged", metadata=None) -> None
-
+        37. merge_lists(list1_name, list2_name, new_list_id="merged", metadata=None) -> None
         合并两个链表为新链表
 
-        26. split_list(list_name, split_after_id, new_list_id="splitList", metadata=None) -> None
-
+        38. split_list(list_name, split_after_id, new_list_id="splitList", metadata=None) -> None
         拆分链表为两段
         
-        图操作
-        27. create_graph(graph_id, directed=False, metadata=None) -> None
-        
+        # 图操作
+        39. create_graph(graph_id, directed=False, metadata=None) -> None
         创建图结构
     
-        28. add_node(graph_id, node_id, value, metadata=None) -> None
-        
+        40. add_node(graph_id, node_id, value, metadata=None) -> None
         添加图节点
     
-        29. add_edge(graph_id, edge_id, source_id, target_id, weight, metadata=None) -> None
-        
+        41. add_edge(graph_id, edge_id, source_id, target_id, weight, metadata=None) -> None
         添加带权重的边
         
-        30. remove_edge(graph_id, edge_id, metadata=None) -> None
-        
+        42. remove_edge(graph_id, edge_id, metadata=None) -> None
         删除边
         
-        31. remove_graph_node(graph_id, node_id, metadata=None) -> None
-        
+        43. remove_graph_node(graph_id, node_id, metadata=None) -> None
         删除图节点
         
-        32. contract_edge(graph_id, edge_id, new_node_id, metadata=None) -> None
-        
+        44. contract_edge(graph_id, edge_id, new_node_id, metadata=None) -> None
         收缩边
         
-        33. highlight_edge(graph_id, edge_id, metadata=None) -> None
-        
+        45. highlight_edge(graph_id, edge_id, metadata=None) -> None
         高亮边
         
-        34. unhighlight_edge(graph_id, edge_id, metadata=None) -> None
-        
+        46. unhighlight_edge(graph_id, edge_id, metadata=None) -> None
         取消高亮边
         
-        35. highlight_graph_node(graph_id, node_id, metadata=None) -> None
-        
+        47. highlight_graph_node(graph_id, node_id, metadata=None) -> None
         高亮图节点
         
-        36. unhighlight_graph_node(graph_id, node_id, metadata=None) -> None
-        
+        48. unhighlight_graph_node(graph_id, node_id, metadata=None) -> None
         取消高亮图节点
         
         """
@@ -404,52 +386,6 @@ class CodeAnalyzer:
             max_tokens=2000
         )
 
-    def _create_visualization_strategy_generator(self):
-        """创建可视化策略生成器链"""
-        system_message = """
-        你是一个算法可视化专家，精通分析代码并为其设计最佳可视化策略。你的任务是分析给定的代码，识别其使用的数据结构和算法模式，并提供简洁而详细的可视化策略建议。
-请分析代码并识别以下内容：
-1. 主要数据结构类型（数组、链表、树、图等）
-2. 算法类型和模式（排序、搜索、动态规划等）
-3. 关键操作点和需要可视化的步骤
-4. 数据结构的转换和状态变化（特别是从一个状态到另一个状态的变化）
-
-对于可视化策略，请遵循以下原则：
-- 每一步操作都应该有明确的目的和解释
-- 每次高亮操作后必须配对相应的取消高亮操作
-- 当算法涉及数据结构转换时，必须创建新的数据结构实例来展示转换后的状态
-- 使用具体的方法名称指定操作（如create_list、create_array、append_node等）
-- 为每个操作提供简洁而信息丰富的metadata解释
-
-严格禁止：
-- 过度依赖高亮/取消高亮操作
-- 提供实际代码示例
-- 生成未在OperationQueue中定义的方法
-- 省略数据结构的创建和转换步骤
-
-请确保你的可视化策略能完整展示算法的整个执行过程，特别是数据结构的变化和转换，对于结果的展现则要创建新的对应数据结构。
-        """
-
-        human_message = """
-        请分析以下代码，并提供详细的可视化策略：
-        
-        ```python
-        {code}
-        ```
-        
-        问题描述：{problem_description}
-
-        OperationQueue类的信息：
-        {op_queue_info}
-        """
-
-        return self.llm_factory.create_chat_prompt_chain(
-            system_message=system_message,
-            human_message_template=human_message,
-            temperature=0.3,
-            max_tokens=2000
-        )
-
     def _create_code_instrumenter(self):
         """创建代码仪器化链"""
         system_message = """
@@ -462,6 +398,35 @@ class CodeAnalyzer:
 4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
 5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
 
+### 变量区操作
+1. 声明新变量时，必须调用`queue.add_variable(变量名, 变量值)`将变量添加到变量区
+2. 变量值更改时，必须调用`queue.update_variable(变量名, 新值)`更新变量区
+3. 即使在循环中的临时变量（如i, j等迭代变量）也必须在每次循环迭代时更新
+4. 当访问数组元素时（如arr[i]），在读取前高亮对应索引，读取后取消高亮
+5. 示例：
+   ```python
+   # 原代码
+   i = 0
+   while i < len(arr):
+       if arr[i] > max_val:
+           max_val = arr[i]
+       i += 1
+   
+   # 仪器化代码
+   i = 0
+   queue.add_variable("i", i)
+   max_val = float('-inf')
+   queue.add_variable("max_val", max_val)
+   while i < len(arr):
+       queue.highlight([i], array_id)
+       if arr[i] > max_val:
+           max_val = arr[i]
+           queue.update_variable("max_val", max_val)
+       queue.unhighlight([i], array_id)
+       i += 1
+       queue.update_variable("i", i)
+   ```
+
 ### 多参数支持
 1. 检查输入参数的格式，支持单个列表参数和多个命名参数两种情况
 2. 对于多参数情况，visualize_algorithm函数应当定义多个参数而非单一input_data参数
@@ -471,7 +436,7 @@ class CodeAnalyzer:
 ### 必须遵循的规则
 1. **不要定义OperationQueue类**，它已经存在于运行环境中
 2. 每次高亮操作(highlight)必须有对应的取消高亮操作(unhighlight)
-3. 对于数据结构的转换或结果展示，必须创建单独的数据结构(如"rotatedList")来展示结果
+3. 没有swap_elements这个方法
 4. 必须保存所有节点/元素的ID以便正确引用
 5. 二维数组只支持方阵，对于行长度不等的二维数组，需要使用一维数组进行可视化
 
@@ -479,12 +444,6 @@ class CodeAnalyzer:
 1. 为每个节点或元素分配一个id属性，并记录在映射表中
 2. 每次创建新元素时，保存OperationQueue返回的ID
 3. 所有可视化操作必须使用正确的ID而非元素值
-
-### 必须实现的可视化功能
-1. 数据结构初始化与创建的可视化
-2. 算法执行过程中的每个关键步骤的可视化
-3. **结果展示：明确创建新的数据结构展示算法的最终结果**
-4. 对于元素的比较、交换、移动等操作添加明确的可视化
 
 ### 格式要求
 - 函数名必须为 visualize_algorithm，接收必要的参数，返回OperationQueue的实例
@@ -496,274 +455,6 @@ class CodeAnalyzer:
 - 确保生成的代码可以直接执行，不会产生运行时错误
 - 添加必要的注释以解释可视化逻辑
 - 确保每步操作都有有意义的metadata
-        
-        
-        ### 示例1：二叉树算法可视化
-        ```
-        class TreeNode:
-            def __init__(self, val=0, left=None, right=None):
-                self.val = val
-                self.left = left
-                self.right = right
-                self.id = None  # 用于存储节点ID
-        
-        def visualize_algorithm(input_data):
-            queue = OperationQueue()
-            # 将输入数据转换为二叉树
-            if not input_data:
-                return queue
-                
-            # 创建节点ID映射表
-            node_map = {{}}
-            
-            # 构建树并记录可视化
-            root = TreeNode(input_data[0])
-            root.id = queue.create_root(root.val, metadata="创建根节点")
-            node_map[root] = root.id
-            
-            # 构建树的其余部分...
-            
-            # 二叉树遍历示例
-            def inorder(node):
-                if not node:
-                    return
-                    
-                # 高亮当前节点
-                queue.highlight_node(node_map[node], metadata=f"访问节点: {{node.val}}")
-                
-                # 左子树遍历
-                if node.left:
-                    queue.highlight_link(node_map[node], node_map[node.left], metadata="遍历左子树")
-                    inorder(node.left)
-                    
-                # 处理当前节点
-                queue.unhighlight_node(node_map[node], metadata="处理节点完成")
-                
-                # 右子树遍历
-                if node.right:
-                    queue.highlight_link(node_map[node], node_map[node.right], metadata="遍历右子树")
-                    inorder(node.right)
-            
-            inorder(root)
-            return queue
-        ```
-        
-        ### 示例2：链表算法可视化 (单参数)
-        ```
-        class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-        self.id = None  # 用于存储节点ID
-
-
-def visualize_algorithm(input_data, k=2):
-    queue = OperationQueue()
-
-    # 创建链表并记录可视化
-    if not input_data:
-        return queue
-
-    # 节点ID映射表
-    node_map = {{}}
-
-    # 创建头节点
-    head = ListNode(input_data[0])
-    list_name = "linkedList"
-    head.id = queue.create_list(head.val, list_name=list_name, metadata="创建链表头节点")
-    node_map[head] = head.id
-
-    # 构建链表其余部分
-    current = head
-    for value in input_data[1:]:
-        current.next = ListNode(value)
-        current.next.id = queue.append_node(current.next.val, list_name=list_name,
-                                            metadata=f"添加节点: {{current.next.val}}")
-        node_map[current.next] = current.next.id
-        current = current.next
-
-    def rotateRight(head, k):
-        if not head or not head.next or k == 0:
-            return head
-
-        # 计算链表长度
-        length = 1
-        current = head
-        queue.highlight_node(node_map[current], metadata="开始计算链表长度")
-
-        while current.next:
-            queue.highlight_node(node_map[current.next], metadata=f"计数: {{length + 1}}")
-            current = current.next
-            length += 1
-
-        queue.unhighlight_node(node_map[current], metadata=f"链表长度为: {{length}}")
-
-        # 计算实际旋转次数
-        k = k % length
-        queue.highlight_node(node_map[head], metadata=f"计算实际旋转次数: {{k}} = {{k}} % {{length}}")
-
-        if k == 0:
-            return head
-
-        # 创建新的旋转后链表的名称
-        rotated_list = "rotatedList"
-
-        # 找到新的头节点和尾节点位置
-        steps_to_new_tail = length - k - 1
-        queue.highlight_node(node_map[head], metadata=f"定位新尾节点位置: 从头向后走 {{steps_to_new_tail}} 步")
-
-        # 找到新的尾节点
-        new_tail = head
-        for i in range(steps_to_new_tail):
-            queue.highlight_node(node_map[new_tail.next], metadata=f"向后移动 {{i + 1}}/{{steps_to_new_tail}} 步")
-            new_tail = new_tail.next
-            if i > 0:  # 保持前一个节点的高亮一会儿
-                queue.unhighlight_node(node_map[new_tail.next])
-
-        # 标记新的头节点
-        new_head = new_tail.next
-        queue.highlight_node(node_map[new_head], metadata="找到新的头节点")
-
-        # 创建一个新链表来展示旋转结果
-        # 首先复制新头节点作为旋转后链表的起点
-        new_head_id = queue.create_list(new_head.val, list_name=rotated_list, metadata="开始构建旋转后的链表")
-
-        # 复制从新头节点到原链表末尾的节点
-        temp = new_head.next
-        prev_id = new_head_id
-        while temp:
-            node_id = queue.append_node(temp.val, list_name=rotated_list,
-                                        metadata=f"添加旋转后的节点: {{temp.val}}")
-            queue.highlight_link(prev_id, node_id, metadata="连接到旋转后的链表")
-            prev_id = node_id
-            temp = temp.next
-
-        # 复制从原链表头到新尾节点的节点
-        temp = head
-        while temp != new_tail.next:
-            node_id = queue.append_node(temp.val, list_name=rotated_list,
-                                        metadata=f"添加原链表前段节点: {{temp.val}}")
-            queue.highlight_link(prev_id, node_id, metadata="连接到旋转后的链表")
-            prev_id = node_id
-            temp = temp.next
-
-        # 在原链表上展示断开和连接的操作
-        queue.highlight_link(node_map[current], node_map[head], metadata="在原链表中: 将尾节点连接到头节点")
-        queue.highlight_link(node_map[new_tail], node_map[new_head],
-                             metadata="在原链表中: 断开新尾节点和新头节点之间的连接")
-
-        return new_head
-
-    # 执行链表旋转
-    rotated_head = rotateRight(head, k)
-
-    # 标记原始链表和旋转后的链表
-    queue.highlight_node(node_map[head], metadata="原始链表的头节点")
-    queue.highlight_node(node_map[rotated_head], metadata="旋转后的链表头节点")
-
-    return queue
-
-        ```
-        
-        ### 示例3：图算法可视化  - 不要重新定义OperationQueue类（非常重要）
-        ```
-def visualize_algorithm(input_data):
-    queue = OperationQueue() #不要重新定义OperationQueue类（非常重要）
-    
-    
-    # 注意下面的create_graph add_node add_edge方法是OperationQueue类的方法 你不用重新定义OperationQueue类，这个类已经人工实现不用你定义直接用里面的方法就行（非常重要） 你的代码开头必须包含类似的代码块，且必须使用这3个OperationQueue类的方法
-    # 创建图的元数据
-    graph_id = "main_graph"
-    directed = False
-    
-    # 创建图结构
-    queue.create_graph(graph_id, directed, metadata="创建无向图")
-    
-    # 节点ID映射表（存储节点值到ID的映射）
-    node_map = {{}}
-    
-    # 添加节点（假设输入数据格式为：[节点值列表，边列表]）
-    nodes, edges = input_data
-    
-    # 创建所有节点
-    for value in nodes:
-        node_id = queue.add_node(
-            graph_id=graph_id,
-            node_id=f"node{{(value}}",
-            value=value,
-            metadata=f"添加节点{{value}}"
-        )
-        node_map[value] = node_id
-    
-    # 添加所有边
-    for edge in edges:
-        src_val, dest_val = edge
-        edge_id = f"edge_{{src_val}}-{{dest_val}}"
-        queue.add_edge(
-            graph_id=graph_id,
-            edge_id=edge_id,
-            source_id=node_map[src_val],
-            target_id=node_map[dest_val],
-            weight=1,
-            metadata=f"添加边 {{src_val}}-{{dest_val}}"
-        )
-    
-    # BFS算法可视化（假设起点是第一个节点）
-    start_value = nodes[0]
-    visited = set()
-    bfs_queue = [start_value]
-    
-    queue.highlight_graph_node(
-        graph_id=graph_id,
-        node_id=node_map[start_value],
-        metadata=f"BFS起点：{{start_value}}"
-    )
-    
-    while bfs_queue:
-        current_val = bfs_queue.pop(0)
-        current_id = node_map[current_val]
-        
-        # 标记当前节点为已访问
-        visited.add(current_val)
-        
-        # 获取相邻节点（根据边数据）
-        neighbors = []
-        for edge in edges:
-            if edge[0] == current_val:
-                neighbors.append(edge[1])
-            elif not directed and edge[1] == current_val:
-                neighbors.append(edge[0])
-        
-        # 处理相邻节点
-        for neighbor in neighbors:
-            neighbor_id = node_map[neighbor]
-            
-            # 高亮边
-            edge_id = f"edge_{{min(current_val,neighbor)}}-{{max(current_val,neighbor)}}"
-            queue.highlight_edge(
-                graph_id=graph_id,
-                edge_id=edge_id,
-                metadata=f"探索边 {{current_val}}-{{neighbor}}"
-            )
-            
-            if neighbor not in visited and neighbor not in bfs_queue:
-                # 高亮新发现的节点
-                queue.highlight_graph_node(
-                    graph_id=graph_id,
-                    node_id=neighbor_id,
-                    metadata=f"发现新节点：{{neighbor}}"
-                )
-                bfs_queue.append(neighbor)
-        
-        # 取消高亮当前节点
-        queue.unhighlight_graph_node(
-            graph_id=graph_id,
-            node_id=current_id,
-            metadata=f"完成处理节点：{{current_val}}"
-        )
-    
-    return queue
-        ```
         
         """
 
@@ -787,6 +478,7 @@ def visualize_algorithm(input_data):
         特别注意：
         1. 如果输入参数是字典形式，表示多个参数，函数定义应相应处理多参数
         2. 对于多参数情况，visualize_algorithm应当接受多个命名参数而非单个列表
+        3. 必须按照要求使用变量区操作，包括添加、更新变量，以及在访问数组元素时进行高亮
         """
 
         return self.llm_factory.create_chat_prompt_chain(

@@ -18,8 +18,8 @@ createApp({
         const showLinkedListContainer = ref(false);
         const showTreeContainer = ref(false);
         const showArray2DContainer = ref(false);
-
         const showGraphContainer = ref(false);
+        const showVariableContainer = ref(false);
 
         // 预定义操作队列
         const operationQueue = ref(defaultOperations);
@@ -57,7 +57,6 @@ createApp({
 
                 // 根据操作类型预先显示容器
                 if (operation.operation.startsWith("create_array") ||
-                    operation.operation === "swap_elements" ||
                     operation.operation === "highlight" ||
                     operation.operation === "unhighlight") {
                     showArrayContainer.value = true;
@@ -77,6 +76,10 @@ createApp({
                     operation.operation === 'unhighlight_edge') {
 
                     showGraphContainer.value = true;
+                } else if (operation.operation === 'add_variable' ||
+                    operation.operation === 'update_variable' ||
+                    operation.operation === 'delete_variable') {
+                    // 变量区始终显示，无需设置showVariableContainer
                 } else if (operation.operation.includes("list") ||
                     operation.operation.includes("node") ||
                     operation.operation.includes("append") ||
@@ -116,9 +119,6 @@ createApp({
                     // 数组操作
                     case "create_array":
                         await handleCreateArray(operation.data);
-                        break;
-                    case "swap_elements":
-                        await handleSwapElements(operation.data);
                         break;
                     case "highlight":
                         await handleHighlight(operation.data);
@@ -293,6 +293,17 @@ createApp({
                         await handleGetNeighbors(operation.data);
                         break;
 
+                    // 变量操作
+                    case "add_variable":
+                        await handleAddVariable(operation.data);
+                        break;
+                    case "update_variable":
+                        await handleUpdateVariable(operation.data);
+                        break;
+                    case "delete_variable":
+                        await handleDeleteVariable(operation.data);
+                        break;
+
                     default:
                         console.warn(`未知操作: ${operation.operation}`);
                 }
@@ -328,11 +339,6 @@ createApp({
             }
 
             return Utils.delay(CONFIG.delay.standard, animationSpeed.value);
-        };
-
-        const handleSwapElements = async (data) => {
-            ArrayModel.swap(data.id, data.indices[0], data.indices[1]);
-            return ArrayVisualization.animateSwap(data.id, data.indices[0], data.indices[1], animationSpeed.value);
         };
 
         const handleHighlight = async (data) => {
@@ -659,6 +665,23 @@ createApp({
             return Array2DVisualization.animateSubarray(data.id, data.newId, data.startRow, data.startCol, data.endRow, data.endCol, animationSpeed.value);
         };
 
+        // 变量操作处理
+        const handleAddVariable = async (data) => {
+            VariableModel.setVariable(data.name, data.value);
+            // 始终初始化变量可视化，不再依赖showVariableContainer
+            VariableVisualization.init();
+            return VariableVisualization.animateAddVariable(data.name, data.value, animationSpeed.value);
+        };
+        
+        const handleUpdateVariable = async (data) => {
+            VariableModel.setVariable(data.name, data.value);
+            return VariableVisualization.animateUpdateVariable(data.name, data.value, animationSpeed.value);
+        };
+        
+        const handleDeleteVariable = async (data) => {
+            return VariableVisualization.animateDeleteVariable(data.name, animationSpeed.value);
+        };
+
         // 执行队列
         const executeQueue = async () => {
             while (!isPaused.value && isRunning.value && currentStep.value < operationQueue.value.length) {
@@ -728,21 +751,24 @@ createApp({
 
             // 重置图
             GraphModel.graphs = {};
-
+            
+            // 重置变量
+            VariableModel.clearAllVariables();
 
             // 重置容器显示状态
             showArrayContainer.value = false;
             showLinkedListContainer.value = false;
             showTreeContainer.value = false;
             showGraphContainer.value = false;
-
             showArray2DContainer.value = false;
+            // 变量区始终显示，不重置showVariableContainer
 
             // 清除所有可视化区域，但不创建新的SVG
             d3.select("#array-visualization").selectAll("*").remove();
             d3.select("#linked-list-visualization").selectAll("*").remove();
             d3.select("#tree-visualization").selectAll("*").remove();
             d3.select("#graph-visualization").selectAll("*").remove();
+            d3.select("#variable-visualization").selectAll("*").remove();
 
             // 重置可视化组件的SVG引用
             ArrayVisualization.svg = null;
@@ -751,7 +777,10 @@ createApp({
             LinkedListVisualization.linksData = [];
             TreeVisualization.svg = null;
             GraphVisualization.svg = null;
+            VariableVisualization.svg = null;
 
+            // 初始化变量可视化区
+            VariableVisualization.init();
         };
 
         // 组件挂载后初始化
@@ -762,6 +791,7 @@ createApp({
             showTreeContainer.value = false;
             showGraphContainer.value = false;
             showArray2DContainer.value = false;
+            // 变量区始终显示，不设置showVariableContainer
 
             // 不预先初始化可视化组件，等到实际需要时才初始化
             // 确保状态清晰
@@ -774,6 +804,10 @@ createApp({
             LinkedListVisualization.linksData = [];
             TreeVisualization.svg = null;
             GraphVisualization.svg = null;
+            VariableVisualization.svg = null;
+            
+            // 初始化变量可视化区
+            VariableVisualization.init();
         });
 
         return {
@@ -796,7 +830,8 @@ createApp({
             showLinkedListContainer,
             showTreeContainer,
             showGraphContainer,
-            showArray2DContainer
+            showArray2DContainer,
+            showVariableContainer
         };
     }
 }).mount("#app");

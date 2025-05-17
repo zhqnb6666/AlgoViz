@@ -36,6 +36,15 @@ const CONFIG = {
             highlightedNodeRadius: 15,
             linkWidth: 2,
             highlightedLinkWidth: 4
+        },
+        
+        // 变量区可视化配置
+        variable: {
+            rowHeight: 30,
+            padding: 10,
+            defaultHighlightColor: "#ffcc00",
+            updateFlashColor: "#ff6600",
+            deleteFlashColor: "#ff3333"
         }
     },
     
@@ -45,7 +54,8 @@ const CONFIG = {
         arrayHeight: 160,
         linkedListHeight: 300,
         treeHeight: 500,
-        graphHeight: 800
+        graphHeight: 800,
+        minHeight: 100
     },
     
     // 延迟时间（毫秒）
