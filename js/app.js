@@ -501,15 +501,35 @@ createApp({
         };
 
         const handleAddGraphEdge = async (data) => {
-            GraphModel.addEdge(
-                data.graph_id,
-                data.id,
-                data.source_id || data.source,
-                data.target_id || data.target,
-                data.weight,
-                data.attributes
-            );
-            return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+            try {
+                // 添加边，GraphModel.addEdge 会自动处理不存在的节点
+                const edge = GraphModel.addEdge(
+                    data.graph_id,
+                    data.id,
+                    data.source_id ?? data.source,
+                    data.target_id ?? data.target,
+                    data.weight,
+                    data.attributes
+                );
+                
+                // 如果有新节点被创建，需要更新当前操作信息
+                const sourceNode = edge.source;
+                const targetNode = edge.target;
+                
+                if (data.source_id === undefined && data.source === undefined) {
+                    currentOperation.value += ` (自动创建节点: ${sourceNode})`;
+                }
+                
+                if (data.target_id === undefined && data.target === undefined) {
+                    currentOperation.value += ` (自动创建节点: ${targetNode})`;
+                }
+                
+                return GraphVisualization.animateUpdate(animationSpeed.value, data.graph_id);
+            } catch (error) {
+                console.error("添加边时出错:", error);
+                currentOperation.value = `错误: ${error.message}`;
+                return Promise.resolve();
+            }
         };
 
         const handleHighlightGraphNode = async (data) => {

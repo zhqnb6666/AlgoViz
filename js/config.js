@@ -32,8 +32,8 @@ const CONFIG = {
 
         // 图可视化配置
         graph: {
-            nodeRadius: 12,
-            highlightedNodeRadius: 15,
+            nodeRadius: 10,
+            highlightedNodeRadius: 13,
             linkWidth: 2,
             highlightedLinkWidth: 4
         },
@@ -54,7 +54,7 @@ const CONFIG = {
         arrayHeight: 160,
         linkedListHeight: 300,
         treeHeight: 500,
-        graphHeight: 800,
+        graphHeight: 600,
         minHeight: 100
     },
     

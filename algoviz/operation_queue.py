@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -581,7 +582,7 @@ class OperationQueue:
         self.queue = []
 
     #图操作
-    def create_graph(self, graph_id: str, directed: bool = False, metadata: Optional[str] = None) -> None:
+    def create_graph(self, graph_id: str = "1", directed: bool = False, metadata: Optional[str] = None) -> None:
         """创建图操作"""
         if metadata is None:
             direction = "有向图" if directed else "无向图"
@@ -701,7 +702,7 @@ class OperationQueue:
             metadata = f"高亮图{graph_id}的节点{node_id}"
 
         self.add_operation(
-            operation="highlight_node",
+            operation="highlight_graph_node",
             data={
                 "graph_id": graph_id,
                 "id": node_id
@@ -715,7 +716,7 @@ class OperationQueue:
             metadata = f"取消高亮图{graph_id}的节点{node_id}"
 
         self.add_operation(
-            operation="unhighlight_node",
+            operation="unhighlight_graph_node",
             data={
                 "graph_id": graph_id,
                 "id": node_id
@@ -786,28 +787,29 @@ class OperationQueue:
     # 变量区操作
     def add_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
         """添加变量到变量区"""
+        copied_value = copy.deepcopy(value)
         if metadata is None:
-            metadata = f"添加变量{name}，值为{value}"
+            metadata = f"添加变量{name}，值为{copied_value}"
             
         self.add_operation(
             operation="add_variable",
             data={
                 "name": name,
-                "value": value
+                "value": copied_value
             },
             metadata=metadata
         )
-        
+
     def update_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
-        """更新变量区中的变量值"""
+        copied_value = copy.deepcopy(value)
         if metadata is None:
-            metadata = f"更新变量{name}的值为{value}"
-            
+            metadata = f"更新变量{name}的值为{copied_value}"
+
         self.add_operation(
             operation="update_variable",
             data={
                 "name": name,
-                "value": value
+                "value": copied_value
             },
             metadata=metadata
         )

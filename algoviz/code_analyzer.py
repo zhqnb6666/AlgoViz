@@ -6,7 +6,9 @@
 import re
 import ast
 import builtins
-from typing import Dict, List, Any, Optional, Union
+import io
+import sys
+from typing import Dict, List, Any, Optional, Union, Tuple
 import traceback
 
 from operation_queue import OperationQueue
@@ -25,16 +27,18 @@ class CodeAnalyzer:
         # 创建代码转换器链
         self.code_converter = self._create_code_converter()
         self.code_instrumenter = self._create_code_instrumenter()
+        self.params_generator = self._create_params_generator()
+        self.code_fixer = self._create_code_fixer()
 
-    def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
+    def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]] = None) -> OperationQueue:
         """
         分析代码并生成操作队列
         
         参数:
             code: 源代码
             language: 代码语言
-            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
             problem_description: 问题描述
+            input_params: 输入参数，可选。如果为None，会根据代码自动生成
             
         返回:
             OperationQueue 实例，包含可视化操作队列
@@ -45,13 +49,94 @@ class CodeAnalyzer:
         else:
             python_code = code
 
+        # 如果没有提供输入参数，根据代码和问题描述生成合适的参数
+        if input_params is None:
+            input_params = self._generate_params(python_code, problem_description)
+            print(f"根据代码自动生成的参数: {input_params}")
+
         # 生成带操作队列的代码
         instrumented_code = self._instrument_code(python_code, input_params, problem_description)
-
-        # 执行仪器化代码并获取操作队列
-        queue = self._execute_instrumented_code(instrumented_code, input_params)
-
+        print(instrumented_code.replace("\\n", "\n"))
+        
+        # 执行仪器化代码并获取操作队列，支持最多两次自动修复
+        max_retries = 2
+        retry_count = 0
+        error_message = None
+        
+        while retry_count <= max_retries:
+            queue, success, error_message = self._execute_instrumented_code_with_error_capture(
+                instrumented_code, input_params
+            )
+            
+            if success:
+                # 执行成功，返回操作队列
+                return queue
+            else:
+                # 执行失败，进行修复
+                if retry_count < max_retries:
+                    print(f"代码执行失败（第{retry_count+1}次）: {error_message}")
+                    print("正在尝试修复代码...")
+                    instrumented_code = self._fix_code(instrumented_code, error_message, input_params)
+                    retry_count += 1
+                else:
+                    # 达到最大重试次数，使用空队列
+                    print(f"达到最大重试次数({max_retries})，无法修复代码。使用空队列。")
+                    print(f"最后的错误: {error_message}")
+                    return OperationQueue()
+        
+        # 这里应该不会执行到，但为了保险起见
         return queue
+
+    def _generate_params(self, code: str, problem_description: str) -> Union[List[Any], Dict[str, Any]]:
+        """
+        根据代码和问题描述生成合适的参数
+        
+        参数:
+            code: Python 代码
+            problem_description: 问题描述
+            
+        返回:
+            生成的输入参数，可以是列表或字典
+        """
+        # 调用参数生成器LLM
+        result = self.params_generator.invoke({
+            "code": code,
+            "problem_description": problem_description
+        })
+        
+        try:
+            # 尝试解析返回的JSON
+            if isinstance(result, dict) and 'params' in result:
+                return result['params']
+            elif isinstance(result, dict) and 'input_data' in result:
+                return result['input_data']
+            
+            # 尝试评估字符串表示的参数
+            if isinstance(result, str):
+                # 查找JSON格式的参数
+                json_pattern = r'\{.*\}'
+                list_pattern = r'\[.*\]'
+                
+                json_match = re.search(json_pattern, result, re.DOTALL)
+                if json_match:
+                    try:
+                        import json
+                        return json.loads(json_match.group(0))
+                    except:
+                        pass
+                
+                list_match = re.search(list_pattern, result, re.DOTALL)
+                if list_match:
+                    try:
+                        return eval(list_match.group(0))
+                    except:
+                        pass
+            
+            # 如果上述方法都失败，返回默认参数
+            return [5, 3, 8, 4, 7, 2, 6, 1]
+        except Exception as e:
+            print(f"参数生成失败: {e}")
+            return [5, 3, 8, 4, 7, 2, 6, 1]
 
     def _convert_to_python(self, code: str, source_language: str) -> str:
         """
@@ -113,18 +198,22 @@ class CodeAnalyzer:
 
         return instrumented_code.strip()
 
-    def _execute_instrumented_code(self, code: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
+    def _execute_instrumented_code_with_error_capture(
+        self, code: str, input_params: Union[List[Any], Dict[str, Any]]
+    ) -> Tuple[OperationQueue, bool, Optional[str]]:
         """
-        执行仪器化代码并获取操作队列
+        执行仪器化代码并捕获可能的错误
         
         参数:
             code: 仪器化后的 Python 代码
-            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
+            input_params: 输入参数
             
         返回:
-            操作队列
+            包含以下内容的元组:
+            - 操作队列（如果执行成功）或空队列（如果执行失败）
+            - 成功标志（布尔值）
+            - 错误信息（字符串，如果有错误）
         """
-
         # 准备执行环境
         exec_globals = {
             'OperationQueue': OperationQueue,
@@ -157,31 +246,128 @@ class CodeAnalyzer:
         else:
             # 如果是列表，则按原来方式处理
             exec_globals['input_data'] = input_params
+        
+        # 捕获标准输出和错误
+        stdout_capture = io.StringIO()
+        stderr_capture = io.StringIO()
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
+        
+        try:
+            # 重定向输出以捕获详细错误信息
+            sys.stdout = stdout_capture
+            sys.stderr = stderr_capture
+            
+            # 执行代码
+            exec(code, exec_globals)
+            
+            # 尝试直接调用固定函数名
+            if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
+                try:
+                    if isinstance(input_params, dict):
+                        result = exec_globals['visualize_algorithm'](**input_params)
+                    else:
+                        result = exec_globals['visualize_algorithm'](input_params)
 
-        # 执行代码
-        exec(code, exec_globals)
+                    if isinstance(result, OperationQueue):
+                        return result, True, None
+                except Exception as e:
+                    error_traceback = traceback.format_exc()
+                    return OperationQueue(), False, f"执行visualize_algorithm函数时错误: {str(e)}\n{error_traceback}"
 
-        # 尝试直接调用固定函数名
-        if 'visualize_algorithm' in exec_globals and callable(exec_globals['visualize_algorithm']):
-            # 尝试多种调用方式，支持不同参数形式
-            try:
-                if isinstance(input_params, dict):
-                    result = exec_globals['visualize_algorithm'](**input_params)
-                else:
-                    result = exec_globals['visualize_algorithm'](input_params)
+            # 备用方案：查找环境中的所有OperationQueue实例
+            for var_name, var_value in exec_globals.items():
+                if isinstance(var_value, OperationQueue) and var_name != '_execute_instrumented':
+                    return var_value, True, None
 
-                if isinstance(result, OperationQueue):
-                    return result
-            except Exception as e:
-                print(f"执行visualize_algorithm时出错: {e}")
+            # 没有找到OperationQueue实例
+            return OperationQueue(), False, "未找到有效的OperationQueue实例"
+            
+        except Exception as e:
+            error_traceback = traceback.format_exc()
+            return OperationQueue(), False, f"代码执行错误: {str(e)}\n{error_traceback}"
+        finally:
+            # 恢复标准输出和错误
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+            
+            # 获取捕获的输出（可用于调试）
+            stdout_output = stdout_capture.getvalue()
+            stderr_output = stderr_capture.getvalue()
+            
+            if stderr_output:
+                print("错误输出:", stderr_output)
 
-        # 备用方案：查找环境中的所有OperationQueue实例
-        for var_name, var_value in exec_globals.items():
-            if isinstance(var_value, OperationQueue) and var_name != '_execute_instrumented':
-                return var_value
-
-        # 最后的备用方案
-        return OperationQueue()
+    def _fix_code(self, code: str, error_message: str, input_params: Union[List[Any], Dict[str, Any]]) -> str:
+        """
+        使用LLM修复执行失败的代码
+        
+        参数:
+            code: 需要修复的代码
+            error_message: 执行时捕获的错误信息
+            input_params: 输入参数
+            
+        返回:
+            修复后的代码
+        """
+        fixed_code = self.code_fixer.invoke({
+            "code": code,
+            "error_message": error_message,
+            "input_params": str(input_params)
+        })
+        
+        # 提取代码块（如果存在）
+        code_match = re.search(r'```python\n([\s\S]*?)\n```', fixed_code)
+        if code_match:
+            return code_match.group(1).strip()
+            
+        return fixed_code.strip()
+    
+    def _create_code_fixer(self):
+        """创建代码修复器链"""
+        system_message = """
+        你是一个专业的代码修复专家，精通Python和算法可视化。你的任务是修复执行失败的仪器化代码。
+        
+        修复时，请遵循以下原则:
+        1. 仔细分析错误信息，找出真正的错误原因
+        2. 只修改与错误相关的部分，不要重写整个代码
+        3. 保持算法的原始逻辑不变
+        4. 确保所有可视化操作的正确性，特别是高亮和取消高亮的配对
+        5. 确保修复后的代码能够正确处理提供的输入参数
+        6. 代码的返回值必须是OperationQueue对象
+        
+        常见错误及修复策略:
+        1. 未定义变量: 确保在使用前定义所有变量，特别检查循环变量和条件变量
+        2. 索引错误: 检查数组访问是否越界，添加合适的边界检查
+        3. 类型错误: 检查参数类型是否匹配函数要求，必要时进行类型转换
+        4. 高亮/取消高亮不匹配: 确保每次高亮都有对应的取消高亮操作
+        5. 参数不匹配: 检查函数调用的参数数量和顺序是否正确
+        
+        请仅返回修复后的完整代码，不包含解释或注释。
+        """
+        
+        human_message = """
+        请修复以下执行失败的代码:
+        
+        ```python
+        {code}
+        ```
+        
+        错误信息:
+        {error_message}
+        
+        输入参数:
+        {input_params}
+        
+        请返回修复后的完整代码。
+        """
+        
+        return self.llm_factory.create_chat_prompt_chain(
+            system_message=system_message,
+            human_message_template=human_message,
+            temperature=0.2,
+            max_tokens=4000
+        )
 
     def _get_operation_queue_info(self) -> str:
         """
@@ -307,7 +493,7 @@ class CodeAnalyzer:
         拆分链表为两段
         
         # 图操作
-        39. create_graph(graph_id, directed=False, metadata=None) -> None
+        39. create_graph(graph_id = "1", directed=False, metadata=None) -> None
         创建图结构
     
         40. add_node(graph_id, node_id, value, metadata=None) -> None
@@ -397,10 +583,12 @@ class CodeAnalyzer:
 3. 使用传入的OperationQueue实例来记录可视化操作，**不要自己定义OperationQueue类**
 4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
 5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
+6. 尽量不要使用OperationQueue返回的值，而是自己保存
 
 ### 变量区操作
+重要：只有基本类型或者基本类型的字典、列表等才能算作变量
 1. 声明新变量时，必须调用`queue.add_variable(变量名, 变量值)`将变量添加到变量区
-2. 变量值更改时，必须调用`queue.update_variable(变量名, 新值)`更新变量区
+2. 变量值更改时，必须调用`queue.update_variable(变量名, 新值)`更新变量区,不能单独更改变量列表或字典中的某个值，只能全部更改
 3. 即使在循环中的临时变量（如i, j等迭代变量）也必须在每次循环迭代时更新
 4. 当访问数组元素时（如arr[i]），在读取前高亮对应索引，读取后取消高亮
 5. 示例：
@@ -427,11 +615,10 @@ class CodeAnalyzer:
        queue.update_variable("i", i)
    ```
 
-### 多参数支持
+### 参数支持
 1. 检查输入参数的格式，支持单个列表参数和多个命名参数两种情况
 2. 对于多参数情况，visualize_algorithm函数应当定义多个参数而非单一input_data参数
-3. 例如：对于两个链表相加的问题，应该定义为 def visualize_algorithm(l1, l2) 而非 def visualize_algorithm(input_data)
-4. 确保正确处理每个参数，为每个数据结构创建适当的可视化
+3. 参数值可以是列表、字典或其他基本类型，但不是对象
 
 ### 必须遵循的规则
 1. **不要定义OperationQueue类**，它已经存在于运行环境中
@@ -487,3 +674,73 @@ class CodeAnalyzer:
             temperature=0.8,  # 降低temperature以获得更确定的输出
             max_tokens=4000
         )
+
+    def _create_params_generator(self):
+        """创建参数生成器链"""
+        system_message = """
+        你是一个专业的代码参数生成专家，负责为算法代码生成合适的测试数据。
+        
+        你的任务是分析代码和问题描述，然后生成最合适的测试参数。
+        
+        生成参数时，请遵循以下原则:
+        1. 参数应该符合函数签名和参数类型
+        2. 参数应该覆盖代码中的关键路径和边界情况
+        3. 参数的大小和复杂度应该适中，便于可视化展示(通常是5-15个元素)
+        4. 如果代码需要多个参数，应该为每个参数生成合适的值，并使用适当的参数名
+
+        
+        你需要返回一个JSON格式的对象:
+        
+        如果是单一参数:
+        {{
+            "input_data": [元素1, 元素2, ...]
+        }}
+        
+        如果是多个参数:
+        {{
+            "params": {{
+                "参数名1": 参数值1,
+                "参数名2": 参数值2,
+                ...
+            }}
+        }}
+        
+        参数值可以是数组、字符串、数字或其他基本类型。
+        """
+        
+        human_message = """
+        请分析以下代码和问题描述，生成合适的测试参数:
+        
+        代码:
+        ```python
+        {code}
+        ```
+        
+        问题描述:
+        {problem_description}
+        
+        请返回满足要求的参数。根据算法和数据结构的特点生成能体现算法过程的关键测试数据。
+        """
+        
+        return self.llm_factory.create_json_chain(
+            system_message=system_message,
+            human_message_template=human_message,
+            temperature=0.4,
+            max_tokens=2000
+        )
+
+    def _execute_instrumented_code(self, code: str, input_params: Union[List[Any], Dict[str, Any]]) -> OperationQueue:
+        """
+        执行仪器化代码并获取操作队列
+        
+        此方法仅用作向后兼容，新代码应使用_execute_instrumented_code_with_error_capture
+        
+        参数:
+            code: 仪器化后的 Python 代码
+            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
+            
+        返回:
+            操作队列
+        """
+        queue, _, _ = self._execute_instrumented_code_with_error_capture(code, input_params)
+        return queue
