@@ -52,7 +52,7 @@ def process_query(user_input: str):
 if __name__ == "__main__":
     # 使用标准示例
     user_query = """
-    演示一下djikstra算法，图的结构要复杂一点
+    演示一下prim最小生成树算法，图的结构要复杂一点
     """
     
     process_query(user_query)

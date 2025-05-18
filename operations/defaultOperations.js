@@ -1,1016 +1,1215 @@
 const defaultOperations = [
   {
-    "operation": "create_graph",
-    "data": {
-      "id": "1",
-      "directed": true
-    },
-    "metadata": "创建有向图"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "A",
-      "value": "A",
-      "attributes": {}
-    },
-    "metadata": "添加节点 A"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "B",
-      "value": "B",
-      "attributes": {}
-    },
-    "metadata": "添加节点 B"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "C",
-      "value": "C",
-      "attributes": {}
-    },
-    "metadata": "添加节点 C"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "D",
-      "value": "D",
-      "attributes": {}
-    },
-    "metadata": "添加节点 D"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "E",
-      "value": "E",
-      "attributes": {}
-    },
-    "metadata": "添加节点 E"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "F",
-      "value": "F",
-      "attributes": {}
-    },
-    "metadata": "添加节点 F"
-  },
-  {
-    "operation": "add_node",
-    "data": {
-      "graph_id": "1",
-      "id": "G",
-      "value": "G",
-      "attributes": {}
-    },
-    "metadata": "添加节点 G"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->B",
-      "source_id": "A",
-      "target_id": "B",
-      "weight": 4,
-      "attributes": {}
-    },
-    "metadata": "添加边 A->B 权重 4"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->C",
-      "source_id": "A",
-      "target_id": "C",
-      "weight": 2,
-      "attributes": {}
-    },
-    "metadata": "添加边 A->C 权重 2"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->C",
-      "source_id": "B",
-      "target_id": "C",
-      "weight": 5,
-      "attributes": {}
-    },
-    "metadata": "添加边 B->C 权重 5"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->D",
-      "source_id": "B",
-      "target_id": "D",
-      "weight": 10,
-      "attributes": {}
-    },
-    "metadata": "添加边 B->D 权重 10"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->E",
-      "source_id": "C",
-      "target_id": "E",
-      "weight": 3,
-      "attributes": {}
-    },
-    "metadata": "添加边 C->E 权重 3"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "E->D",
-      "source_id": "E",
-      "target_id": "D",
-      "weight": 4,
-      "attributes": {}
-    },
-    "metadata": "添加边 E->D 权重 4"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "E->F",
-      "source_id": "E",
-      "target_id": "F",
-      "weight": 6,
-      "attributes": {}
-    },
-    "metadata": "添加边 E->F 权重 6"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "D->F",
-      "source_id": "D",
-      "target_id": "F",
-      "weight": 1,
-      "attributes": {}
-    },
-    "metadata": "添加边 D->F 权重 1"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "F->G",
-      "source_id": "F",
-      "target_id": "G",
-      "weight": 2,
-      "attributes": {}
-    },
-    "metadata": "添加边 F->G 权重 2"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->G",
-      "source_id": "C",
-      "target_id": "G",
-      "weight": 8,
-      "attributes": {}
-    },
-    "metadata": "添加边 C->G 权重 8"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->G",
-      "source_id": "B",
-      "target_id": "G",
-      "weight": 15,
-      "attributes": {}
-    },
-    "metadata": "添加边 B->G 权重 15"
-  },
-  {
     "operation": "add_variable",
     "data": {
-      "name": "distances",
-      "value": {
-        "C": Infinity,
-        "D": Infinity,
-        "F": Infinity,
-        "G": Infinity,
-        "B": Infinity,
-        "E": Infinity,
-        "A": Infinity
-      }
+      "name": "vertices",
+      "value": 5
     },
-    "metadata": "添加变量distances，值为{'C': inf, 'D': inf, 'F': inf, 'G': inf, 'B': inf, 'E': inf, 'A': inf}"
+    "metadata": "添加变量vertices，值为5"
+  },
+  {
+    "operation": "create_array2d",
+    "data": {
+      "array": [
+        [
+          0,
+          2,
+          0,
+          6,
+          0
+        ],
+        [
+          2,
+          0,
+          3,
+          8,
+          5
+        ],
+        [
+          0,
+          3,
+          0,
+          0,
+          7
+        ],
+        [
+          6,
+          8,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          5,
+          7,
+          9,
+          0
+        ]
+      ],
+      "id": "adj_matrix"
+    },
+    "metadata": "Adjacency matrix of graph"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "distances",
-      "value": {
-        "C": Infinity,
-        "D": Infinity,
-        "F": Infinity,
-        "G": Infinity,
-        "B": Infinity,
-        "E": Infinity,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': inf, 'D': inf, 'F': inf, 'G': inf, 'B': inf, 'E': inf, 'A': 0}"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "priority_queue",
+      "name": "graph",
       "value": [
         [
           0,
-          "A"
-        ]
-      ]
-    },
-    "metadata": "添加变量priority_queue，值为[(0, 'A')]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": []
-    },
-    "metadata": "更新变量priority_queue的值为[]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "A"
-    },
-    "metadata": "访问节点 A"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->B"
-    },
-    "metadata": "检查边 A->B"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": Infinity,
-        "D": Infinity,
-        "F": Infinity,
-        "G": Infinity,
-        "B": 4,
-        "E": Infinity,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': inf, 'D': inf, 'F': inf, 'G': inf, 'B': 4, 'E': inf, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          4,
-          "B"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(4, 'B')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->B"
-    },
-    "metadata": "检查完成边 A->B"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->C"
-    },
-    "metadata": "检查边 A->C"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": Infinity,
-        "F": Infinity,
-        "G": Infinity,
-        "B": 4,
-        "E": Infinity,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': inf, 'F': inf, 'G': inf, 'B': 4, 'E': inf, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
+          2,
+          0,
+          6,
+          0
+        ],
         [
           2,
-          "C"
+          0,
+          3,
+          8,
+          5
         ],
         [
-          4,
-          "B"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(2, 'C'), (4, 'B')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "A->C"
-    },
-    "metadata": "检查完成边 A->C"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "A"
-    },
-    "metadata": "完成节点 A 的访问"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          4,
-          "B"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(4, 'B')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "C"
-    },
-    "metadata": "访问节点 C"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->E"
-    },
-    "metadata": "检查边 C->E"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": Infinity,
-        "F": Infinity,
-        "G": Infinity,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': inf, 'F': inf, 'G': inf, 'B': 4, 'E': 5, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          4,
-          "B"
+          0,
+          3,
+          0,
+          0,
+          7
         ],
         [
+          6,
+          8,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
           5,
-          "E"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(4, 'B'), (5, 'E')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->E"
-    },
-    "metadata": "检查完成边 C->E"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->G"
-    },
-    "metadata": "检查边 C->G"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": Infinity,
-        "F": Infinity,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': inf, 'F': inf, 'G': 10, 'B': 4, 'E': 5, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          4,
-          "B"
-        ],
-        [
-          5,
-          "E"
-        ],
-        [
-          10,
-          "G"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(4, 'B'), (5, 'E'), (10, 'G')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "C->G"
-    },
-    "metadata": "检查完成边 C->G"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "C"
-    },
-    "metadata": "完成节点 C 的访问"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          5,
-          "E"
-        ],
-        [
-          10,
-          "G"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(5, 'E'), (10, 'G')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "B"
-    },
-    "metadata": "访问节点 B"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->C"
-    },
-    "metadata": "检查边 B->C"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->C"
-    },
-    "metadata": "检查完成边 B->C"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->D"
-    },
-    "metadata": "检查边 B->D"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": 14,
-        "F": Infinity,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': 14, 'F': inf, 'G': 10, 'B': 4, 'E': 5, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          5,
-          "E"
-        ],
-        [
-          10,
-          "G"
-        ],
-        [
-          14,
-          "D"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(5, 'E'), (10, 'G'), (14, 'D')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->D"
-    },
-    "metadata": "检查完成边 B->D"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->G"
-    },
-    "metadata": "检查边 B->G"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "B->G"
-    },
-    "metadata": "检查完成边 B->G"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "B"
-    },
-    "metadata": "完成节点 B 的访问"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
-          10,
-          "G"
-        ],
-        [
-          14,
-          "D"
-        ]
-      ]
-    },
-    "metadata": "更新变量priority_queue的值为[(10, 'G'), (14, 'D')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "E"
-    },
-    "metadata": "访问节点 E"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "E->D"
-    },
-    "metadata": "检查边 E->D"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": 9,
-        "F": Infinity,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': 9, 'F': inf, 'G': 10, 'B': 4, 'E': 5, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
-      "value": [
-        [
+          7,
           9,
-          "D"
-        ],
-        [
-          14,
-          "D"
-        ],
-        [
-          10,
-          "G"
+          0
         ]
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(9, 'D'), (14, 'D'), (10, 'G')]"
+    "metadata": "更新变量graph的值为[[0, 2, 0, 6, 0], [2, 0, 3, 8, 5], [0, 3, 0, 0, 7], [6, 8, 0, 0, 9], [0, 5, 7, 9, 0]]"
   },
   {
-    "operation": "unhighlight_edge",
+    "operation": "create_graph",
     "data": {
-      "graph_id": "1",
-      "id": "E->D"
+      "id": "graph",
+      "directed": false
     },
-    "metadata": "检查完成边 E->D"
+    "metadata": "Creating graph for Prim's MST"
   },
   {
-    "operation": "highlight_edge",
+    "operation": "add_node",
     "data": {
-      "graph_id": "1",
-      "id": "E->F"
+      "graph_id": "graph",
+      "id": "node0",
+      "value": 0,
+      "attributes": {}
     },
-    "metadata": "检查边 E->F"
+    "metadata": "Adding node 0"
+  },
+  {
+    "operation": "add_node",
+    "data": {
+      "graph_id": "graph",
+      "id": "node1",
+      "value": 1,
+      "attributes": {}
+    },
+    "metadata": "Adding node 1"
+  },
+  {
+    "operation": "add_node",
+    "data": {
+      "graph_id": "graph",
+      "id": "node2",
+      "value": 2,
+      "attributes": {}
+    },
+    "metadata": "Adding node 2"
+  },
+  {
+    "operation": "add_node",
+    "data": {
+      "graph_id": "graph",
+      "id": "node3",
+      "value": 3,
+      "attributes": {}
+    },
+    "metadata": "Adding node 3"
+  },
+  {
+    "operation": "add_node",
+    "data": {
+      "graph_id": "graph",
+      "id": "node4",
+      "value": 4,
+      "attributes": {}
+    },
+    "metadata": "Adding node 4"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_index",
+      "value": -1
+    },
+    "metadata": "添加变量min_index，值为-1"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_val",
+      "value": Infinity
+    },
+    "metadata": "添加变量min_val，值为inf"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引0的元素"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": 9,
-        "F": 11,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
+      "name": "min_val",
+      "value": 0
     },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': 9, 'F': 11, 'G': 10, 'B': 4, 'E': 5, 'A': 0}"
+    "metadata": "更新变量min_val的值为0"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
+      "name": "min_index",
+      "value": 0
+    },
+    "metadata": "更新变量min_index的值为0"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引0的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引1的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引1的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引2的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引2的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引3的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引3的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引4的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引4的元素"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "u",
+      "value": 0
+    },
+    "metadata": "添加变量u，值为0"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_set",
       "value": [
-        [
-          9,
-          "D"
-        ],
-        [
-          11,
-          "F"
-        ],
-        [
-          10,
-          "G"
-        ],
-        [
-          14,
-          "D"
-        ]
+        true,
+        false,
+        false,
+        false,
+        false
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(9, 'D'), (11, 'F'), (10, 'G'), (14, 'D')]"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "E->F"
-    },
-    "metadata": "检查完成边 E->F"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "E"
-    },
-    "metadata": "完成节点 E 的访问"
+    "metadata": "更新变量mst_set的值为[True, False, False, False, False]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
+      "name": "key",
       "value": [
-        [
-          10,
-          "G"
-        ],
-        [
-          11,
-          "F"
-        ],
-        [
-          14,
-          "D"
-        ]
+        0,
+        2,
+        Infinity,
+        Infinity,
+        Infinity
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(10, 'G'), (11, 'F'), (14, 'D')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "D"
-    },
-    "metadata": "访问节点 D"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "D->F"
-    },
-    "metadata": "检查边 D->F"
+    "metadata": "更新变量key的值为[0, 2, inf, inf, inf]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": 9,
-        "F": 10,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
-    },
-    "metadata": "更新变量distances的值为{'C': 2, 'D': 9, 'F': 10, 'G': 10, 'B': 4, 'E': 5, 'A': 0}"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "priority_queue",
+      "name": "parent",
       "value": [
-        [
-          10,
-          "F"
-        ],
-        [
-          10,
-          "G"
-        ],
-        [
-          14,
-          "D"
-        ],
-        [
-          11,
-          "F"
-        ]
+        -1,
+        0,
+        null,
+        null,
+        null
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(10, 'F'), (10, 'G'), (14, 'D'), (11, 'F')]"
+    "metadata": "更新变量parent的值为[-1, 0, None, None, None]"
   },
   {
-    "operation": "unhighlight_edge",
+    "operation": "add_edge",
     "data": {
-      "graph_id": "1",
-      "id": "D->F"
+      "graph_id": "graph",
+      "id": "edge0-1",
+      "source_id": null,
+      "target_id": null,
+      "weight": 2,
+      "attributes": {}
     },
-    "metadata": "检查完成边 D->F"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "D"
-    },
-    "metadata": "完成节点 D 的访问"
+    "metadata": "Adding edge 0-1 with weight 2"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
+      "name": "key",
       "value": [
-        [
-          10,
-          "G"
-        ],
-        [
-          11,
-          "F"
-        ],
-        [
-          14,
-          "D"
-        ]
+        0,
+        2,
+        Infinity,
+        6,
+        Infinity
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(10, 'G'), (11, 'F'), (14, 'D')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "F"
-    },
-    "metadata": "访问节点 F"
-  },
-  {
-    "operation": "highlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "F->G"
-    },
-    "metadata": "检查边 F->G"
-  },
-  {
-    "operation": "unhighlight_edge",
-    "data": {
-      "graph_id": "1",
-      "id": "F->G"
-    },
-    "metadata": "检查完成边 F->G"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "F"
-    },
-    "metadata": "完成节点 F 的访问"
+    "metadata": "更新变量key的值为[0, 2, inf, 6, inf]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
+      "name": "parent",
       "value": [
-        [
-          11,
-          "F"
-        ],
-        [
-          14,
-          "D"
-        ]
+        -1,
+        0,
+        null,
+        0,
+        null
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(11, 'F'), (14, 'D')]"
+    "metadata": "更新变量parent的值为[-1, 0, None, 0, None]"
   },
   {
-    "operation": "highlight_graph_node",
+    "operation": "add_edge",
     "data": {
-      "graph_id": "1",
-      "id": "G"
+      "graph_id": "graph",
+      "id": "edge0-3",
+      "source_id": null,
+      "target_id": null,
+      "weight": 6,
+      "attributes": {}
     },
-    "metadata": "访问节点 G"
+    "metadata": "Adding edge 0-3 with weight 6"
   },
   {
-    "operation": "unhighlight_graph_node",
+    "operation": "add_variable",
     "data": {
-      "graph_id": "1",
-      "id": "G"
+      "name": "min_index",
+      "value": -1
     },
-    "metadata": "完成节点 G 的访问"
+    "metadata": "添加变量min_index，值为-1"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_val",
+      "value": Infinity
+    },
+    "metadata": "添加变量min_val，值为inf"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引0的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引0的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引1的元素"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
+      "name": "min_val",
+      "value": 2
+    },
+    "metadata": "更新变量min_val的值为2"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_index",
+      "value": 1
+    },
+    "metadata": "更新变量min_index的值为1"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引1的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引2的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引2的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引3的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引3的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引4的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引4的元素"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "u",
+      "value": 1
+    },
+    "metadata": "添加变量u，值为1"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_set",
       "value": [
-        [
-          14,
-          "D"
-        ]
+        true,
+        true,
+        false,
+        false,
+        false
       ]
     },
-    "metadata": "更新变量priority_queue的值为[(14, 'D')]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "F"
-    },
-    "metadata": "访问节点 F"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "F"
-    },
-    "metadata": "跳过节点 F"
+    "metadata": "更新变量mst_set的值为[True, True, False, False, False]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "priority_queue",
-      "value": []
+      "name": "key",
+      "value": [
+        0,
+        2,
+        3,
+        6,
+        Infinity
+      ]
     },
-    "metadata": "更新变量priority_queue的值为[]"
-  },
-  {
-    "operation": "highlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "D"
-    },
-    "metadata": "访问节点 D"
-  },
-  {
-    "operation": "unhighlight_graph_node",
-    "data": {
-      "graph_id": "1",
-      "id": "D"
-    },
-    "metadata": "跳过节点 D"
+    "metadata": "更新变量key的值为[0, 2, 3, 6, inf]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "distances",
-      "value": {
-        "C": 2,
-        "D": 9,
-        "F": 10,
-        "G": 10,
-        "B": 4,
-        "E": 5,
-        "A": 0
-      }
+      "name": "parent",
+      "value": [
+        -1,
+        0,
+        1,
+        0,
+        null
+      ]
     },
-    "metadata": "最终距离结果"
+    "metadata": "更新变量parent的值为[-1, 0, 1, 0, None]"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph",
+      "id": "edge1-2",
+      "source_id": null,
+      "target_id": null,
+      "weight": 3,
+      "attributes": {}
+    },
+    "metadata": "Adding edge 1-2 with weight 3"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "key",
+      "value": [
+        0,
+        2,
+        3,
+        6,
+        5
+      ]
+    },
+    "metadata": "更新变量key的值为[0, 2, 3, 6, 5]"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "parent",
+      "value": [
+        -1,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    "metadata": "更新变量parent的值为[-1, 0, 1, 0, 1]"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph",
+      "id": "edge1-4",
+      "source_id": null,
+      "target_id": null,
+      "weight": 5,
+      "attributes": {}
+    },
+    "metadata": "Adding edge 1-4 with weight 5"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_index",
+      "value": -1
+    },
+    "metadata": "添加变量min_index，值为-1"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_val",
+      "value": Infinity
+    },
+    "metadata": "添加变量min_val，值为inf"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引0的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引0的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引1的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引1的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引2的元素"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_val",
+      "value": 3
+    },
+    "metadata": "更新变量min_val的值为3"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_index",
+      "value": 2
+    },
+    "metadata": "更新变量min_index的值为2"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引2的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引3的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引3的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引4的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引4的元素"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "u",
+      "value": 2
+    },
+    "metadata": "添加变量u，值为2"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_set",
+      "value": [
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    "metadata": "更新变量mst_set的值为[True, True, True, False, False]"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_index",
+      "value": -1
+    },
+    "metadata": "添加变量min_index，值为-1"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_val",
+      "value": Infinity
+    },
+    "metadata": "添加变量min_val，值为inf"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引0的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引0的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引1的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引1的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引2的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引2的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引3的元素"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_val",
+      "value": 6
+    },
+    "metadata": "更新变量min_val的值为6"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_index",
+      "value": 3
+    },
+    "metadata": "更新变量min_index的值为3"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引3的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引4的元素"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_val",
+      "value": 5
+    },
+    "metadata": "更新变量min_val的值为5"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_index",
+      "value": 4
+    },
+    "metadata": "更新变量min_index的值为4"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引4的元素"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "u",
+      "value": 4
+    },
+    "metadata": "添加变量u，值为4"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_set",
+      "value": [
+        true,
+        true,
+        true,
+        false,
+        true
+      ]
+    },
+    "metadata": "更新变量mst_set的值为[True, True, True, False, True]"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_index",
+      "value": -1
+    },
+    "metadata": "添加变量min_index，值为-1"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "min_val",
+      "value": Infinity
+    },
+    "metadata": "添加变量min_val，值为inf"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引0的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        0
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引0的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引1的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        1
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引1的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引2的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        2
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引2的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引3的元素"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_val",
+      "value": 6
+    },
+    "metadata": "更新变量min_val的值为6"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "min_index",
+      "value": 3
+    },
+    "metadata": "更新变量min_index的值为3"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        3
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引3的元素"
+  },
+  {
+    "operation": "highlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key",
+      "color": "#FF9999"
+    },
+    "metadata": "高亮索引4的元素"
+  },
+  {
+    "operation": "unhighlight",
+    "data": {
+      "indices": [
+        4
+      ],
+      "id": "key"
+    },
+    "metadata": "取消高亮索引4的元素"
+  },
+  {
+    "operation": "add_variable",
+    "data": {
+      "name": "u",
+      "value": 3
+    },
+    "metadata": "添加变量u，值为3"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_set",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "metadata": "更新变量mst_set的值为[True, True, True, True, True]"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 0-1 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 0-1 in MST"
+  },
+  {
+    "operation": "highlight_link",
+    "data": {
+      "source_id": null,
+      "target_id": null
+    },
+    "metadata": "Edge 0-1 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 1-2 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 1-2 in MST"
+  },
+  {
+    "operation": "highlight_link",
+    "data": {
+      "source_id": null,
+      "target_id": null
+    },
+    "metadata": "Edge 1-2 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 0-3 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 0-3 in MST"
+  },
+  {
+    "operation": "highlight_link",
+    "data": {
+      "source_id": null,
+      "target_id": null
+    },
+    "metadata": "Edge 0-3 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 1-4 in MST"
+  },
+  {
+    "operation": "highlight_node",
+    "data": {
+      "id": null
+    },
+    "metadata": "Edge 1-4 in MST"
+  },
+  {
+    "operation": "highlight_link",
+    "data": {
+      "source_id": null,
+      "target_id": null
+    },
+    "metadata": "Edge 1-4 in MST"
   }
 ];

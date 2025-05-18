@@ -30,7 +30,7 @@ class CodeAnalyzer:
         self.params_generator = self._create_params_generator()
         self.code_fixer = self._create_code_fixer()
 
-    def analyze(self, code: str, language: str, problem_description: str, input_params: Union[List[Any], Dict[str, Any]] = None) -> OperationQueue:
+    def analyze(self, code: str, language: str, problem_description: str) -> OperationQueue:
         """
         分析代码并生成操作队列
         
@@ -49,21 +49,20 @@ class CodeAnalyzer:
         else:
             python_code = code
 
-        # 如果没有提供输入参数，根据代码和问题描述生成合适的参数
-        if input_params is None:
-            input_params = self._generate_params(python_code, problem_description)
-            print(f"根据代码自动生成的参数: {input_params}")
-
-        # 生成带操作队列的代码
-        instrumented_code = self._instrument_code(python_code, input_params, problem_description)
+        # 先生成带操作队列的代码
+        instrumented_code = self._instrument_code(python_code, problem_description)
         print(instrumented_code.replace("\\n", "\n"))
         
-        # 执行仪器化代码并获取操作队列，支持最多两次自动修复
-        max_retries = 2
-        retry_count = 0
-        error_message = None
+        # 根据instrumented_code生成参数
+        input_params = self._generate_params(instrumented_code, problem_description)
+        print(f"根据代码自动生成的参数: {input_params}")
         
-        while retry_count <= max_retries:
+        # 最多尝试3次生成和执行代码
+        max_attempts = 3
+        attempt_count = 0
+        
+        while attempt_count < max_attempts:
+            # 执行仪器化代码
             queue, success, error_message = self._execute_instrumented_code_with_error_capture(
                 instrumented_code, input_params
             )
@@ -72,27 +71,31 @@ class CodeAnalyzer:
                 # 执行成功，返回操作队列
                 return queue
             else:
-                # 执行失败，进行修复
-                if retry_count < max_retries:
-                    print(f"代码执行失败（第{retry_count+1}次）: {error_message}")
-                    print("正在尝试修复代码...")
-                    instrumented_code = self._fix_code(instrumented_code, error_message, input_params)
-                    retry_count += 1
+                # 执行失败，重新生成代码
+                print(f"代码执行失败（第{attempt_count+1}次）: {error_message}")
+                print("正在重新生成代码...")
+                
+                # 根据不同的尝试次数调整策略
+                if attempt_count == 0:
+                    # 第一次失败，尝试使用相同参数重新生成
+                    instrumented_code = self._instrument_code(python_code, problem_description)
                 else:
-                    # 达到最大重试次数，使用空队列
-                    print(f"达到最大重试次数({max_retries})，无法修复代码。使用空队列。")
-                    print(f"最后的错误: {error_message}")
-                    return OperationQueue()
+                    # 后续失败，尝试生成更简单的代码
+                    simplified_problem = f"{problem_description} (简化版，优先保证代码能运行)"
+                    instrumented_code = self._instrument_code(python_code, simplified_problem)
+                
+                attempt_count += 1
         
-        # 这里应该不会执行到，但为了保险起见
-        return queue
+        # 达到最大尝试次数，返回空队列
+        print(f"达到最大尝试次数({max_attempts})，无法生成可执行的仪器化代码。返回空队列。")
+        return OperationQueue()
 
     def _generate_params(self, code: str, problem_description: str) -> Union[List[Any], Dict[str, Any]]:
         """
         根据代码和问题描述生成合适的参数
         
         参数:
-            code: Python 代码
+            code: Python 代码（可以是原始代码或仪器化后的代码）
             problem_description: 问题描述
             
         返回:
@@ -101,7 +104,8 @@ class CodeAnalyzer:
         # 调用参数生成器LLM
         result = self.params_generator.invoke({
             "code": code,
-            "problem_description": problem_description
+            "problem_description": problem_description,
+            "is_instrumented": "visualize_algorithm" in code
         })
         
         try:
@@ -162,13 +166,13 @@ class CodeAnalyzer:
         # 如果没有代码块格式，直接返回
         return converted_code.strip()
 
-    def _instrument_code(self, code: str, input_params: Union[List[Any], Dict[str, Any]], problem_description: str) -> str:
+    def _instrument_code(self, code: str, problem_description: str) -> str:
         """
         生成带操作队列的仪器化代码
         
         参数:
             code: Python 代码
-            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)
+            input_params: 输入参数，可以是列表(向后兼容)或字典(多参数支持)或None(第一次生成仪器化代码时)
             problem_description: 问题描述
         返回:
             仪器化后的代码
@@ -176,19 +180,11 @@ class CodeAnalyzer:
         # 为仪器化提供 OperationQueue 的信息
         op_queue_info = self._get_operation_queue_info()
 
-        # 先生成可视化策略
-        # visualization_strategy = self.visualization_strategy_generator.invoke({
-        #     "code": code,
-        #     "problem_description": problem_description,
-        #     "op_queue_info": op_queue_info
-        # })
 
         instrumented_code = self.code_instrumenter.invoke({
             "code": code,
-            "input_data": str(input_params),
             "op_queue_info": op_queue_info,
             "problem_description": problem_description
-            # ,"visualization_strategy": visualization_strategy
         })
 
         # 提取代码块（如果存在）
@@ -580,7 +576,7 @@ class CodeAnalyzer:
 ### 核心要求
 1. 保持原始算法的主要逻辑不变
 2. 结合问题描述在关键步骤添加可视化操作
-3. 使用传入的OperationQueue实例来记录可视化操作，**不要自己定义OperationQueue类**
+3. 使用传入的OperationQueue实例来记录可视化操作，**不要自己定义OperationQueue类**，也不要引入OperationQueue类
 4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
 5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
 6. 尽量不要使用OperationQueue返回的值，而是自己保存
@@ -626,6 +622,7 @@ class CodeAnalyzer:
 3. 没有swap_elements这个方法
 4. 必须保存所有节点/元素的ID以便正确引用
 5. 二维数组只支持方阵，对于行长度不等的二维数组，需要使用一维数组进行可视化
+6. 请不要混淆图和树的创建，二者不能共存，如果需要展示图的最终结果可以通过高亮加入结果的边或节点来实现
 
 ### ID管理机制
 1. 为每个节点或元素分配一个id属性，并记录在映射表中
@@ -651,9 +648,7 @@ class CodeAnalyzer:
         ```python
         {code}
         ```
-        
-        输入参数为: {input_data}
-        
+    
         问题描述为: {problem_description}
         
         OperationQueue类的信息:
@@ -687,6 +682,7 @@ class CodeAnalyzer:
         2. 参数应该覆盖代码中的关键路径和边界情况
         3. 参数的大小和复杂度应该适中，便于可视化展示(通常是5-15个元素)
         4. 如果代码需要多个参数，应该为每个参数生成合适的值，并使用适当的参数名
+        5. 如果提供的是已经仪器化的代码，请重点关注visualize_algorithm函数的参数
 
         
         你需要返回一个JSON格式的对象:
@@ -719,9 +715,12 @@ class CodeAnalyzer:
         问题描述:
         {problem_description}
         
+        代码是否已仪器化: {is_instrumented}
+        
         请返回满足要求的参数。根据算法和数据结构的特点生成能体现算法过程的关键测试数据。
         """
         
+        # 不需要另外设置response_format参数，LLM工厂内部已经处理
         return self.llm_factory.create_json_chain(
             system_message=system_message,
             human_message_template=human_message,

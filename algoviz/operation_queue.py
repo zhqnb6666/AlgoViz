@@ -12,6 +12,7 @@ class OperationQueue:
         self.array_id_counter = 0
         self.node_id_counter = 0
         self.array2d_id_counter = 0
+        self.graph_id_counter = 0
         
     def get_next_array2d_id(self) -> str:
         """获取下一个二维数组ID"""
@@ -111,27 +112,35 @@ class OperationQueue:
             metadata=metadata
         )
 
-    def add_row2d(self, row: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def add_row2d(self, row: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> str:
         """在二维数组中添加一行"""
         if metadata is None:
             metadata = f"在位置{position}添加新行"
 
+        row_id = f"{array_id}_row{position}"
+        
         self.add_operation(
             operation="add_row2d",
-            data={"row": row.copy(), "position": position, "id": array_id},
+            data={"row": row.copy(), "position": position, "id": array_id, "row_id": row_id},
             metadata=metadata
         )
+        
+        return row_id
 
-    def add_column2d(self, column: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def add_column2d(self, column: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> str:
         """在二维数组中添加一列"""
         if metadata is None:
             metadata = f"在位置{position}添加新列"
 
+        column_id = f"{array_id}_col{position}"
+        
         self.add_operation(
             operation="add_column2d",
-            data={"column": column.copy(), "position": position, "id": array_id},
+            data={"column": column.copy(), "position": position, "id": array_id, "column_id": column_id},
             metadata=metadata
         )
+        
+        return column_id
 
     def remove_row2d(self, position: int, array_id: str, metadata: Optional[str] = None) -> None:
         """删除二维数组中的一行"""
@@ -582,8 +591,11 @@ class OperationQueue:
         self.queue = []
 
     #图操作
-    def create_graph(self, graph_id: str = "1", directed: bool = False, metadata: Optional[str] = None) -> None:
+    def create_graph(self, graph_id: Optional[str] = None, directed: bool = False, metadata: Optional[str] = None) -> str:
         """创建图操作"""
+        if graph_id is None:
+            graph_id = self.get_next_graph_id()
+            
         if metadata is None:
             direction = "有向图" if directed else "无向图"
             metadata = f"创建{direction} {graph_id}"
@@ -596,9 +608,10 @@ class OperationQueue:
             },
             metadata=metadata
         )
+        return graph_id
 
     def add_node(self, graph_id: str, node_id: str, value: Any,
-                  metadata: Optional[str] = None) -> None:
+                  metadata: Optional[str] = None) -> str:
         """添加图节点操作"""
         if metadata is None:
             metadata = f"在图{graph_id}添加节点{node_id}"
@@ -610,10 +623,11 @@ class OperationQueue:
                 "id": node_id,
                 "value": value,
                 "attributes": {}
-
             },
             metadata=metadata
         )
+        
+        return node_id
 
     def remove_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
         """删除图节点操作（重载现有方法）"""
@@ -647,7 +661,7 @@ class OperationQueue:
         )
 
     def add_edge(self, graph_id: str, edge_id: str, source_id: str, target_id: str,
-                 weight: float, metadata: Optional[str] = None) -> None:
+                 weight: float, metadata: Optional[str] = None) -> str:
         """添加边操作"""
         if metadata is None:
             metadata = f"在图{graph_id}添加边{source_id}→{target_id}"
@@ -664,6 +678,8 @@ class OperationQueue:
             },
             metadata=metadata
         )
+        
+        return edge_id
 
     def remove_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
         """删除边操作"""
@@ -785,7 +801,7 @@ class OperationQueue:
         )
 
     # 变量区操作
-    def add_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
+    def add_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> str:
         """添加变量到变量区"""
         copied_value = copy.deepcopy(value)
         if metadata is None:
@@ -799,6 +815,8 @@ class OperationQueue:
             },
             metadata=metadata
         )
+        
+        return name
 
     def update_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
         copied_value = copy.deepcopy(value)
@@ -826,3 +844,9 @@ class OperationQueue:
             },
             metadata=metadata
         )
+
+    def get_next_graph_id(self) -> str:
+        """获取下一个图ID"""
+        graph_id = f"graph{self.graph_id_counter}"
+        self.graph_id_counter += 1
+        return graph_id
