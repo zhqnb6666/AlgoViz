@@ -3,784 +3,1035 @@ const defaultOperations = [
     "operation": "add_variable",
     "data": {
       "name": "vertices",
-      "value": 5
+      "value": 6
     },
-    "metadata": "添加变量vertices，值为5"
+    "metadata": "添加变量vertices，值为6"
   },
   {
-    "operation": "create_array2d",
+    "operation": "add_variable",
     "data": {
-      "array": [
-        [
-          0,
-          2,
-          0,
-          6,
-          0
-        ],
-        [
-          2,
-          0,
-          3,
-          8,
-          5
-        ],
-        [
-          0,
-          3,
-          0,
-          0,
-          7
-        ],
-        [
-          6,
-          8,
-          0,
-          0,
-          9
-        ],
-        [
-          0,
-          5,
-          7,
-          9,
-          0
-        ]
-      ],
-      "id": "adj_matrix"
+      "name": "graph",
+      "value": {
+        "0": [],
+        "1": [],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": []
+      }
     },
-    "metadata": "Adjacency matrix of graph"
+    "metadata": "添加变量graph，值为{0: [], 1: [], 2: [], 3: [], 4: [], 5: []}"
   },
   {
     "operation": "update_variable",
     "data": {
       "name": "graph",
-      "value": [
-        [
-          0,
-          2,
-          0,
-          6,
-          0
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ]
         ],
-        [
-          2,
-          0,
-          3,
-          8,
-          5
+        "1": [
+          [
+            0,
+            4
+          ]
         ],
-        [
-          0,
-          3,
-          0,
-          0,
-          7
-        ],
-        [
-          6,
-          8,
-          0,
-          0,
-          9
-        ],
-        [
-          0,
-          5,
-          7,
-          9,
-          0
-        ]
-      ]
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": []
+      }
     },
-    "metadata": "更新变量graph的值为[[0, 2, 0, 6, 0], [2, 0, 3, 8, 5], [0, 3, 0, 0, 7], [6, 8, 0, 0, 9], [0, 5, 7, 9, 0]]"
+    "metadata": "更新变量graph的值为{0: [(1, 4)], 1: [(0, 4)], 2: [], 3: [], 4: [], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ]
+        ],
+        "3": [],
+        "4": [],
+        "5": []
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4)], 2: [(0, 3)], 3: [], 4: [], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "3": [],
+        "4": [],
+        "5": []
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1)], 2: [(0, 3), (1, 1)], 3: [], 4: [], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "3": [
+          [
+            1,
+            2
+          ]
+        ],
+        "4": [],
+        "5": []
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1), (3, 2)], 2: [(0, 3), (1, 1)], 3: [(1, 2)], 4: [], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "3": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "4": [],
+        "5": []
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1), (3, 2)], 2: [(0, 3), (1, 1), (3, 4)], 3: [(1, 2), (2, 4)], 4: [], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "3": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "4": [
+          [
+            3,
+            2
+          ]
+        ],
+        "5": []
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1), (3, 2)], 2: [(0, 3), (1, 1), (3, 4)], 3: [(1, 2), (2, 4), (4, 2)], 4: [(3, 2)], 5: []}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "3": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "4": [
+          [
+            3,
+            2
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "5": [
+          [
+            4,
+            6
+          ]
+        ]
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1), (3, 2)], 2: [(0, 3), (1, 1), (3, 4)], 3: [(1, 2), (2, 4), (4, 2)], 4: [(3, 2), (5, 6)], 5: [(4, 6)]}"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "graph",
+      "value": {
+        "0": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "1": [
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "2": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "3": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "4": [
+          [
+            3,
+            2
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "5": [
+          [
+            4,
+            6
+          ],
+          [
+            3,
+            8
+          ]
+        ]
+      }
+    },
+    "metadata": "更新变量graph的值为{0: [(1, 4), (2, 3)], 1: [(0, 4), (2, 1), (3, 2)], 2: [(0, 3), (1, 1), (3, 4)], 3: [(1, 2), (2, 4), (4, 2), (5, 8)], 4: [(3, 2), (5, 6)], 5: [(4, 6), (3, 8)]}"
   },
   {
     "operation": "create_graph",
     "data": {
-      "id": "graph",
+      "id": "graph0",
       "directed": false
     },
-    "metadata": "Creating graph for Prim's MST"
+    "metadata": "创建图"
   },
   {
     "operation": "add_node",
     "data": {
-      "graph_id": "graph",
-      "id": "node0",
+      "graph_id": "graph0",
+      "id": "node_0",
       "value": 0,
       "attributes": {}
     },
-    "metadata": "Adding node 0"
+    "metadata": "添加节点"
   },
   {
     "operation": "add_node",
     "data": {
-      "graph_id": "graph",
-      "id": "node1",
+      "graph_id": "graph0",
+      "id": "node_1",
       "value": 1,
       "attributes": {}
     },
-    "metadata": "Adding node 1"
+    "metadata": "添加节点"
   },
   {
     "operation": "add_node",
     "data": {
-      "graph_id": "graph",
-      "id": "node2",
+      "graph_id": "graph0",
+      "id": "node_2",
       "value": 2,
       "attributes": {}
     },
-    "metadata": "Adding node 2"
+    "metadata": "添加节点"
   },
   {
     "operation": "add_node",
     "data": {
-      "graph_id": "graph",
-      "id": "node3",
+      "graph_id": "graph0",
+      "id": "node_3",
       "value": 3,
       "attributes": {}
     },
-    "metadata": "Adding node 3"
+    "metadata": "添加节点"
   },
   {
     "operation": "add_node",
     "data": {
-      "graph_id": "graph",
-      "id": "node4",
+      "graph_id": "graph0",
+      "id": "node_4",
       "value": 4,
       "attributes": {}
     },
-    "metadata": "Adding node 4"
+    "metadata": "添加节点"
   },
   {
-    "operation": "add_variable",
+    "operation": "add_node",
     "data": {
-      "name": "min_index",
-      "value": -1
-    },
-    "metadata": "添加变量min_index，值为-1"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_val",
-      "value": Infinity
-    },
-    "metadata": "添加变量min_val，值为inf"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引0的元素"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_val",
-      "value": 0
-    },
-    "metadata": "更新变量min_val的值为0"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_index",
-      "value": 0
-    },
-    "metadata": "更新变量min_index的值为0"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引0的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引1的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引1的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引2的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引2的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引3的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引3的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引4的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引4的元素"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "u",
-      "value": 0
-    },
-    "metadata": "添加变量u，值为0"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "mst_set",
-      "value": [
-        true,
-        false,
-        false,
-        false,
-        false
-      ]
-    },
-    "metadata": "更新变量mst_set的值为[True, False, False, False, False]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "key",
-      "value": [
-        0,
-        2,
-        Infinity,
-        Infinity,
-        Infinity
-      ]
-    },
-    "metadata": "更新变量key的值为[0, 2, inf, inf, inf]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "parent",
-      "value": [
-        -1,
-        0,
-        null,
-        null,
-        null
-      ]
-    },
-    "metadata": "更新变量parent的值为[-1, 0, None, None, None]"
-  },
-  {
-    "operation": "add_edge",
-    "data": {
-      "graph_id": "graph",
-      "id": "edge0-1",
-      "source_id": null,
-      "target_id": null,
-      "weight": 2,
+      "graph_id": "graph0",
+      "id": "node_5",
+      "value": 5,
       "attributes": {}
     },
-    "metadata": "Adding edge 0-1 with weight 2"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "key",
-      "value": [
-        0,
-        2,
-        Infinity,
-        6,
-        Infinity
-      ]
-    },
-    "metadata": "更新变量key的值为[0, 2, inf, 6, inf]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "parent",
-      "value": [
-        -1,
-        0,
-        null,
-        0,
-        null
-      ]
-    },
-    "metadata": "更新变量parent的值为[-1, 0, None, 0, None]"
+    "metadata": "添加节点"
   },
   {
     "operation": "add_edge",
     "data": {
-      "graph_id": "graph",
-      "id": "edge0-3",
-      "source_id": null,
-      "target_id": null,
-      "weight": 6,
+      "graph_id": "graph0",
+      "id": "edge_0_1",
+      "source_id": "node_0",
+      "target_id": "node_1",
+      "weight": 4,
       "attributes": {}
     },
-    "metadata": "Adding edge 0-3 with weight 6"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_index",
-      "value": -1
-    },
-    "metadata": "添加变量min_index，值为-1"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_val",
-      "value": Infinity
-    },
-    "metadata": "添加变量min_val，值为inf"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引0的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引0的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引1的元素"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_val",
-      "value": 2
-    },
-    "metadata": "更新变量min_val的值为2"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_index",
-      "value": 1
-    },
-    "metadata": "更新变量min_index的值为1"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引1的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引2的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引2的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引3的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引3的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引4的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引4的元素"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "u",
-      "value": 1
-    },
-    "metadata": "添加变量u，值为1"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "mst_set",
-      "value": [
-        true,
-        true,
-        false,
-        false,
-        false
-      ]
-    },
-    "metadata": "更新变量mst_set的值为[True, True, False, False, False]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "key",
-      "value": [
-        0,
-        2,
-        3,
-        6,
-        Infinity
-      ]
-    },
-    "metadata": "更新变量key的值为[0, 2, 3, 6, inf]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "parent",
-      "value": [
-        -1,
-        0,
-        1,
-        0,
-        null
-      ]
-    },
-    "metadata": "更新变量parent的值为[-1, 0, 1, 0, None]"
+    "metadata": "添加边"
   },
   {
     "operation": "add_edge",
     "data": {
-      "graph_id": "graph",
-      "id": "edge1-2",
-      "source_id": null,
-      "target_id": null,
+      "graph_id": "graph0",
+      "id": "edge_0_2",
+      "source_id": "node_0",
+      "target_id": "node_2",
       "weight": 3,
       "attributes": {}
     },
-    "metadata": "Adding edge 1-2 with weight 3"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "key",
-      "value": [
-        0,
-        2,
-        3,
-        6,
-        5
-      ]
-    },
-    "metadata": "更新变量key的值为[0, 2, 3, 6, 5]"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "parent",
-      "value": [
-        -1,
-        0,
-        1,
-        0,
-        1
-      ]
-    },
-    "metadata": "更新变量parent的值为[-1, 0, 1, 0, 1]"
+    "metadata": "添加边"
   },
   {
     "operation": "add_edge",
     "data": {
-      "graph_id": "graph",
-      "id": "edge1-4",
-      "source_id": null,
-      "target_id": null,
-      "weight": 5,
+      "graph_id": "graph0",
+      "id": "edge_1_2",
+      "source_id": "node_1",
+      "target_id": "node_2",
+      "weight": 1,
       "attributes": {}
     },
-    "metadata": "Adding edge 1-4 with weight 5"
+    "metadata": "添加边"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_1_3",
+      "source_id": "node_1",
+      "target_id": "node_3",
+      "weight": 2,
+      "attributes": {}
+    },
+    "metadata": "添加边"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_2_3",
+      "source_id": "node_2",
+      "target_id": "node_3",
+      "weight": 4,
+      "attributes": {}
+    },
+    "metadata": "添加边"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_3_4",
+      "source_id": "node_3",
+      "target_id": "node_4",
+      "weight": 2,
+      "attributes": {}
+    },
+    "metadata": "添加边"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_3_5",
+      "source_id": "node_3",
+      "target_id": "node_5",
+      "weight": 8,
+      "attributes": {}
+    },
+    "metadata": "添加边"
+  },
+  {
+    "operation": "add_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_4_5",
+      "source_id": "node_4",
+      "target_id": "node_5",
+      "weight": 6,
+      "attributes": {}
+    },
+    "metadata": "添加边"
   },
   {
     "operation": "add_variable",
     "data": {
-      "name": "min_index",
-      "value": -1
+      "name": "priority_queue",
+      "value": [
+        [
+          0,
+          0
+        ]
+      ]
     },
-    "metadata": "添加变量min_index，值为-1"
+    "metadata": "添加变量priority_queue，值为[(0, 0)]"
   },
   {
     "operation": "add_variable",
     "data": {
-      "name": "min_val",
-      "value": Infinity
+      "name": "visited",
+      "value": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     },
-    "metadata": "添加变量min_val，值为inf"
+    "metadata": "添加变量visited，值为[False, False, False, False, False, False]"
   },
   {
-    "operation": "highlight",
+    "operation": "add_variable",
     "data": {
-      "indices": [
-        0
-      ],
-      "id": "key",
-      "color": "#FF9999"
+      "name": "mst_weight",
+      "value": 0
     },
-    "metadata": "高亮索引0的元素"
+    "metadata": "添加变量mst_weight，值为0"
   },
   {
-    "operation": "unhighlight",
+    "operation": "add_variable",
     "data": {
-      "indices": [
-        0
-      ],
-      "id": "key"
+      "name": "mst_edges",
+      "value": []
     },
-    "metadata": "取消高亮索引0的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引1的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引1的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引2的元素"
+    "metadata": "添加变量mst_edges，值为[]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_val",
+      "name": "priority_queue",
+      "value": []
+    },
+    "metadata": "更新变量priority_queue的值为[]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_0"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "metadata": "更新变量visited的值为[True, False, False, False, False, False]"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_weight",
+      "value": 0
+    },
+    "metadata": "更新变量mst_weight的值为0"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_0_1"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(3, 2), (4, 1)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_0_2"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_0"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_2"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    "metadata": "更新变量visited的值为[True, False, True, False, False, False]"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_weight",
       "value": 3
     },
-    "metadata": "更新变量min_val的值为3"
+    "metadata": "更新变量mst_weight的值为3"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_index",
-      "value": 2
-    },
-    "metadata": "更新变量min_index的值为2"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引2的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引3的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引3的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引4的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引4的元素"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "u",
-      "value": 2
-    },
-    "metadata": "添加变量u，值为2"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "mst_set",
+      "name": "mst_edges",
       "value": [
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    "metadata": "更新变量mst_edges的值为[(2, 3)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_2"
+    },
+    "metadata": "将节点添加到MST"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(1, 1), (4, 1)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_1_2"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(1, 1), (4, 1), (4, 3)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_2_3"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_2"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1), (4, 3)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_1"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    "metadata": "更新变量visited的值为[True, True, True, False, False, False]"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_weight",
+      "value": 4
+    },
+    "metadata": "更新变量mst_weight的值为4"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_edges",
+      "value": [
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量mst_edges的值为[(2, 3), (1, 1)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_1"
+    },
+    "metadata": "将节点添加到MST"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(2, 3), (4, 3), (4, 1)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_1_3"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_1"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1), (4, 3)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_3"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
         true,
         true,
         true,
@@ -788,428 +1039,470 @@ const defaultOperations = [
         false
       ]
     },
-    "metadata": "更新变量mst_set的值为[True, True, True, False, False]"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_index",
-      "value": -1
-    },
-    "metadata": "添加变量min_index，值为-1"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_val",
-      "value": Infinity
-    },
-    "metadata": "添加变量min_val，值为inf"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引0的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引0的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引1的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引1的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引2的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引2的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引3的元素"
+    "metadata": "更新变量visited的值为[True, True, True, True, False, False]"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_val",
+      "name": "mst_weight",
       "value": 6
     },
-    "metadata": "更新变量min_val的值为6"
+    "metadata": "更新变量mst_weight的值为6"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_index",
-      "value": 3
-    },
-    "metadata": "更新变量min_index的值为3"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引3的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引4的元素"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_val",
-      "value": 5
-    },
-    "metadata": "更新变量min_val的值为5"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "min_index",
-      "value": 4
-    },
-    "metadata": "更新变量min_index的值为4"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引4的元素"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "u",
-      "value": 4
-    },
-    "metadata": "添加变量u，值为4"
-  },
-  {
-    "operation": "update_variable",
-    "data": {
-      "name": "mst_set",
+      "name": "mst_edges",
       "value": [
-        true,
-        true,
-        true,
-        false,
-        true
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          2
+        ]
       ]
     },
-    "metadata": "更新变量mst_set的值为[True, True, True, False, True]"
+    "metadata": "更新变量mst_edges的值为[(2, 3), (1, 1), (3, 2)]"
   },
   {
-    "operation": "add_variable",
+    "operation": "highlight_graph_node",
     "data": {
-      "name": "min_index",
-      "value": -1
+      "graph_id": "graph0",
+      "id": "node_3"
     },
-    "metadata": "添加变量min_index，值为-1"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "min_val",
-      "value": Infinity
-    },
-    "metadata": "添加变量min_val，值为inf"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引0的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        0
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引0的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引1的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        1
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引1的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引2的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        2
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引2的元素"
-  },
-  {
-    "operation": "highlight",
-    "data": {
-      "indices": [
-        3
-      ],
-      "id": "key",
-      "color": "#FF9999"
-    },
-    "metadata": "高亮索引3的元素"
+    "metadata": "将节点添加到MST"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_val",
-      "value": 6
+      "name": "priority_queue",
+      "value": [
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          1
+        ]
+      ]
     },
-    "metadata": "更新变量min_val的值为6"
+    "metadata": "更新变量priority_queue的值为[(2, 4), (4, 3), (4, 1)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_3_4"
+    },
+    "metadata": "访问边"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "min_index",
-      "value": 3
+      "name": "priority_queue",
+      "value": [
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ]
     },
-    "metadata": "更新变量min_index的值为3"
+    "metadata": "更新变量priority_queue的值为[(2, 4), (4, 3), (4, 1), (8, 5)]"
   },
   {
-    "operation": "unhighlight",
+    "operation": "highlight_edge",
     "data": {
-      "indices": [
-        3
-      ],
-      "id": "key"
+      "graph_id": "graph0",
+      "id": "edge_3_5"
     },
-    "metadata": "取消高亮索引3的元素"
+    "metadata": "访问边"
   },
   {
-    "operation": "highlight",
+    "operation": "unhighlight_graph_node",
     "data": {
-      "indices": [
-        4
-      ],
-      "id": "key",
-      "color": "#FF9999"
+      "graph_id": "graph0",
+      "id": "node_3"
     },
-    "metadata": "高亮索引4的元素"
-  },
-  {
-    "operation": "unhighlight",
-    "data": {
-      "indices": [
-        4
-      ],
-      "id": "key"
-    },
-    "metadata": "取消高亮索引4的元素"
-  },
-  {
-    "operation": "add_variable",
-    "data": {
-      "name": "u",
-      "value": 3
-    },
-    "metadata": "添加变量u，值为3"
+    "metadata": "取消高亮节点"
   },
   {
     "operation": "update_variable",
     "data": {
-      "name": "mst_set",
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          8,
+          5
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1), (4, 3), (8, 5)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_4"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
       "value": [
         true,
         true,
         true,
         true,
+        true,
+        false
+      ]
+    },
+    "metadata": "更新变量visited的值为[True, True, True, True, True, False]"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_weight",
+      "value": 8
+    },
+    "metadata": "更新变量mst_weight的值为8"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "mst_edges",
+      "value": [
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ]
+      ]
+    },
+    "metadata": "更新变量mst_edges的值为[(2, 3), (1, 1), (3, 2), (4, 2)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_4"
+    },
+    "metadata": "将节点添加到MST"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          6,
+          5
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 1), (4, 3), (8, 5), (6, 5)]"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_4_5"
+    },
+    "metadata": "访问边"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_4"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          4,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          8,
+          5
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(4, 3), (6, 5), (8, 5)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_1"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_1"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          6,
+          5
+        ],
+        [
+          8,
+          5
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(6, 5), (8, 5)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_3"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "unhighlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_3"
+    },
+    "metadata": "取消高亮节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "priority_queue",
+      "value": [
+        [
+          8,
+          5
+        ]
+      ]
+    },
+    "metadata": "更新变量priority_queue的值为[(8, 5)]"
+  },
+  {
+    "operation": "highlight_graph_node",
+    "data": {
+      "graph_id": "graph0",
+      "id": "node_5"
+    },
+    "metadata": "访问节点"
+  },
+  {
+    "operation": "update_variable",
+    "data": {
+      "name": "visited",
+      "value": [
+        true,
+        true,
+        true,
+        true,
+        true,
         true
       ]
     },
-    "metadata": "更新变量mst_set的值为[True, True, True, True, True]"
+    "metadata": "更新变量visited的值为[True, True, True, True, True, True]"
   },
   {
-    "operation": "highlight_node",
+    "operation": "update_variable",
     "data": {
-      "id": null
+      "name": "mst_weight",
+      "value": 14
     },
-    "metadata": "Edge 0-1 in MST"
+    "metadata": "更新变量mst_weight的值为14"
   },
   {
-    "operation": "highlight_node",
+    "operation": "update_variable",
     "data": {
-      "id": null
+      "name": "mst_edges",
+      "value": [
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          5,
+          6
+        ]
+      ]
     },
-    "metadata": "Edge 0-1 in MST"
+    "metadata": "更新变量mst_edges的值为[(2, 3), (1, 1), (3, 2), (4, 2), (5, 6)]"
   },
   {
-    "operation": "highlight_link",
+    "operation": "highlight_graph_node",
     "data": {
-      "source_id": null,
-      "target_id": null
+      "graph_id": "graph0",
+      "id": "node_5"
     },
-    "metadata": "Edge 0-1 in MST"
+    "metadata": "将节点添加到MST"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight_graph_node",
     "data": {
-      "id": null
+      "graph_id": "graph0",
+      "id": "node_5"
     },
-    "metadata": "Edge 1-2 in MST"
+    "metadata": "取消高亮节点"
   },
   {
-    "operation": "highlight_node",
+    "operation": "update_variable",
     "data": {
-      "id": null
+      "name": "priority_queue",
+      "value": []
     },
-    "metadata": "Edge 1-2 in MST"
+    "metadata": "更新变量priority_queue的值为[]"
   },
   {
-    "operation": "highlight_link",
+    "operation": "highlight_graph_node",
     "data": {
-      "source_id": null,
-      "target_id": null
+      "graph_id": "graph0",
+      "id": "node_5"
     },
-    "metadata": "Edge 1-2 in MST"
+    "metadata": "访问节点"
   },
   {
-    "operation": "highlight_node",
+    "operation": "unhighlight_graph_node",
     "data": {
-      "id": null
+      "graph_id": "graph0",
+      "id": "node_5"
     },
-    "metadata": "Edge 0-3 in MST"
+    "metadata": "取消高亮节点"
   },
   {
-    "operation": "highlight_node",
+    "operation": "highlight_edge",
     "data": {
-      "id": null
+      "graph_id": "graph0",
+      "id": "edge_2_3"
     },
-    "metadata": "Edge 0-3 in MST"
+    "metadata": "边属于MST"
   },
   {
-    "operation": "highlight_link",
+    "operation": "highlight_edge",
     "data": {
-      "source_id": null,
-      "target_id": null
+      "graph_id": "graph0",
+      "id": "edge_1_2"
     },
-    "metadata": "Edge 0-3 in MST"
+    "metadata": "边属于MST"
   },
   {
-    "operation": "highlight_node",
+    "operation": "highlight_edge",
     "data": {
-      "id": null
+      "graph_id": "graph0",
+      "id": "edge_1_3"
     },
-    "metadata": "Edge 1-4 in MST"
+    "metadata": "边属于MST"
   },
   {
-    "operation": "highlight_node",
+    "operation": "highlight_edge",
     "data": {
-      "id": null
+      "graph_id": "graph0",
+      "id": "edge_3_4"
     },
-    "metadata": "Edge 1-4 in MST"
+    "metadata": "边属于MST"
   },
   {
-    "operation": "highlight_link",
+    "operation": "highlight_edge",
     "data": {
-      "source_id": null,
-      "target_id": null
+      "graph_id": "graph0",
+      "id": "edge_3_5"
     },
-    "metadata": "Edge 1-4 in MST"
+    "metadata": "边属于MST"
+  },
+  {
+    "operation": "highlight_edge",
+    "data": {
+      "graph_id": "graph0",
+      "id": "edge_4_5"
+    },
+    "metadata": "边属于MST"
   }
 ];

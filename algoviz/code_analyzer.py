@@ -587,29 +587,7 @@ class CodeAnalyzer:
 2. 变量值更改时，必须调用`queue.update_variable(变量名, 新值)`更新变量区,不能单独更改变量列表或字典中的某个值，只能全部更改
 3. 即使在循环中的临时变量（如i, j等迭代变量）也必须在每次循环迭代时更新
 4. 当访问数组元素时（如arr[i]），在读取前高亮对应索引，读取后取消高亮
-5. 示例：
-   ```python
-   # 原代码
-   i = 0
-   while i < len(arr):
-       if arr[i] > max_val:
-           max_val = arr[i]
-       i += 1
-   
-   # 仪器化代码
-   i = 0
-   queue.add_variable("i", i)
-   max_val = float('-inf')
-   queue.add_variable("max_val", max_val)
-   while i < len(arr):
-       queue.highlight([i], array_id)
-       if arr[i] > max_val:
-           max_val = arr[i]
-           queue.update_variable("max_val", max_val)
-       queue.unhighlight([i], array_id)
-       i += 1
-       queue.update_variable("i", i)
-   ```
+
 
 ### 参数支持
 1. 检查输入参数的格式，支持单个列表参数和多个命名参数两种情况
@@ -618,7 +596,7 @@ class CodeAnalyzer:
 
 ### 必须遵循的规则
 1. **不要定义OperationQueue类**，它已经存在于运行环境中
-2. 每次高亮操作(highlight)必须有对应的取消高亮操作(unhighlight)
+2. 每次高亮操作(highlight)应该有对应的取消高亮操作(unhighlight)，除非是最终结果
 3. 没有swap_elements这个方法
 4. 必须保存所有节点/元素的ID以便正确引用
 5. 二维数组只支持方阵，对于行长度不等的二维数组，需要使用一维数组进行可视化
@@ -634,17 +612,11 @@ class CodeAnalyzer:
 - 除OperationQueue外，如有必要可定义算法所需的辅助类(如ListNode、TreeNode等)
 - 不包含任何调用示例代码或打印语句
 - 不包含任何markdown代码块标记
-
-### 代码质量要求
-- 确保生成的代码可以直接执行，不会产生运行时错误
-- 添加必要的注释以解释可视化逻辑
 - 确保每步操作都有有意义的metadata
         
         """
-
         human_message = """
         请将以下Python代码转换为使用OperationQueue生成可视化操作的版本:
-        
         ```python
         {code}
         ```
@@ -661,6 +633,7 @@ class CodeAnalyzer:
         1. 如果输入参数是字典形式，表示多个参数，函数定义应相应处理多参数
         2. 对于多参数情况，visualize_algorithm应当接受多个命名参数而非单个列表
         3. 必须按照要求使用变量区操作，包括添加、更新变量，以及在访问数组元素时进行高亮
+        4. 必须要创建对应的数据结构并进行正确的初始化
         """
 
         return self.llm_factory.create_chat_prompt_chain(
