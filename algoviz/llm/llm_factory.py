@@ -195,7 +195,9 @@ class LLMFactory:
         ])
         
         # 获取LLM模型，设置响应格式为JSON
-        model_kwargs["response_format"] = {"type": "json_object"}
+        if "model_kwargs" not in model_kwargs:
+            model_kwargs["model_kwargs"] = {}
+        model_kwargs["model_kwargs"]["response_format"] = {"type": "json_object"}
         llm = self.get_llm(model_name=model_name, **model_kwargs)
         
         # 创建JSON输出解析器

@@ -32,10 +32,19 @@ const CONFIG = {
 
         // 图可视化配置
         graph: {
-            nodeRadius: 12,
-            highlightedNodeRadius: 15,
+            nodeRadius: 10,
+            highlightedNodeRadius: 13,
             linkWidth: 2,
             highlightedLinkWidth: 4
+        },
+        
+        // 变量区可视化配置
+        variable: {
+            rowHeight: 30,
+            padding: 10,
+            defaultHighlightColor: "#ffcc00",
+            updateFlashColor: "#ff6600",
+            deleteFlashColor: "#ff3333"
         }
     },
     
@@ -45,7 +54,8 @@ const CONFIG = {
         arrayHeight: 160,
         linkedListHeight: 300,
         treeHeight: 500,
-        graphHeight: 800
+        graphHeight: 600,
+        minHeight: 100
     },
     
     // 延迟时间（毫秒）

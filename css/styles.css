@@ -10,7 +10,7 @@
 /* 可视化区域样式 */
 .visualization-container {
     min-height: 300px;
-    max-height: 600px;
+    max-height: 1200px;
     overflow: auto;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;

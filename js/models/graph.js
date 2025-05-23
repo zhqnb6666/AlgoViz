@@ -61,10 +61,21 @@ const GraphModel = {
 
     // 添加边 (增强权重支持)
     addEdge(graphId, edgeId, sourceId, targetId, weight = 1, attributes = {}) {
-        this._validateNodeExists(graphId, sourceId);
-        this._validateNodeExists(graphId, targetId);
+        this._validateGraphExists(graphId);
         const graph = this.graphs[graphId];
-
+        
+        // 检查源节点是否存在，如果不存在则自动创建
+        if (!graph.nodes[sourceId]) {
+            console.log(`自动创建源节点: ${sourceId}`);
+            this.addNode(graphId, sourceId, sourceId); // 使用ID作为默认值
+        }
+        
+        // 检查目标节点是否存在，如果不存在则自动创建
+        if (!graph.nodes[targetId]) {
+            console.log(`自动创建目标节点: ${targetId}`);
+            this.addNode(graphId, targetId, targetId); // 使用ID作为默认值
+        }
+        
         graph.edges[edgeId] = {
             id: edgeId,
             source: sourceId,
@@ -94,24 +105,65 @@ const GraphModel = {
 
     // 高亮节点 (复用链表高亮机制)
     highlightNode(graphId, nodeId) {
-        this._validateNodeExists(graphId, nodeId);
+        if (!this.graphs[graphId] || !this.graphs[graphId].nodes[nodeId]) {
+            console.error(`节点 ${nodeId} 不存在于图 ${graphId} 中，跳过高亮操作`);
+            return false;
+        }
         this.graphs[graphId].highlightedNodes.add(nodeId);
+        return true;
     },
 
     unhighlightNode(graphId, nodeId) {
+        if (!this.graphs[graphId]) {
+            console.error(`图 ${graphId} 不存在，跳过取消高亮操作`);
+            return false;
+        }
         this.graphs[graphId].highlightedNodes.delete(nodeId);
+        return true;
     },
 
     // 高亮边（新增方法）
     highlightEdge(graphId, edgeId) {
-        if (!this.graphs[graphId].edges[edgeId]) {
-            throw new Error(`边 ${edgeId} 不存在`);
+        if (!this.graphs[graphId] || !this.graphs[graphId].edges[edgeId]) {
+            console.error(`边 ${edgeId} 不存在于图 ${graphId} 中，跳过高亮操作`);
+            return false;
         }
+        console.log(`高亮边: ${edgeId} - 开始高亮操作`);
+        
+        // 检查边是否存在
+        const edge = this.graphs[graphId].edges[edgeId];
+        console.log(`边 ${edgeId} 信息:`, edge);
+        
+        // 添加高亮
         this.graphs[graphId].highlightedEdges.add(edgeId);
+        
+        // 验证高亮是否成功
+        const isHighlighted = this.graphs[graphId].highlightedEdges.has(edgeId);
+        console.log(`边 ${edgeId} 高亮状态: ${isHighlighted ? '已高亮' : '未高亮'}`);
+        
+        return isHighlighted;
     },
 
     unhighlightEdge(graphId, edgeId) {
+        if (!this.graphs[graphId]) {
+            console.error(`图 ${graphId} 不存在，跳过取消高亮操作`);
+            return false;
+        }
+        
+        console.log(`取消高亮边: ${edgeId} - 开始操作`);
+        
+        // 检查高亮集合中是否存在该边
+        const wasHighlighted = this.graphs[graphId].highlightedEdges.has(edgeId);
+        console.log(`边 ${edgeId} 之前的高亮状态: ${wasHighlighted ? '已高亮' : '未高亮'}`);
+        
+        // 移除高亮
         this.graphs[graphId].highlightedEdges.delete(edgeId);
+        
+        // 验证高亮是否已移除
+        const isStillHighlighted = this.graphs[graphId].highlightedEdges.has(edgeId);
+        console.log(`边 ${edgeId} 当前高亮状态: ${isStillHighlighted ? '仍然高亮' : '已取消高亮'}`);
+        
+        return !isStillHighlighted;
     },
 
     mergeNodes(graphId, nodeIds, newNodeId, value) {

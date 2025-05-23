@@ -9,37 +9,16 @@ const GraphVisualization = {
     },
 
     layoutConfig: {
-        radius: CONFIG.svgContainer.width / 3,    // 多边形半径
+        radius: CONFIG.svgContainer.width / 4,    // 多边形半径
         center: {x: CONFIG.svgContainer.width / 2, y: CONFIG.svgContainer.graphHeight / 2}
     },
 
     init(containerId = "#graph-visualization") {
-        /*
-        const container = d3.select(containerId);
-        const width = container.node().clientWidth;
-        const height = container.node().clientHeight;
-
-        container.selectAll("svg").remove();
-
-        this.svg = container.append("svg")
-            .attr("width", width)
-            .attr("height", height);
-
-        // 更新布局配置
-        this.layoutConfig = {
-            radius: Math.min(width, height) * 0.4,
-            center: {
-                x: width / 2,
-                y: height / 2
-            }
-        };
-        */
         const container = d3.select(containerId);
         container.selectAll("svg").remove();
         this.svg = container.append("svg")
             .attr("width", CONFIG.svgContainer.width)
             .attr("height", CONFIG.svgContainer.graphHeight);
-
 
         // 定义箭头（增强链表箭头样式）
         this.svg.append("defs").selectAll("marker")
@@ -53,7 +32,28 @@ const GraphVisualization = {
             .attr("orient", "auto")
             .append("path")
             .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", d => d === "highlighted-arrow" ? "#ff7f0e" : "#666");
+            .attr("fill", d => d === "highlighted-arrow" ? "#ff0000" : "#666");
+
+        // 添加CSS样式到文档头部
+        if (!document.getElementById("graph-visualization-styles")) {
+            const styleElement = document.createElement("style");
+            styleElement.id = "graph-visualization-styles";
+            styleElement.textContent = `
+                .link { stroke: #666; stroke-width: ${this.config.linkWidth}px; stroke-opacity: 0.7; }
+                .link.highlighted { 
+                    stroke: #ff0000; 
+                    stroke-width: ${this.config.highlightedLinkWidth}px; 
+                    stroke-opacity: 1;
+                }
+                .edge-label { font-size: 12px; paint-order: stroke; stroke: white; stroke-width: 2px; }
+                .edge-label.highlighted { fill: #ff0000; font-weight: bold; }
+                .node circle { fill: #FFFFFF; stroke: #333; stroke-width: 1.5px; }
+                .node.highlighted circle { fill: #FFB74D; stroke: #ff7f0e; stroke-width: 3px; }
+                .node text { font-size: 12px; fill: #333; user-select: none; }
+                .node.highlighted text { font-weight: bold; }
+            `;
+            document.head.appendChild(styleElement);
+        }
 
         const drag = d3.drag()
             .on("start", (e, d) => this.dragstarted(e, d))
@@ -61,14 +61,12 @@ const GraphVisualization = {
             .on("end", (e, d) => this.dragended(e, d));
 
         this.svg.selectAll(".node").call(drag);
-
     },
 
     animateUpdate(speed = 1, graphId) {
         this.render(graphId);
         return Utils.delay(CONFIG.delay.standard / speed);
     },
-
 
     render(graphId) {
         const graph = GraphModel.graphs[graphId];
@@ -78,54 +76,36 @@ const GraphVisualization = {
         const nodeCount = Object.keys(graph.nodes).length;
         const positions = this._calculatePolygonPositions(nodeCount);
 
-        // 更新节点坐标时添加日志
+        // 更新节点坐标
         Object.values(graph.nodes).forEach((node, index) => {
             node.x = positions[index]?.x || 0;
             node.y = positions[index]?.y || 0;
-            console.log(`节点 ${node.id} 坐标: (${node.x}, ${node.y})`);
         });
 
         // 在绘制节点前清空旧元素
-        this.svg.selectAll(".node, .link").remove();
+        this.svg.selectAll(".node, .link, .edge-label").remove();
 
-
-        // 绘制边（保持原有逻辑）
+        // 绘制边
         const links = this.svg.selectAll(".link")
             .data(Object.values(graph.edges), d => d.id);
 
-//        links.enter().append("path")
-//            .attr("class", "link")
-//            .merge(links)
-//            .attr("d", d => {
-//                const source = graph.nodes[d.source];
-//                const target = graph.nodes[d.target];
-//                return `M${source.x},${source.y} L${target.x},${target.y}`;
-//            })
-//            .attr("marker-end", d => `url(#${graph.highlightedEdges.has(d.id) ? "highlighted-arrow" : "arrow"})`)
-//            .attr("stroke", d => graph.highlightedEdges.has(d.id) ? "#ff7f0e" : "#666")
-//            .attr("stroke-width", this.config.linkWidth);
-
-
+        // 简化高亮边的实现 - 使用CSS类并统一使用直线
         links.enter().append("path")
-            .attr("class", "link")
-            .merge(links)
+            .attr("class", d => graph.highlightedEdges.has(d.id) ? "link highlighted" : "link")
             .attr("d", d => {
                 const source = graph.nodes[d.source];
                 const target = graph.nodes[d.target];
                 return `M${source.x},${source.y} L${target.x},${target.y}`;
             })
-            .attr("marker-end", d => `url(#${graph.highlightedEdges.has(d.id) ? "highlighted-arrow" : "arrow"})`)
-            .attr("stroke", d => graph.highlightedEdges.has(d.id) ? "#ff7f0e" : "#666")
-            .attr("stroke-width", this.config.linkWidth);
+            .attr("marker-end", d => `url(#${graph.highlightedEdges.has(d.id) ? "highlighted-arrow" : "arrow"})`);
 
-        // 添加边权重文字（在links定义后添加）
+        // 添加边权重文字
         const edgeLabels = this.svg.selectAll(".edge-label")
             .data(Object.values(graph.edges), d => d.id);
 
         edgeLabels.enter()
             .append("text")
-            .attr("class", "edge-label")
-            .merge(edgeLabels)
+            .attr("class", d => graph.highlightedEdges.has(d.id) ? "edge-label highlighted" : "edge-label")
             .attr("x", d => {
                 const source = graph.nodes[d.source];
                 const target = graph.nodes[d.target];
@@ -138,77 +118,48 @@ const GraphVisualization = {
             })
             .attr("text-anchor", "middle")
             .attr("dominant-baseline", "central")
-            .text(d => d.weight)
-            .style("font-size", "10px")
-            .style("fill", "#666")
-            .style("paint-order", "stroke")
-            .style("stroke", "white")
-            .style("stroke-width", "2px");
+            .text(d => d.weight);
 
-        edgeLabels.exit().remove();
-
-        // 绘制节点（保持原有样式逻辑）
-        const nodes = this.svg.selectAll(".node")
+        // 绘制节点
+        const nodes = this.svg.selectAll(".node-group")
             .data(Object.values(graph.nodes), d => d.id);
-
-        // 退出节点处理
-        nodes.exit().remove();
 
         // 新增节点处理
         const nodeEnter = nodes.enter().append("g")
-            .attr("class", "node")
+            .attr("class", d => graph.highlightedNodes.has(d.id) ? "node highlighted" : "node")
             .attr("transform", d => `translate(${d.x},${d.y})`);
 
-//        nodeEnter.append("circle")
-//            .attr("r", this.config.nodeRadius)
-//            .attr("fill", "#fff")
-//            .attr("stroke", "#333");
         nodeEnter.append("circle")
-            .attr("r", d =>
-                graph.highlightedNodes.has(d.id)
-                    ? this.config.highlightedRadius
-                    : this.config.nodeRadius
-            )
-            .attr("fill", d =>
-                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
-            )
-            .style("fill", d =>  // 添加style方式设置
-                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
-            )
-            .attr("stroke", "#333");
+            .attr("r", d => graph.highlightedNodes.has(d.id) ? this.config.highlightedRadius : this.config.nodeRadius);
 
-//        nodeEnter.append("text")
-//            .attr("dy", ".35em")
-//            .attr("text-anchor", "middle");
-        // 修改节点渲染部分
         nodeEnter.append("text")
             .attr("dy", ".35em")
             .attr("text-anchor", "middle")
-            .text(d => d.value) // 增加显示节点值
-            .style("font-size", "12px")
-            .style("fill", "#333")
-            .style("user-select", "none"); // 防止文字被选中
-
+            .text(d => d.value);
 
         // 更新所有节点位置
         nodes.merge(nodeEnter)
             .transition()
             .duration(500)
-            .attr("transform", d => `translate(${d.x},${d.y})`)
-            .select("circle") // 添加对circle元素的选择
-            .attr("r", d =>
-                graph.highlightedNodes.has(d.id)
-                    ? this.config.highlightedRadius
-                    : this.config.nodeRadius
-            )
-            .attr("fill", d =>
-                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
-            )
-            .style("fill", d =>
-                graph.highlightedNodes.has(d.id) ? "#FFB74D" : "#FFFFFF"
-            )
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+    },
 
+    // 高亮边 - 直接方法
+    highlightEdge(graphId, edgeId) {
+        // 高亮指定边
+        GraphModel.highlightEdge(graphId, edgeId);
+        // 更新可视化
+        this.render(graphId);
+        return Utils.delay(CONFIG.delay.standard);
+    },
 
+    // 取消高亮边 - 直接方法
+    unhighlightEdge(graphId, edgeId) {
+        // 取消高亮指定边
+        GraphModel.unhighlightEdge(graphId, edgeId);
+        // 更新可视化
+        this.render(graphId);
+        return Utils.delay(CONFIG.delay.standard);
     },
 
     // 新增正多边形坐标计算方法
@@ -223,8 +174,7 @@ const GraphVisualization = {
 
     // 拖动处理（新增交互逻辑）
     dragstarted(event, d) {
-        d3.select(event.sourceEvent.target).raise(); // 拖动时提升当前节点
-
+        d3.select(event.sourceEvent.target.parentNode).raise(); // 拖动时提升当前节点
         d.fx = d.x;
         d.fy = d.y;
     },
@@ -235,10 +185,8 @@ const GraphVisualization = {
     },
 
     dragended(event, d) {
-
         d.fx = null;
         d.fy = null;
         this.render();
-
     }
 };
