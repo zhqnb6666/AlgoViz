@@ -25,11 +25,11 @@ class LLMFactory:
             api_key: API密钥，如不提供则使用内置密钥或环境变量
             api_base: API基础URL，如不提供则使用内置URL或默认值
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY") or "sk-8fKgTLvJw5ISuZW9P2DUxAk57vULVSRs0fPbcjFGjw3vsFh0"
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY") or "sk-Jl53h2087p93OXhlD97c7qQZal36QGxQTGMGOOZgUCx8un0z"
         self.api_base = api_base or os.getenv("OPENAI_API_BASE") or "https://xiaoai.plus/v1"
     
     def get_llm(self, 
-                model_name: str = "gpt-4o", 
+                model_name: str = "gpt-4o",
                 temperature: float = 0.7,
                 max_tokens: int = 1000,
                 **kwargs) -> ChatOpenAI:

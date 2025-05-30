@@ -111,6 +111,12 @@
 
         <!-- 可视化区域 -->
         <div class="grid grid-cols-1 gap-4">
+            <!-- 代码区可视化，显示在顶部 -->
+            <div class="visualization-container">
+                <h3 class="text-lg font-semibold mb-2">代码区</h3>
+                <div id="code-visualization" class="w-full overflow-x-auto pb-4 bg-gray-100 rounded p-2 font-mono text-sm"></div>
+            </div>
+            
             <!-- 变量区可视化，始终显示在顶部 -->
             <div class="visualization-container">
                 <h3 class="text-lg font-semibold mb-2">变量区</h3>
@@ -169,6 +175,8 @@
     <script src="js/visualizations/tree.js"></script>
     <script src="js/visualizations/graph.js"></script>
     <script src="js/visualizations/variable.js"></script>
+    <script src="js/visualizations/code.js"></script>
+    <script src="js/codeContent.js"></script>
     <!-- 操作队列 -->
     <script src="operations/defaultOperations.js"></script>
     <!-- 主应用 -->

@@ -12,6 +12,9 @@ createApp({
         const activeTab = ref('全部');
         // 添加操作锁，防止快速重复点击
         const isOperationLocked = ref(false);
+        // 代码相关变量
+        const codeLoaded = ref(false);
+        const codeFile = ref('');
 
         // 控制各数据结构容器显示的变量
         const showArrayContainer = ref(false);
@@ -54,11 +57,14 @@ createApp({
 
                 const operation = operationQueue.value[currentStep.value];
                 currentOperation.value = operation.metadata || "执行操作";
+                
+                // 处理代码高亮
+                if (operation.position !== undefined && codeLoaded.value) {
+                    await CodeVisualization.highlightLine(operation.position-1, animationSpeed.value);
+                }
 
                 // 根据操作类型预先显示容器
-                if (operation.operation.startsWith("create_array") ||
-                    operation.operation === "highlight" ||
-                    operation.operation === "unhighlight") {
+                if (operation.operation.startsWith("create_array")&&!(operation.operation.startsWith("create_array2d"))) {
                     showArrayContainer.value = true;
                 } else if (operation.operation.includes("graph") ||
                     operation.operation === 'add_node' ||
@@ -91,28 +97,6 @@ createApp({
                     operation.operation.includes("child")) {
                     showTreeContainer.value = true;
                 }
-
-                // // 特殊处理第一次create操作，确保初始化正确完成
-                // if (operation.operation === "create_array" &&
-                //     (!ArrayVisualization.svg || Object.keys(ArrayModel.data).length === 0)) {
-                //     await handleCreateArray(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // } else if (operation.operation === "create_list" &&
-                //           (!LinkedListVisualization.svg ||
-                //           Object.keys(LinkedListModel.lists).filter(k => LinkedListModel.lists[k]).length === 0)) {
-                //     await handleCreateList(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // } else if (operation.operation === "create_root" &&
-                //           (!TreeVisualization.svg || Object.keys(TreeModel.trees).length === 0)) {
-                //     await handleCreateRoot(operation.data);
-                //     currentStep.value++;
-                //     isOperationLocked.value = false;
-                //     return true;
-                // }
 
 
                 switch (operation.operation) {
@@ -774,21 +758,17 @@ createApp({
             
             // 重置变量
             VariableModel.clearAllVariables();
-
-            // 重置容器显示状态
-            showArrayContainer.value = false;
-            showLinkedListContainer.value = false;
-            showTreeContainer.value = false;
-            showGraphContainer.value = false;
-            showArray2DContainer.value = false;
-            // 变量区始终显示，不重置showVariableContainer
-
+            
+            // 重置代码区状态变量
+            codeFile.value = '';
+            
             // 清除所有可视化区域，但不创建新的SVG
             d3.select("#array-visualization").selectAll("*").remove();
             d3.select("#linked-list-visualization").selectAll("*").remove();
             d3.select("#tree-visualization").selectAll("*").remove();
             d3.select("#graph-visualization").selectAll("*").remove();
             d3.select("#variable-visualization").selectAll("*").remove();
+            d3.select("#code-visualization").selectAll("*").remove();
 
             // 重置可视化组件的SVG引用
             ArrayVisualization.svg = null;
@@ -799,8 +779,21 @@ createApp({
             GraphVisualization.svg = null;
             VariableVisualization.svg = null;
 
+            // 重置容器显示状态
+            showArrayContainer.value = false;
+            showLinkedListContainer.value = false;
+            showTreeContainer.value = false;
+            showGraphContainer.value = false;
+            showArray2DContainer.value = false;
+            // 变量区始终显示，不重置showVariableContainer
+
             // 初始化变量可视化区
             VariableVisualization.init();
+            
+            // 初始化代码可视化区并加载代码
+            CodeVisualization.init();
+            CodeVisualization.loadCode(codeContent);
+            codeLoaded.value = true;
         };
 
         // 组件挂载后初始化
@@ -828,7 +821,27 @@ createApp({
             
             // 初始化变量可视化区
             VariableVisualization.init();
+            
+            // 初始化代码可视化区
+            CodeVisualization.init();
+            
+            // 加载代码文件
+            loadCodeFile();
         });
+
+        // 加载代码文件
+        const loadCodeFile = async () => {
+            try {
+                // 直接使用codeContent变量，不再通过fetch加载
+                CodeVisualization.loadCode(codeContent);
+                codeLoaded.value = true;
+                return true;
+            } catch (error) {
+                console.error('加载代码文件失败:', error);
+                currentOperation.value = `加载代码文件失败: ${error.message}`;
+                return false;
+            }
+        };
 
         return {
             isPaused,
@@ -844,6 +857,8 @@ createApp({
             resetVisualization,
             activeTab,
             isOperationLocked,
+            codeLoaded,
+            codeFile,
 
             // 容器显示状态
             showArrayContainer,

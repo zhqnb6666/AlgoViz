@@ -21,7 +21,7 @@ class OperationQueue:
         return array2d_id
 
     def create_array2d(self, array: List[List[int]], array_id: Optional[str] = None,
-                       metadata: str = "创建二维数组") -> str:
+                       metadata: str = "创建二维数组", row_position: Optional[int] = None) -> str:
         """创建二维数组操作"""
         if array_id is None:
             array_id = self.get_next_array2d_id()
@@ -29,12 +29,13 @@ class OperationQueue:
         self.add_operation(
             operation="create_array2d",
             data={"array": [row.copy() for row in array], "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return array_id
 
     def highlight2d(self, positions: List[Tuple[int, int]], array_id: str, color: str = "#FF9999",
-                    metadata: Optional[str] = None) -> None:
+                    metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮二维数组中的元素
 
         Args:
@@ -42,6 +43,7 @@ class OperationQueue:
             array_id: 数组ID
             color: 高亮颜色
             metadata: 操作描述
+            row_position: 源代码行号
         """
         if metadata is None:
             positions_str = ", ".join([f"({row},{col})" for row, col in positions])
@@ -53,16 +55,18 @@ class OperationQueue:
         self.add_operation(
             operation="highlight2d",
             data={"positions": positions_dict, "id": array_id, "color": color},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def unhighlight2d(self, positions: List[Tuple[int, int]], array_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight2d(self, positions: List[Tuple[int, int]], array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮二维数组中的元素
 
         Args:
             positions: 要取消高亮的位置列表，每个位置是一个(行,列)元组
             array_id: 数组ID
             metadata: 操作描述
+            row_position: 源代码行号
         """
         if metadata is None:
             positions_str = ", ".join([f"({row},{col})" for row, col in positions])
@@ -77,7 +81,7 @@ class OperationQueue:
             metadata=metadata
         )
 
-    def swap_rows2d(self, row1: int, row2: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def swap_rows2d(self, row1: int, row2: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """交换二维数组中的两行"""
         if metadata is None:
             metadata = f"交换第{row1}行和第{row2}行"
@@ -85,10 +89,11 @@ class OperationQueue:
         self.add_operation(
             operation="swap_rows2d",
             data={"row1": row1, "row2": row2, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def swap_columns2d(self, col1: int, col2: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def swap_columns2d(self, col1: int, col2: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """交换二维数组中的两列"""
         if metadata is None:
             metadata = f"交换第{col1}列和第{col2}列"
@@ -96,10 +101,11 @@ class OperationQueue:
         self.add_operation(
             operation="swap_columns2d",
             data={"col1": col1, "col2": col2, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def update_element2d(self, row: int, col: int, value: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def update_element2d(self, row: int, col: int, value: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新二维数组中的元素值"""
         if metadata is None:
             metadata = f"更新位置({row},{col})的元素值为{value}"
@@ -109,10 +115,11 @@ class OperationQueue:
         self.add_operation(
             operation="update_element2d",
             data={"position": position, "value": value, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def add_row2d(self, row: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> str:
+    def add_row2d(self, row: List[int], position: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在二维数组中添加一行"""
         if metadata is None:
             metadata = f"在位置{position}添加新行"
@@ -122,12 +129,13 @@ class OperationQueue:
         self.add_operation(
             operation="add_row2d",
             data={"row": row.copy(), "position": position, "id": array_id, "row_id": row_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
         return row_id
 
-    def add_column2d(self, column: List[int], position: int, array_id: str, metadata: Optional[str] = None) -> str:
+    def add_column2d(self, column: List[int], position: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在二维数组中添加一列"""
         if metadata is None:
             metadata = f"在位置{position}添加新列"
@@ -137,12 +145,13 @@ class OperationQueue:
         self.add_operation(
             operation="add_column2d",
             data={"column": column.copy(), "position": position, "id": array_id, "column_id": column_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
         return column_id
 
-    def remove_row2d(self, position: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def remove_row2d(self, position: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除二维数组中的一行"""
         if metadata is None:
             metadata = f"删除第{position}行"
@@ -150,10 +159,11 @@ class OperationQueue:
         self.add_operation(
             operation="remove_row2d",
             data={"position": position, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def remove_column2d(self, position: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def remove_column2d(self, position: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除二维数组中的一列"""
         if metadata is None:
             metadata = f"删除第{position}列"
@@ -161,7 +171,8 @@ class OperationQueue:
         self.add_operation(
             operation="remove_column2d",
             data={"position": position, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
     def get_next_array_id(self) -> str:
@@ -176,7 +187,7 @@ class OperationQueue:
         self.node_id_counter += 1
         return node_id
 
-    def create_array(self, array: List[int], array_id: Optional[str] = None, metadata: str = "创建数组") -> str:
+    def create_array(self, array: List[int], array_id: Optional[str] = None, metadata: str = "创建数组", row_position: Optional[int] = None) -> str:
         """创建数组操作"""
         if array_id is None:
             array_id = self.get_next_array_id()
@@ -184,13 +195,14 @@ class OperationQueue:
         self.add_operation(
             operation="create_array",
             data={"array": array.copy(), "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return array_id
 
 
     def highlight(self, indices: List[int], array_id: str, color: str = "#FF9999",
-                  metadata: Optional[str] = None) -> None:
+                  metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮元素操作"""
         if metadata is None:
             metadata = f"高亮索引{', '.join(map(str, indices))}的元素"
@@ -198,10 +210,11 @@ class OperationQueue:
         self.add_operation(
             operation="highlight",
             data={"indices": indices, "id": array_id, "color": color},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def unhighlight(self, indices: List[int], array_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight(self, indices: List[int], array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮元素操作"""
         if metadata is None:
             metadata = f"取消高亮索引{', '.join(map(str, indices))}的元素"
@@ -212,7 +225,7 @@ class OperationQueue:
             metadata=metadata
         )
 
-    def update_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def update_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新数组元素操作"""
         if metadata is None:
             metadata = f"更新索引{index}的元素值为{value}"
@@ -220,10 +233,11 @@ class OperationQueue:
         self.add_operation(
             operation="update_element",
             data={"index": index, "value": value, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def update_elements(self, updates: List[Dict[str, int]], array_id: str, metadata: Optional[str] = None) -> None:
+    def update_elements(self, updates: List[Dict[str, int]], array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """批量更新数组元素操作
         
         Args:
@@ -238,10 +252,11 @@ class OperationQueue:
         self.add_operation(
             operation="update_elements",
             data={"updates": updates, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def update_array(self, array: List[int], array_id: str, metadata: Optional[str] = None) -> None:
+    def update_array(self, array: List[int], array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新整个数组操作"""
         if metadata is None:
             metadata = f"更新整个数组"
@@ -249,10 +264,11 @@ class OperationQueue:
         self.add_operation(
             operation="update_array",
             data={"array": array.copy(), "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def insert_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def insert_element(self, index: int, value: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """在数组中插入元素操作"""
         if metadata is None:
             metadata = f"在索引{index}位置插入值{value}"
@@ -260,10 +276,11 @@ class OperationQueue:
         self.add_operation(
             operation="insert_element",
             data={"index": index, "value": value, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def remove_element(self, index: int, array_id: str, metadata: Optional[str] = None) -> None:
+    def remove_element(self, index: int, array_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """从数组中删除元素操作"""
         if metadata is None:
             metadata = f"删除索引{index}位置的元素"
@@ -271,11 +288,12 @@ class OperationQueue:
         self.add_operation(
             operation="remove_element",
             data={"index": index, "id": array_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     # 树操作相关方法
-    def create_root(self, value: Any, node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def create_root(self, value: Any, node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """创建树的根节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -286,11 +304,12 @@ class OperationQueue:
         self.add_operation(
             operation="create_root",
             data={"value": value, "id": node_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
         
-    def add_child(self, parent_id: str, value: Any, node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def add_child(self, parent_id: str, value: Any, node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """添加子节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -301,11 +320,12 @@ class OperationQueue:
         self.add_operation(
             operation="add_child",
             data={"parent_id": parent_id, "value": value, "id": node_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
         
-    def remove_node(self, node_id: str, metadata: Optional[str] = None) -> None:
+    def remove_node(self, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除节点及其子树"""
         if metadata is None:
             metadata = f"删除ID为{node_id}的节点及其子树"
@@ -313,10 +333,11 @@ class OperationQueue:
         self.add_operation(
             operation="remove_node",
             data={"id": node_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
-    def highlight_node(self, node_id: str, metadata: Optional[str] = None) -> None:
+    def highlight_node(self, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮节点"""
         if metadata is None:
             metadata = f"高亮节点{node_id}"
@@ -324,10 +345,11 @@ class OperationQueue:
         self.add_operation(
             operation="highlight_node",
             data={"id": node_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
-    def unhighlight_node(self, node_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight_node(self, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮节点"""
         if metadata is None:
             metadata = f"取消高亮节点{node_id}"
@@ -338,7 +360,7 @@ class OperationQueue:
             metadata=metadata
         )
         
-    def update_value(self, node_id: str, value: Any, metadata: Optional[str] = None) -> None:
+    def update_value(self, node_id: str, value: Any, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新节点值"""
         if metadata is None:
             metadata = f"将{node_id}的值更新为{value}"
@@ -346,10 +368,11 @@ class OperationQueue:
         self.add_operation(
             operation="update_value",
             data={"id": node_id, "value": value},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
-    def highlight_link(self, source_id: str, target_id: str, metadata: Optional[str] = None) -> None:
+    def highlight_link(self, source_id: str, target_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮连线"""
         if metadata is None:
             metadata = f"高亮从{source_id}到{target_id}的连线"
@@ -357,10 +380,11 @@ class OperationQueue:
         self.add_operation(
             operation="highlight_link",
             data={"source_id": source_id, "target_id": target_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
-    def unhighlight_link(self, source_id: str, target_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight_link(self, source_id: str, target_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮连线"""
         if metadata is None:
             metadata = f"取消高亮从{source_id}到{target_id}的连线"
@@ -371,7 +395,7 @@ class OperationQueue:
             metadata=metadata
         )
         
-    def reparent_node(self, node_id: str, new_parent_id: str, metadata: Optional[str] = None) -> None:
+    def reparent_node(self, node_id: str, new_parent_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """重新指定节点的父节点"""
         if metadata is None:
             metadata = f"将{node_id}的父节点重新指定为{new_parent_id}"
@@ -379,11 +403,12 @@ class OperationQueue:
         self.add_operation(
             operation="reparent_node",
             data={"node_id": node_id, "new_parent_id": new_parent_id},
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
     # 链表操作相关方法
-    def create_list(self, value: Any, node_id: Optional[str] = None, list_name: str = "linkedList", clear_visual: bool = False, metadata: Optional[str] = None) -> str:
+    def create_list(self, value: Any, node_id: Optional[str] = None, list_name: str = "linkedList", clear_visual: bool = False, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """创建链表的头节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -398,11 +423,12 @@ class OperationQueue:
                 "id": node_id, 
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
     
-    def append_node(self, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def append_node(self, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在链表尾部添加节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -417,11 +443,12 @@ class OperationQueue:
                 "id": node_id, 
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
     
-    def prepend_node(self, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def prepend_node(self, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在链表头部添加节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -436,11 +463,12 @@ class OperationQueue:
                 "id": node_id, 
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
     
-    def insert_after(self, target_id: str, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def insert_after(self, target_id: str, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在指定节点后插入新节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -456,11 +484,12 @@ class OperationQueue:
                 "id": node_id, 
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
     
-    def insert_before(self, target_id: str, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None) -> str:
+    def insert_before(self, target_id: str, value: Any, list_name: str = "linkedList", node_id: Optional[str] = None, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """在指定节点前插入新节点"""
         if node_id is None:
             node_id = self.get_next_node_id()
@@ -476,11 +505,12 @@ class OperationQueue:
                 "id": node_id, 
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return node_id
     
-    def remove_list_node(self, node_id: str, list_name: str = "linkedList", metadata: Optional[str] = None) -> None:
+    def remove_list_node(self, node_id: str, list_name: str = "linkedList", metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除链表中的节点"""
         if metadata is None:
             metadata = f"删除ID为{node_id}的节点"
@@ -491,10 +521,11 @@ class OperationQueue:
                 "id": node_id,
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def reverse_list(self, list_name: str = "linkedList", metadata: Optional[str] = None) -> None:
+    def reverse_list(self, list_name: str = "linkedList", metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """反转链表"""
         if metadata is None:
             metadata = f"反转链表{list_name}"
@@ -504,10 +535,11 @@ class OperationQueue:
             data={
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def reverse_segment(self, start_id: str, end_id: str, list_name: str = "linkedList", metadata: Optional[str] = None) -> None:
+    def reverse_segment(self, start_id: str, end_id: str, list_name: str = "linkedList", metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """反转链表段"""
         if metadata is None:
             metadata = f"反转从{start_id}到{end_id}的链表段"
@@ -519,10 +551,11 @@ class OperationQueue:
                 "end_id": end_id,
                 "list_name": list_name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def swap_nodes(self, id1: str, id2: str, metadata: Optional[str] = None) -> None:
+    def swap_nodes(self, id1: str, id2: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """交换两个节点的值"""
         if metadata is None:
             metadata = f"交换{id1}和{id2}节点的值"
@@ -533,10 +566,11 @@ class OperationQueue:
                 "id1": id1,
                 "id2": id2
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def merge_lists(self, list1_name: str, list2_name: str, new_list_id: str = "merged", metadata: Optional[str] = None) -> None:
+    def merge_lists(self, list1_name: str, list2_name: str, new_list_id: str = "merged", metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """合并两个链表"""
         if metadata is None:
             metadata = f"合并链表{list1_name}和{list2_name}到新链表{new_list_id}"
@@ -548,10 +582,11 @@ class OperationQueue:
                 "list2_name": list2_name,
                 "new_list_id": new_list_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
     
-    def split_list(self, list_name: str, split_after_id: str, new_list_id: str = "splitList", metadata: Optional[str] = None) -> None:
+    def split_list(self, list_name: str, split_after_id: str, new_list_id: str = "splitList", metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """拆分链表"""
         if metadata is None:
             metadata = f"在节点{split_after_id}之后拆分链表{list_name}"
@@ -563,14 +598,17 @@ class OperationQueue:
                 "split_after_id": split_after_id,
                 "new_list_id": new_list_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def add_operation(self, operation: str, data: Dict[str, Any], metadata: Optional[str] = None) -> None:
+    def add_operation(self, operation: str, data: Dict[str, Any], metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """将操作加入队列"""
         op = {"operation": operation, "data": data}
         if metadata:
             op["metadata"] = metadata
+        if row_position is not None:
+            op["position"] = row_position
         self.queue.append(op)
 
     def get_queue(self) -> List[Dict[str, Any]]:
@@ -591,7 +629,7 @@ class OperationQueue:
         self.queue = []
 
     #图操作
-    def create_graph(self, graph_id: Optional[str] = None, directed: bool = False, metadata: Optional[str] = None) -> str:
+    def create_graph(self, graph_id: Optional[str] = None, directed: bool = False, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """创建图操作"""
         if graph_id is None:
             graph_id = self.get_next_graph_id()
@@ -606,12 +644,13 @@ class OperationQueue:
                 "id": graph_id,
                 "directed": directed
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         return graph_id
 
     def add_node(self, graph_id: str, node_id: str, value: Any,
-                  metadata: Optional[str] = None) -> str:
+                  metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """添加图节点操作"""
         if metadata is None:
             metadata = f"在图{graph_id}添加节点{node_id}"
@@ -624,12 +663,13 @@ class OperationQueue:
                 "value": value,
                 "attributes": {}
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
         return node_id
 
-    def remove_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+    def remove_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除图节点操作（重载现有方法）"""
         if metadata is None:
             metadata = f"从图{graph_id}删除节点{node_id}"
@@ -640,11 +680,12 @@ class OperationQueue:
                 "graph_id": graph_id,
                 "id": node_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     def update_node(self, graph_id: str, node_id: str, value: Any,
-                    metadata: Optional[str] = None) -> None:
+                    metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新图节点操作"""
         if metadata is None:
             metadata = f"更新图{graph_id}的节点{node_id}"
@@ -657,11 +698,12 @@ class OperationQueue:
                 "value": value,
                 "attributes": {}
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     def add_edge(self, graph_id: str, edge_id: str, source_id: str, target_id: str,
-                 weight: float, metadata: Optional[str] = None) -> str:
+                 weight: float, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """添加边操作"""
         if metadata is None:
             metadata = f"在图{graph_id}添加边{source_id}→{target_id}"
@@ -676,12 +718,13 @@ class OperationQueue:
                 "weight": weight,
                 "attributes": {}
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
         return edge_id
 
-    def remove_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+    def remove_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """删除边操作"""
         if metadata is None:
             metadata = f"从图{graph_id}删除边{edge_id}"
@@ -692,11 +735,12 @@ class OperationQueue:
                 "graph_id": graph_id,
                 "id": edge_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     def update_edge(self, graph_id: str, edge_id: str, weight: float,
-                    metadata: Optional[str] = None) -> None:
+                    metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """更新边操作"""
         if metadata is None:
             metadata = f"更新图{graph_id}的边{edge_id}"
@@ -709,10 +753,11 @@ class OperationQueue:
                 "weight": weight,
                 "attributes": {}
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def highlight_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+    def highlight_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮图节点操作（重载现有方法）"""
         if metadata is None:
             metadata = f"高亮图{graph_id}的节点{node_id}"
@@ -723,10 +768,11 @@ class OperationQueue:
                 "graph_id": graph_id,
                 "id": node_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def unhighlight_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight_graph_node(self, graph_id: str, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮图节点操作（重载现有方法）"""
         if metadata is None:
             metadata = f"取消高亮图{graph_id}的节点{node_id}"
@@ -740,7 +786,7 @@ class OperationQueue:
             metadata=metadata
         )
 
-    def highlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+    def highlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """高亮边操作"""
         if metadata is None:
             metadata = f"高亮图{graph_id}的边{edge_id}"
@@ -751,10 +797,11 @@ class OperationQueue:
                 "graph_id": graph_id,
                 "id": edge_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
-    def unhighlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None) -> None:
+    def unhighlight_edge(self, graph_id: str, edge_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """取消高亮边操作"""
         if metadata is None:
             metadata = f"取消高亮图{graph_id}的边{edge_id}"
@@ -770,7 +817,7 @@ class OperationQueue:
 
 
     def contract_edge(self, graph_id: str, edge_id: str, new_node_id: str,
-                      metadata: Optional[str] = None) -> None:
+                      metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """收缩边操作"""
         if metadata is None:
             metadata = f"收缩图{graph_id}的边{edge_id}为节点{new_node_id}"
@@ -782,11 +829,12 @@ class OperationQueue:
                 "edge_id": edge_id,
                 "new_node_id": new_node_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     # 需要修改现有方法签名以支持重载
-    def get_neighbors(self, graph_id: str, node_id: str, metadata: Optional[str] = None) -> None:
+    def get_neighbors(self, graph_id: str, node_id: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """获取相邻节点操作"""
         if metadata is None:
             metadata = f"获取图{graph_id}中节点{node_id}的邻居"
@@ -797,11 +845,12 @@ class OperationQueue:
                 "graph_id": graph_id,
                 "node_id": node_id
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     # 变量区操作
-    def add_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> str:
+    def add_variable(self, name: str, value: Any, metadata: Optional[str] = None, row_position: Optional[int] = None) -> str:
         """添加变量到变量区"""
         copied_value = copy.deepcopy(value)
         if metadata is None:
@@ -813,12 +862,13 @@ class OperationQueue:
                 "name": name,
                 "value": copied_value
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
         return name
 
-    def update_variable(self, name: str, value: Any, metadata: Optional[str] = None) -> None:
+    def update_variable(self, name: str, value: Any, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         copied_value = copy.deepcopy(value)
         if metadata is None:
             metadata = f"更新变量{name}的值为{copied_value}"
@@ -829,10 +879,11 @@ class OperationQueue:
                 "name": name,
                 "value": copied_value
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
         
-    def delete_variable(self, name: str, metadata: Optional[str] = None) -> None:
+    def delete_variable(self, name: str, metadata: Optional[str] = None, row_position: Optional[int] = None) -> None:
         """从变量区删除变量"""
         if metadata is None:
             metadata = f"删除变量{name}"
@@ -842,7 +893,8 @@ class OperationQueue:
             data={
                 "name": name
             },
-            metadata=metadata
+            metadata=metadata,
+            row_position=row_position
         )
 
     def get_next_graph_id(self) -> str:

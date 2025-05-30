@@ -7,14 +7,12 @@ import os
 
 from input_processor import InputProcessor
 from code_analyzer import CodeAnalyzer
-from visualization_generator import VisualizationGenerator
 
 def process_query(user_input: str):
 
     # 初始化模块
     processor = InputProcessor()
     analyzer = CodeAnalyzer()
-    visualizer = VisualizationGenerator(title="算法可视化")
     
     print("正在处理用户输入...")
     
@@ -46,13 +44,20 @@ def process_query(user_input: str):
     os.makedirs(os.path.dirname(operations_file), exist_ok=True)
     with open(operations_file, 'w', encoding='utf-8') as f:
         f.write(f"const defaultOperations = {json.dumps(queue.get_queue(), indent=2, ensure_ascii=False)};")
+    
+    # 将源代码写入codeContent.js文件
+    code_content_file = "../js/codeContent.js"
+    os.makedirs(os.path.dirname(code_content_file), exist_ok=True)
+    with open(code_content_file, 'w', encoding='utf-8') as f:
+        source_code = analyzer.get_source_code()
+        f.write(f"const codeContent = `{source_code}`;")
 
 
 
 if __name__ == "__main__":
     # 使用标准示例
     user_query = """
-    演示一下prim最小生成树算法，图的结构要复杂一点
+   演示一下dijikstra算法
     """
     
     process_query(user_query)

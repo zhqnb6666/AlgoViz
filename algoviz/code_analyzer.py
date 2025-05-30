@@ -8,6 +8,7 @@ import ast
 import builtins
 import io
 import sys
+import textwrap
 from typing import Dict, List, Any, Optional, Union, Tuple
 import traceback
 
@@ -29,6 +30,10 @@ class CodeAnalyzer:
         self.code_instrumenter = self._create_code_instrumenter()
         self.params_generator = self._create_params_generator()
         self.code_fixer = self._create_code_fixer()
+        
+        # 保存源代码和仪器化代码
+        self.source_code = ""
+        self.instrumented_code = ""
 
     def analyze(self, code: str, language: str, problem_description: str) -> OperationQueue:
         """
@@ -38,7 +43,6 @@ class CodeAnalyzer:
             code: 源代码
             language: 代码语言
             problem_description: 问题描述
-            input_params: 输入参数，可选。如果为None，会根据代码自动生成
             
         返回:
             OperationQueue 实例，包含可视化操作队列
@@ -48,23 +52,35 @@ class CodeAnalyzer:
             python_code = self._convert_to_python(code, language)
         else:
             python_code = code
+            
+        # 保存源代码
+        self.source_code = python_code
 
         # 先生成带操作队列的代码
         instrumented_code = self._instrument_code(python_code, problem_description)
         print(instrumented_code.replace("\\n", "\n"))
         
+        # 保存仪器化代码
+        self.instrumented_code = instrumented_code
+        
+        # 添加高亮位置信息
+        instrumented_code_with_row_positions = self._add_row_position_parameters(python_code, instrumented_code)
+        
+        # 保存修改后的仪器化代码
+        self.instrumented_code = instrumented_code_with_row_positions
+        
         # 根据instrumented_code生成参数
-        input_params = self._generate_params(instrumented_code, problem_description)
+        input_params = self._generate_params(instrumented_code_with_row_positions, problem_description)
         print(f"根据代码自动生成的参数: {input_params}")
         
         # 最多尝试3次生成和执行代码
-        max_attempts = 3
+        max_attempts = 1
         attempt_count = 0
         
         while attempt_count < max_attempts:
             # 执行仪器化代码
             queue, success, error_message = self._execute_instrumented_code_with_error_capture(
-                instrumented_code, input_params
+                instrumented_code_with_row_positions, input_params
             )
             
             if success:
@@ -79,10 +95,12 @@ class CodeAnalyzer:
                 if attempt_count == 0:
                     # 第一次失败，尝试使用相同参数重新生成
                     instrumented_code = self._instrument_code(python_code, problem_description)
+                    instrumented_code_with_row_positions = self._add_row_position_parameters(python_code, instrumented_code)
                 else:
                     # 后续失败，尝试生成更简单的代码
                     simplified_problem = f"{problem_description} (简化版，优先保证代码能运行)"
                     instrumented_code = self._instrument_code(python_code, simplified_problem)
+                    instrumented_code_with_row_positions = self._add_row_position_parameters(python_code, instrumented_code)
                 
                 attempt_count += 1
         
@@ -135,7 +153,7 @@ class CodeAnalyzer:
                         return eval(list_match.group(0))
                     except:
                         pass
-            
+
             # 如果上述方法都失败，返回默认参数
             return [5, 3, 8, 4, 7, 2, 6, 1]
         except Exception as e:
@@ -255,6 +273,7 @@ class CodeAnalyzer:
             sys.stderr = stderr_capture
             
             # 执行代码
+            code = textwrap.dedent(code)
             exec(code, exec_globals)
             
             # 尝试直接调用固定函数名
@@ -576,10 +595,13 @@ class CodeAnalyzer:
 ### 核心要求
 1. 保持原始算法的主要逻辑不变
 2. 结合问题描述在关键步骤添加可视化操作
-3. 使用传入的OperationQueue实例来记录可视化操作，**不要自己定义OperationQueue类**，也不要引入OperationQueue类
+3. 使用传入的OperationQueue实例来记录可视化操作，不要自己定义OperationQueue类
 4. OperationQueue只负责记录可视化操作，不能替代实际的数据结构操作
 5. 每当创建或修改数据结构时，必须同步使用OperationQueue记录这些变化
 6. 尽量不要使用OperationQueue返回的值，而是自己保存
+7. 你只需要使用queue = OperationQueue()即可，且不需要import OperationQueue
+8. 参数值可以是列表、字典或其他基本类型，但不是对象（非常重要，比如你不能假设参数时ListNode对象）
+
 
 ### 变量区操作
 重要：只有基本类型或者基本类型的字典、列表等才能算作变量
@@ -589,18 +611,20 @@ class CodeAnalyzer:
 4. 当访问数组元素时（如arr[i]），在读取前高亮对应索引，读取后取消高亮
 
 
+
 ### 参数支持
 1. 检查输入参数的格式，支持单个列表参数和多个命名参数两种情况
 2. 对于多参数情况，visualize_algorithm函数应当定义多个参数而非单一input_data参数
-3. 参数值可以是列表、字典或其他基本类型，但不是对象
 
 ### 必须遵循的规则
-1. **不要定义OperationQueue类**，它已经存在于运行环境中
 2. 每次高亮操作(highlight)应该有对应的取消高亮操作(unhighlight)，除非是最终结果
 3. 没有swap_elements这个方法
 4. 必须保存所有节点/元素的ID以便正确引用
 5. 二维数组只支持方阵，对于行长度不等的二维数组，需要使用一维数组进行可视化
 6. 请不要混淆图和树的创建，二者不能共存，如果需要展示图的最终结果可以通过高亮加入结果的边或节点来实现
+7. 请不要混淆create_array和create_array2d，前者用于一维数组，后者用于二维数组
+8. 如果使用queue创建了对应的数据结构，则当对应的数据结构变化时，不止要更新变量区，还要使用OperationQueue的方法更新对应的数据结构
+9. 一定要确保queue方法中的参数是存在的而不是none
 
 ### ID管理机制
 1. 为每个节点或元素分配一个id属性，并记录在映射表中
@@ -611,7 +635,6 @@ class CodeAnalyzer:
 - 函数名必须为 visualize_algorithm，接收必要的参数，返回OperationQueue的实例
 - 除OperationQueue外，如有必要可定义算法所需的辅助类(如ListNode、TreeNode等)
 - 不包含任何调用示例代码或打印语句
-- 不包含任何markdown代码块标记
 - 确保每步操作都有有意义的metadata
         
         """
@@ -716,3 +739,238 @@ class CodeAnalyzer:
         """
         queue, _, _ = self._execute_instrumented_code_with_error_capture(code, input_params)
         return queue
+
+    def _add_row_position_parameters(self, source_code: str, instrumented_code: str) -> str:
+        """
+        为仪器化代码中的OperationQueue方法调用添加row_position参数
+        
+        参数:
+            source_code: 原始源代码
+            instrumented_code: 仪器化后的代码
+            
+        返回:
+            添加了row_position参数的仪器化代码
+        """
+        # 将源代码和仪器化代码按行分割
+        source_lines = source_code.strip().split('\n')
+        instrumented_lines = instrumented_code.strip().split('\n')
+        
+        # 存储修改后的仪器化代码行
+        modified_lines = []
+        
+        # 预处理：建立关键步骤与对应key_step_line的映射
+        key_step_lines_map = {}
+        
+        # 首先遍历仪器化代码，找出所有关键步骤及其对应的行号
+        for i in range(len(instrumented_lines)):
+            if re.search(r'queue\.\w+\(', instrumented_lines[i]):
+                key_step, key_step_line = self._find_key_step(instrumented_lines, i)
+                if key_step and key_step_line is not None:
+                    if key_step not in key_step_lines_map:
+                        key_step_lines_map[key_step] = []
+                    key_step_lines_map[key_step].append(key_step_line)
+        
+        # 处理多行语句的状态
+        in_multiline_call = False
+        current_call_lines = []
+        current_key_step = None
+        current_row_position = None
+        
+        # 遍历仪器化代码的每一行
+        i = 0
+        while i < len(instrumented_lines):
+            line = instrumented_lines[i]
+            
+            # 如果正在处理多行调用
+            if in_multiline_call:
+                current_call_lines.append(line)
+                
+                # 检查是否是调用结束
+                if ')' in line and line.strip().count('(') <= line.strip().count(')'):
+                    in_multiline_call = False
+                    
+                    # 合并多行调用并添加row_position参数
+                    full_call = '\n'.join(current_call_lines)
+                    if current_row_position is not None:
+                        # 在最后一个右括号前添加row_position参数
+                        last_paren_index = full_call.rindex(')')
+                        modified_call = full_call[:last_paren_index]
+                        if not modified_call.rstrip().endswith(','):
+                            modified_call += ','
+                        modified_call += f' row_position={current_row_position})'
+                        
+                        # 分割回多行
+                        modified_call_lines = modified_call.split('\n')
+                        modified_lines.extend(modified_call_lines[:-1])  # 除了最后一行
+                        modified_lines.append(modified_call_lines[-1])   # 最后一行（包含row_position参数）
+                    else:
+                        # 如果没有找到row_position，直接添加原始调用
+                        modified_lines.extend(current_call_lines)
+                    
+                    # 重置多行调用状态
+                    current_call_lines = []
+                    current_key_step = None
+                    current_row_position = None
+                else:
+                    # 继续处理下一行
+                    i += 1
+                    continue
+            
+            # 检查当前行是否是OperationQueue方法调用的开始
+            elif re.search(r'queue\.\w+\(', line):
+                # 查找关键步骤
+                key_step, key_step_line = self._find_key_step(instrumented_lines, i)
+                
+                if key_step and key_step_line is not None:
+                    # 确定当前key_step_line是第几个关键步骤
+                    if key_step in key_step_lines_map and key_step_line in key_step_lines_map[key_step]:
+                        occurrence_number = key_step_lines_map[key_step].index(key_step_line) + 1
+                        
+                        # 计算这个关键步骤在源代码中的位置
+                        row_position = self._find_row_position_in_source(source_lines, key_step, occurrence_number)
+                        
+                        # 检查是否是多行调用
+                        if line.count('(') > line.count(')'):
+                            in_multiline_call = True
+                            current_call_lines = [line]
+                            current_key_step = key_step
+                            current_row_position = row_position
+                            i += 1
+                            continue
+                        
+                        # 如果找到了位置，添加row_position参数
+                        elif row_position is not None:
+                            # 检查行尾是否有右括号
+                            if line.rstrip().endswith(')'):
+                                # 在右括号前添加row_position参数
+                                line = line.rstrip()[:-1]
+                                if not line.rstrip().endswith(','):
+                                    line += ','
+                                line += f' row_position={row_position})'
+            
+            # 添加当前行到修改后的代码中
+            modified_lines.append(line)
+            i += 1
+        
+        # 将修改后的行重新组合为代码字符串
+        return '\n'.join(modified_lines)
+    
+    def _find_key_step(self, code_lines: List[str], queue_call_index: int) -> Tuple[Optional[str], Optional[int]]:
+        """
+        查找OperationQueue调用对应的关键步骤
+        
+        参数:
+            code_lines: 代码行列表
+            queue_call_index: OperationQueue调用所在行的索引
+            
+        返回:
+            (关键步骤代码, 关键步骤所在行索引)，如果没找到则返回(None, None)
+        """
+        # 先向上查找
+        i = queue_call_index - 1
+        while i >= 0:
+            line = code_lines[i].strip()
+            
+            # 跳过注释行
+            if line.startswith('#'):
+                i -= 1
+                continue
+                
+            # 跳过空行
+            if not line:
+                i -= 1
+                continue
+                
+            # 跳过包含queue的仪器化代码行
+            if 'queue.' in line:
+                i -= 1
+                break
+            # 找到了有效的Python代码行
+            return line, i
+            
+        # 如果向上没找到，尝试向下查找
+        i = queue_call_index + 1
+        while i < len(code_lines):
+            line = code_lines[i].strip()
+            
+            # 跳过注释行
+            if line.startswith('#'):
+                i += 1
+                continue
+                
+            # 跳过空行
+            if not line:
+                i += 1
+                continue
+                
+            # 跳过包含queue的仪器化代码行
+            if 'queue.' in line:
+                i += 1
+                continue
+                
+            # 找到了有效的Python代码行
+            return line, i
+            
+        # 没有找到有效的关键步骤
+        return None, None
+    
+    def _find_row_position_in_source(self, source_lines: List[str], key_step: str, occurrence_number: int) -> Optional[int]:
+        """
+        在源代码中查找关键步骤对应的行号
+        
+        参数:
+            source_lines: 源代码行列表
+            key_step: 关键步骤代码
+            occurrence_number: 关键步骤在仪器化代码中的出现次数
+            
+        返回:
+            关键步骤在源代码中的行号（从1开始），如果没找到则返回None
+        """
+        # 清理关键步骤，去除前后空白
+        clean_key_step = key_step.strip()
+        
+        # 在源代码中直接查找关键步骤
+        current_occurrence = 0
+        for i, line in enumerate(source_lines):
+            clean_line = line.strip()
+            
+            # 简单判断是否包含关键步骤
+            if clean_key_step in clean_line:
+                current_occurrence += 1
+                
+                # 如果是目标出现次数
+                if current_occurrence == occurrence_number:
+                    return i + 1  # 返回1-indexed行号
+        
+        # 如果没有找到完全匹配，尝试查找包含关键词的行
+        keywords = clean_key_step.split()
+        if keywords:
+            main_keyword = max(keywords, key=len)  # 取最长的词作为关键词
+            if len(main_keyword) > 2:  # 确保关键词足够长
+                current_occurrence = 0
+                for i, line in enumerate(source_lines):
+                    if main_keyword in line:
+                        current_occurrence += 1
+                        if current_occurrence == occurrence_number:
+                            return i + 1
+        
+        # 没有找到对应的行
+        return None
+
+    def get_source_code(self) -> str:
+        """
+        获取源代码
+        
+        返回:
+            源代码字符串
+        """
+        return self.source_code
+        
+    def get_instrumented_code(self) -> str:
+        """
+        获取仪器化后的代码
+        
+        返回:
+            仪器化后的代码字符串
+        """
+        return self.instrumented_code
