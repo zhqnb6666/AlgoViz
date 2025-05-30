@@ -437,7 +437,7 @@ class CodeAnalyzer:
 
         # 变量区操作
         16. add_variable(name, value, metadata=None) -> None
-        添加变量到变量区
+        添加支持JSON序列化的变量到变量区
         
         17. update_variable(name, value, metadata=None) -> None
         更新变量区中的变量值
